@@ -54,7 +54,7 @@ void merge(Transaction* arr, int left, int mid, int right) {
 }
 
 // ---------- Merge Sort Function ----------
-// A recursive function that implements merge sort on an array.
+
 // Parameters:
 // - arr: the array to be sorted
 // - left: starting index of the portion to be sorted
