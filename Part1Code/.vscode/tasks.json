@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+      "label": "build all",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "Code.cpp",
+        "DataCleaning.cpp",
+        "SortAlgorithms.cpp",
+        "-o",
+        "runApp"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Build all source files"
+		}
+	]
+}
