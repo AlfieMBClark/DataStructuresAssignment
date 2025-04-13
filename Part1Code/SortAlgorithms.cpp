@@ -15,7 +15,8 @@ bool compareDates(const char* date1, const char* date2) {
 // - left: starting index of the first half
 // - mid: ending index of the first half
 // - right: ending index of the second half
-void merge(Transaction* arr, int left, int mid, int right) {
+void merge(Transaction* fullarray, int left, int mid, int right) {
+    
     // Calculate sizes of temporary subarrays
     int size1 = mid - left + 1;
     int size2 = right - mid;
@@ -26,27 +27,27 @@ void merge(Transaction* arr, int left, int mid, int right) {
 
     // Copy data into the temporary arrays
     for (int i = 0; i < size1; ++i)
-        leftArr[i] = arr[left + i];
+        leftArr[i] = fullarray[left + i];
     for (int i = 0; i < size2; ++i)
-        rightArr[i] = arr[mid + 1 + i];
+        rightArr[i] = fullarray[mid + 1 + i];
 
     // Merge the two temporary arrays back into the main array
     int i = 0, j = 0, k = left;
     while (i < size1 && j < size2) {
         if (compareDates(leftArr[i].date, rightArr[j].date)) {
-            arr[k++] = leftArr[i++];
+            fullarray[k++] = leftArr[i++];
         } else {
-            arr[k++] = rightArr[j++];
+            fullarray[k++] = rightArr[j++];
         }
     }
 
     // Copy any remaining elements from the left half
     while (i < size1)
-        arr[k++] = leftArr[i++];
+    fullarray[k++] = leftArr[i++];
 
     // Copy any remaining elements from the right half
     while (j < size2)
-        arr[k++] = rightArr[j++];
+    fullarray[k++] = rightArr[j++];
 
     // Free up allocated memory
     delete[] leftArr;
@@ -59,18 +60,18 @@ void merge(Transaction* arr, int left, int mid, int right) {
 // - arr: the array to be sorted
 // - left: starting index of the portion to be sorted
 // - right: ending index of the portion to be sorted
-void mergeSort(Transaction* arr, int left, int right) {
+void mergeSort(Transaction* fullarray, int left, int right) {
     if (left < right) {
         // Calculate the middle index
         int mid = left + (right - left) / 2;
 
         // Sort the left half
-        mergeSort(arr, left, mid);
+        mergeSort(fullarray, left, mid);
 
         // Sort the right half
-        mergeSort(arr, mid + 1, right);
+        mergeSort(fullarray, mid + 1, right);
 
         // Merge the two sorted halves
-        merge(arr, left, mid, right);
+        merge(fullarray, left, mid, right);
     }
 }
