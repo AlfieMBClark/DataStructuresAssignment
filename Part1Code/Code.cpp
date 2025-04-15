@@ -1,5 +1,6 @@
 #include "DataCleaning.h"
 #include "SortAlgorithms.h"
+#include "SearchAlgorithms.h"
 
 #include <iostream>
 #include <fstream>
@@ -167,10 +168,15 @@ class TransactionArray {
         loadReviewsFromFile("cleaner_reviews.csv", reviews);
     
         // ---------- Question 1 ----------
+        cout << "Question 1\n";
+
+        cout<<"Merge Sort Results\n\n";
+        // Merge Sort
         // Sort transactions using merge sort (by date)
-        mergeSort(transactions.getData(), 0, transactions.getSize() - 1);
+        mergeSort(transactions.getData(), 0, transactions.getSize() - 1, compareByDate);
     
         // Display sorted transactions
+        /*
         cout << "\nSorted Transactions by Date:\n";
         for (int i = 0; i < transactions.getSize(); ++i) {
             Transaction t = transactions.getData()[i];
@@ -181,7 +187,41 @@ class TransactionArray {
         // Display total number of transactions and reviews
         cout << "\nTotal Transactions: " << transactions.getSize() << endl;
         cout << "Total Reviews: " << reviews.getSize() << endl;
+        */
+        //Sorting 2
+
+
+
+
+
+        //Question 2
+        cout << "\nQuestion 2\n";
+        cout << "Binary Search\n\n";
+
+
+        mergeSort(transactions.getData(), 0, transactions.getSize() - 1, compareByCategory);
+
+        // Display sorted transactions
+        cout << "\nSorted Transactions by Category:\n";
+        int numOfCreditCard=0;
+        int TotalOfElectronics=0;
+        for (int i = 0; i < transactions.getSize(); ++i) {
+            Transaction t = transactions.getData()[i];
+            // Checks if category is Electronics
+            if (strcmp(t.category, "Electronics") == 0) {
+                TotalOfElectronics++;
+                // Check if payment method is Credit Card
+                if (strcmp(t.paymentMethod, "Credit Card") == 0) {
+                    numOfCreditCard++;
+                    cout << numOfCreditCard << ": "<< t.category << " - " << t.customerID << " - "<< t.paymentMethod << endl;
+                }
+            }
+        }
     
+    double percent = percentageWithCategoryAndMethod(transactions.getData(), transactions.getSize(),"Electronics","Credit Card");
+
+    cout<<"\nTotal Number of purchases in transactions: "<< TotalOfElectronics <<"\nNumber Of purchases for electronics using credit cards: " << numOfCreditCard;
+    cout << "\nPercentage of Electronics paid with Credit Card: "<< fixed << setprecision(2) << percent << "%\n";
         return 0;
     }
     

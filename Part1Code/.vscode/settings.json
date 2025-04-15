@@ -59,6 +59,11 @@
   "files.associations": {
     "iostream": "cpp",
     "iomanip": "cpp",
-    "cstring": "cpp"
+    "cstring": "cpp",
+    "ostream": "cpp",
+    "array": "cpp",
+    "initializer_list": "cpp",
+    "utility": "cpp",
+    "system_error": "cpp"
   }
 }
