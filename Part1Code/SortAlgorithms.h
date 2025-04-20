@@ -3,10 +3,11 @@
 
 #include "DataCleaning.h"
 
-// A “row” is one transaction: TransactionFields × FieldLength
-typedef char Row[TransactionFields][FieldLength];
+typedef char TransactionRow[TransactionFields][FieldLength];
+typedef char ReviewRow[ReviewFields][FieldLength];
 
 // Merge‑sort arr[left..right] by the string in column `col`
-void mergeSort(Row EntireArray[], int leftSide, int rightSide, int column);
+void mergeSort(TransactionRow EntireArray[], int leftSide, int rightSide, int column);
+void mergeSortReviews(ReviewRow arr[], int left, int right, int col);
 
 #endif  // SORT_ALGORITHMS_H

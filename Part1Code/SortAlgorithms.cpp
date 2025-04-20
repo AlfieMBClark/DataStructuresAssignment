@@ -1,9 +1,9 @@
 #include "SortAlgorithms.h"
 #include <cstring>
 
-static Row buffer[Rows];
+static TransactionRow buffer[Rows];
 
-void mergeSort(Row EntireArray[], int leftSide, int rightSide, int column) {
+void mergeSort(TransactionRow EntireArray[], int leftSide, int rightSide, int column) {
     if (leftSide >= rightSide) return;
     int mid = (leftSide + rightSide) / 2;
 
@@ -13,13 +13,13 @@ void mergeSort(Row EntireArray[], int leftSide, int rightSide, int column) {
     int i = leftSide, j = mid+1, k = leftSide;
     while (i <= mid && j <= rightSide) {
         if (strcmp(EntireArray[i][column], EntireArray[j][column]) <= 0)
-            memcpy(buffer[k++], EntireArray[i++], sizeof(Row));
+            memcpy(buffer[k++], EntireArray[i++], sizeof(TransactionRow));
         else
-            memcpy(buffer[k++], EntireArray[j++], sizeof(Row));
+            memcpy(buffer[k++], EntireArray[j++], sizeof(TransactionRow));
     }
-    while (i <= mid)   memcpy(buffer[k++], EntireArray[i++], sizeof(Row));
-    while (j <= rightSide) memcpy(buffer[k++], EntireArray[j++], sizeof(Row));
+    while (i <= mid)   memcpy(buffer[k++], EntireArray[i++], sizeof(TransactionRow));
+    while (j <= rightSide) memcpy(buffer[k++], EntireArray[j++], sizeof(TransactionRow));
 
     for (int idx = leftSide; idx <= rightSide; ++idx)
-        memcpy(EntireArray[idx], buffer[idx], sizeof(Row));
+        memcpy(EntireArray[idx], buffer[idx], sizeof(TransactionRow));
 }
