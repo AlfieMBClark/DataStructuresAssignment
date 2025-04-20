@@ -3,15 +3,10 @@
 
 #include "DataCleaning.h"
 
+// A “row” is one transaction: TransactionFields × FieldLength
+typedef char Row[TransactionFields][FieldLength];
 
-//------Merge Sort-----------
-// Function pointer type for custom comparison between Transactions
-typedef bool (*TransactionComparator)(const Transaction&, const Transaction&);
-// Merge Sort functions
-void mergeSort(Transaction* arr, int left, int right, TransactionComparator cmp);
-void merge(Transaction* arr, int left, int mid, int right, TransactionComparator cmp);
-// Comparator Functions
-bool compareByDate(const Transaction& a, const Transaction& b);
-bool compareByCategory(const Transaction& a, const Transaction& b);
+// Merge‑sort arr[left..right] by the string in column `col`
+void mergeSort(Row EntireArray[], int leftSide, int rightSide, int column);
 
-#endif
+#endif  // SORT_ALGORITHMS_H

@@ -1,57 +1,38 @@
 #include "SearchAlgorithms.h"
 #include <cstring>
-#include <iostream>
-#include <iomanip>
 
-using namespace std;
+int binarySearch(char InputedArray[][TransactionFields][FieldLength],int  size,const char* target,int  column) {
+    int l=0,r=size-1;
+    
+    while(l<=r) {
+        int m=(l+r)/2;
+        int cmp=strcmp(InputedArray[m][column],target);
+        if(cmp<0)      
+            l=m+1;
+        else if(cmp>0) 
+            r=m-1;
+        else           
+            return m;
+    }
+    return -1;
+}
 
-// Binary search with a custom comparator
-int binarySearch(Transaction* searchArray, int size, const char* target, TransactionFieldComparator comparator) {
-    int left = 0, right = size - 1;
+double percentageWithCategoryAndMethod(char InputedArray[][TransactionFields][FieldLength],int  size,const char* category,const char* paymentMethod) {
+    
+    int idx=binarySearch(InputedArray,size,category,2);
+    if(idx<0) return 0.0;
+    int total=0, match=0;
 
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        int cmp = comparator(searchArray[mid], target);
-
-        if (cmp == 0) return mid;          // Match found
-        else if (cmp < 0) left = mid + 1;  // Look right
-        else right = mid - 1;              // Look left
+    for(int i=idx; i>=0 && strcmp(InputedArray[i][2],category)==0; --i){
+        if(strcmp(InputedArray[i][5],paymentMethod)==0) 
+            ++match;
+            ++total;
     }
 
-    return -1; // Not found
-}
-
-// Comparator to compare category field
-int compareCategory(const Transaction& t, const char* target) {
-    return strcmp(t.category, target);
-}
-
-// Comparator to compare date field
-int compareDate(const Transaction& t, const char* target) {
-    return strcmp(t.date, target);
-}
-
-// function to compute percentage of a given category paid with a given method
-double percentageWithCategoryAndMethod(Transaction* searchArray, int size, const char* category, const char* paymentMethod) {
-    int index = binarySearch(searchArray, size, category, compareCategory);
-
-    int total = 0;
-    int matchCount = 0;
-
-    if (index != -1) {
-        int i = index;
-        while (i >= 0 && strcmp(searchArray[i].category, category) == 0) {
-            if (strcmp(searchArray[i].paymentMethod, paymentMethod) == 0) matchCount++;
-            total++;
-            i--;
-        }
-        i = index + 1;
-        while (i < size && strcmp(searchArray[i].category, category) == 0) {
-            if (strcmp(searchArray[i].paymentMethod, paymentMethod) == 0) matchCount++;
-            total++;
-            i++;
-        }
+    for(int i=idx+1; i<size && strcmp(InputedArray[i][2],category)==0; ++i){
+        if(strcmp(InputedArray[i][5],paymentMethod)==0) ++match;
+        ++total;
     }
 
-    return (total > 0) ? (double)matchCount / total * 100.0 : 0.0;
+    return total ? (double)match/total*100.0 : 0.0;
 }

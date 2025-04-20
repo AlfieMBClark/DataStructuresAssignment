@@ -1,25 +1,20 @@
-#ifndef DATACLEANING_H
-#define DATACLEANING_H
+#ifndef DATA_CLEANING_H
+#define DATA_CLEANING_H
 
-// ---------- Data Structures ----------
-struct Transaction {
-    char customerID[50];
-    char product[50];
-    char category[50];
-    double price;
-    char date[20];
-    char paymentMethod[30];
-};
+#include <string>
 
-struct Review {
-    char productID[50];
-    char customerID[50];
-    int rating;
-    char reviewText[255];
-};
+static const int Rows              = 5000;
+static const int TransactionFields = 6;
+static const int ReviewFields      = 4;
+static const int FieldLength       = 255;
 
-// ---------- Cleaning Function Prototypes ----------
-void cleanTransactions(const char* inputFile, const char* outputFile);
-void cleanReviews(const char* inputFile, const char* outputFile);
+extern char transactions[Rows][TransactionFields][FieldLength];
+extern int  transactionCount;
 
-#endif
+extern char reviews[Rows][ReviewFields][FieldLength];
+extern int  reviewCount;
+
+void cleanTransactions(const char* inputFile);
+void cleanReviews     (const char* inputFile);
+
+#endif 

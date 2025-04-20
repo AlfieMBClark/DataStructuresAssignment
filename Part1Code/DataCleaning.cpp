@@ -2,149 +2,109 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
 #include <cstring>
 
 using namespace std;
 
-// Removes all occurrences of a specific character from a string
-string removeChar(const string& str, char ch) {
-    string result = "";
-    for (char c : str) {
-        if (c != ch) result += c;
-    }
-    return result;
+// Storage
+char transactions[Rows][TransactionFields][FieldLength];
+int  transactionCount = 0;
+
+char reviews[Rows][ReviewFields][FieldLength];
+int  reviewCount      = 0;
+
+// Trim whitespace
+static string trim(const string& s) {
+    size_t a = s.find_first_not_of(" \t\r\n");
+    size_t b = s.find_last_not_of(" \t\r\n");
+    return (a==string::npos) ? "" : s.substr(a, b-a+1);
 }
 
-// Trims whitespace from the beginning and end of a string
-string trim(const string& str) {
-    size_t start = str.find_first_not_of(" \t\n\r");
-    size_t end = str.find_last_not_of(" \t\n\r");
-    return (start == string::npos) ? "" : str.substr(start, end - start + 1);
+// Remove a character
+static string removeChar(const string& s, char ch) {
+    string out; out.reserve(s.size());
+    for (char c : s) if (c!=ch) out+=c;
+    return out;
 }
 
-// Cleans the transactions CSV by removing invalid rows, formatting data, and writing a cleaned file
-void cleanTransactions(const char* inputFile, const char* outputFile) {
-    ifstream inFile(inputFile);
-    ofstream outFile(outputFile);
-    if (!inFile || !outFile) {
-        cout << "File error!" << endl;
+void cleanTransactions(const char* inputFile) {
+    ifstream file(inputFile);
+    if (!file.is_open()) {
+        cerr<<"Failed to open "<<inputFile<<"\n";
         return;
     }
-
     string line;
-    getline(inFile, line); // skip header
-    outFile << "customerID,product,category,price,date,paymentMethod\n";
-
-    int skipped = 0;
-    while (getline(inFile, line)) {
+    getline(file, line); // skip header
+    while (getline(file, line)) {
+        string fields[TransactionFields];
         stringstream ss(line);
-        string customerID, product, category, priceStr, date, paymentMethod;
+        for (int i = 0; i < TransactionFields; ++i)
+            getline(ss, fields[i], (i< TransactionFields-1)? ',' : '\n'),
+            fields[i] = trim(fields[i]);
 
-        // Extract each field from the CSV line
-        if (!getline(ss, customerID, ',')) continue;
-        if (!getline(ss, product, ',')) continue;
-        if (!getline(ss, category, ',')) continue;
-        if (!getline(ss, priceStr, ',')) continue;
-        if (!getline(ss, date, ',')) continue;
-        if (!getline(ss, paymentMethod)) continue;
+        // skip any empty
+        bool bad = false;
+        for (auto &f: fields) if (f.empty()) { bad=true; break; }
+        if (bad) continue;
 
-        // Clean and trim each field
-        customerID = trim(customerID);
-        product = trim(product);
-        category = trim(category);
-        priceStr = trim(removeChar(priceStr, '$'));   // Remove currency symbol
-        priceStr = removeChar(priceStr, ',');          // Remove thousand separator
-        date = trim(date);
-        paymentMethod = trim(paymentMethod);
+        // validate price
+        string p = removeChar(removeChar(fields[3],'$'),',');
+        try { stod(p); } catch(...) { continue; }
 
-        // Skip if any field is empty
-        if (customerID.empty() || product.empty() || category.empty() ||
-            priceStr.empty() || date.empty() || paymentMethod.empty()) {
-            skipped++;
-            continue;
+        // reformat date dd/mm/yyyy → yyyy-mm-dd
+        if (fields[4].size()==10 && fields[4][2]=='/'&&fields[4][5]=='/') {
+            fields[4] = fields[4].substr(6,4)+"-"
+                      + fields[4].substr(3,2)+"-"
+                      + fields[4].substr(0,2);
+        } else continue;
+
+        // copy into array
+        for (int j=0; j<TransactionFields; ++j) {
+            strncpy(transactions[transactionCount][j],
+                    fields[j].c_str(),
+                    FieldLength-1);
+            transactions[transactionCount][j][FieldLength-1] = '\0';
         }
-
-        // Convert price to double, skip on error
-        double price;
-        try {
-            //String to Double
-            price = stod(priceStr);
-        } catch (...) {
-            skipped++;
-            continue;
-        }
-
-        // Reformat date to yyyy-mm-dd
-        if (date.length() == 10 && date[2] == '/' && date[5] == '/') {
-            date = date.substr(6, 4) + "-" + date.substr(3, 2) + "-" + date.substr(0, 2);
-        } else {
-            skipped++;
-            continue;
-        }
-
-        // Write the cleaned row to the output file
-        outFile << customerID << "," << product << "," << category << ","
-                << fixed << setprecision(2) << price << "," << date << "," << paymentMethod << "\n";
+        ++transactionCount;
     }
-
-    cout << "Cleaned transactions saved. Skipped: " << skipped << " rows.\n";
-    inFile.close();
-    outFile.close();
+    file.close();
 }
 
-// Cleans the reviews CSV by removing invalid rows, formatting data, and writing a cleaned file
-void cleanReviews(const char* inputFile, const char* outputFile) {
-    ifstream inFile(inputFile);
-    ofstream outFile(outputFile);
-    if (!inFile || !outFile) {
-        cout << "File error!" << endl;
+void cleanReviews(const char* inputFile) {
+    ifstream file(inputFile);
+    if (!file.is_open()) {
+        cerr<<"Failed to open "<<inputFile<<"\n";
         return;
     }
-
     string line;
-    getline(inFile, line); // skip header
-    outFile << "productID,customerID,rating,reviewText\n";
-
-    int skipped = 0;
-    while (getline(inFile, line)) {
+    getline(file, line); // skip header
+    while (getline(file, line)) {
+        string fields[ReviewFields];
         stringstream ss(line);
-        string productID, customerID, ratingStr, reviewText;
+        for (int i=0; i<ReviewFields; ++i)
+            getline(ss, fields[i], (i<ReviewFields-1)? ',' : '\n'),
+            fields[i] = trim(fields[i]);
 
-        // Extract each field from the CSV line
-        if (!getline(ss, productID, ',')) continue;
-        if (!getline(ss, customerID, ',')) continue;
-        if (!getline(ss, ratingStr, ',')) continue;
-        if (!getline(ss, reviewText)) continue;
+        bool bad=false;
+        for (auto &f: fields) if (f.empty()) { bad=true; break; }
+        if (bad) continue;
 
-        // Clean and trim each field
-        productID = trim(productID);
-        customerID = trim(customerID);
-        ratingStr = trim(ratingStr);
-        reviewText = trim(removeChar(reviewText, '"')); // Remove quotation marks
-
-        // Skip if any field is empty
-        if (productID.empty() || customerID.empty() || ratingStr.empty() || reviewText.empty()) {
-            skipped++;
-            continue;
-        }
-
-        // Convert rating to integer and validate it
-        int rating;
+        // validate rating
         try {
-            //String to Integer
-            rating = stoi(ratingStr);
-            if (rating < 1 || rating > 5) throw std::invalid_argument("Invalid");
-        } catch (...) {
-            skipped++;
-            continue;
+            int r = stoi(fields[2]);
+            if (r<1||r>5) continue;
+        } catch(...) { continue; }
+
+        // strip quotes from review text
+        fields[3] = removeChar(fields[3], '"');
+
+        for (int j=0; j<ReviewFields; ++j) {
+            strncpy(reviews[reviewCount][j],
+                    fields[j].c_str(),
+                    FieldLength-1);
+            reviews[reviewCount][j][FieldLength-1] = '\0';
         }
-
-        // Write the cleaned row to the output file
-        outFile << productID << "," << customerID << "," << rating << "," << reviewText << "\n";
+        ++reviewCount;
     }
-
-    cout << "Cleaned reviews saved. Skipped: " << skipped << " rows.\n";
-    inFile.close();
-    outFile.close();
+    file.close();
 }
