@@ -20,7 +20,7 @@ int main(){
     cout << "Loaded " << transactionCount << " transactions, " << reviewCount    << " reviews.\n";
 
     loadTransactions("cleaned_transactions.csv");
-    loadReviews     ("cleaned_reviews.csv");
+    
 
     //Question 1
     auto mergeSortStartTime = Clock::now();
@@ -85,18 +85,48 @@ int main(){
     cout << "binarySearch took: " << binarySearchTime.count() << " nano seconds\n";
     cout << "binarySearch And Filtering took: " << BinaryandFiltertime.count() << " ms\n";
 
-
-
-    //Question 3
-    mergeSortReviews(reviews, 0, reviewCount - 1, /*rating col=*/2);
-
-    int idx1 = binarySearchReviews(reviews, reviewCount, "1", 2);
-    if (idx1 >= 0) {
-        int lo = idx1, hi = idx1;
-        while (lo > 0 && strcmp(reviews[lo-1][2], "1") == 0) --lo;
-        while (hi+1 < reviewCount && strcmp(reviews[hi+1][2], "1") == 0) ++hi;
-
     
+    //Question 3
+    loadReviews     ("cleaned_reviews.csv");
+    mergeSortReviews(reviews, 0, reviewCount - 1, 2);
+
+
+    int Found1StarReview = binarySearchReviews(reviews, reviewCount, "1", 2);
+    if (Found1StarReview < 0) {
+        return 0;
+    }
+
+
+
+    int firstReview = Found1StarReview, LastReview=Found1StarReview;
+    while (firstReview>0 && strcmp(reviews[firstReview-1][2],"1")==0){
+        --firstReview;
+    }
+
+    while(LastReview+1<reviewCount && strcmp(reviews[LastReview+1][2],"1")==0){
+        ++LastReview;
+    }
+
+
+    cout << firstReview <<"\n";
+    cout << LastReview <<"\n";
+
+    static char oneStarsArray[Rows][ReviewFields][FieldLength];
+    int oneStarCount = LastReview - firstReview + 1;
+    int Total1StarReviews=0;
+
+    cout << "\n1 Star Reviews:\n";
+    for (int i = firstReview; i <= LastReview; ++i) {
+        if (strcmp(reviews[i][2], "1") == 0) {
+            ++Total1StarReviews;
+            cout <<  reviews[i][0]  << ": " << reviews[i][1] << ": "<< reviews[i][2] << ": " << reviews[i][3] << "\n"; 
+        }
+    }
+    cout << "\n number of 1 stars:" << Total1StarReviews;
+
+    for(int i=firstReview; i<=LastReview; ++i){
+        
+    }
     
 
     return 0;
