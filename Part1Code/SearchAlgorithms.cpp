@@ -36,3 +36,15 @@ double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][Fie
 
     return total ? (double)match/total*100.0 : 0.0;
 }
+
+int binarySearchReviews(char ReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column) {
+    int left = 0, right = size - 1;
+    while (left <= right) {
+        int mid = (left + right) / 2;
+        int cmp = strcmp(ReviewArray[mid][column], target);
+        if (cmp == 0) return mid;
+        else if (cmp < 0) left  = mid + 1;
+        else            right = mid - 1;
+    }
+    return -1;
+}

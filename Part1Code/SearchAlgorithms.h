@@ -3,7 +3,9 @@
 
 #include "DataCleaning.h"
 
-int  binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,const char* target,int  column);
+int binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,const char* target,int column);
+
+int binarySearchReviews(char ReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column);
 
 double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][FieldLength],int  size,const char* category,const char* paymentMethod);
 
