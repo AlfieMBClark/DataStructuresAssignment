@@ -63,3 +63,32 @@ void mergeSortReviews(ReviewRow entireArray[],int leftSide,int rightSide,int col
         sizeof(ReviewRow));
     }
 }
+
+
+static WordCount wcBuffer[5000];
+
+static void mergeWordCounts(WordCount arr[], int left, int mid, int right) {
+    int i = left, j = mid+1, k = left;
+
+    while (i <= mid && j <= right) {
+        if (arr[i].count >= arr[j].count) {
+            wcBuffer[k++] = arr[i++];
+        } else {
+            wcBuffer[k++] = arr[j++];
+        }
+    }
+    while (i <= mid)   wcBuffer[k++] = arr[i++];
+    while (j <= right) wcBuffer[k++] = arr[j++];
+
+    for (int x = left; x <= right; ++x) {
+        arr[x] = wcBuffer[x];
+    }
+}
+
+void mergeSortWordCounts(WordCount arr[], int left, int right) {
+    if (left >= right) return;
+    int mid = (left + right) / 2;
+    mergeSortWordCounts(arr, left,  mid);
+    mergeSortWordCounts(arr, mid+1, right);
+    mergeWordCounts    (arr, left,  mid, right);
+}
