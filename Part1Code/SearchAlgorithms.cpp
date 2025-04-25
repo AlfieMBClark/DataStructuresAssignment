@@ -1,6 +1,7 @@
 #include "SearchAlgorithms.h"
 #include <cstring>
 
+//binary search on transactions
 int binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,const char* target,int  column) {
     int l=0,r=size-1;
     
@@ -23,12 +24,14 @@ double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][Fie
     if(idx<0) return 0.0;
     int total=0, match=0;
 
+    // Scan backwards to count all matching category entries
     for(int i=idx; i>=0 && strcmp(SortedArray[i][2],category)==0; --i){
         if(strcmp(SortedArray[i][5],paymentMethod)==0) 
             ++match;
             ++total;
     }
 
+    // Scan forwards to count the rest
     for(int i=idx+1; i<size && strcmp(SortedArray[i][2],category)==0; ++i){
         if(strcmp(SortedArray[i][5],paymentMethod)==0) ++match;
         ++total;
@@ -37,6 +40,7 @@ double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][Fie
     return total ? (double)match/total*100.0 : 0.0;
 }
 
+//binary search on reviews
 int binarySearchReviews(char SortedReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column) {
     int l = 0, r = size - 1;
     while (l <= r) {
