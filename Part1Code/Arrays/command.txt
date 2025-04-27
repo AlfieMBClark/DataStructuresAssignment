@@ -1,0 +1,3 @@
+g++ Code.cpp DataCleaning.cpp SortAlgorithms.cpp SearchAlgorithms.cpp -o runApp
+
+./runApp
