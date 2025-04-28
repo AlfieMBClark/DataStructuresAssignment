@@ -20,6 +20,12 @@ int main(){
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
     
+    
+
+
+
+    // Question 1: Count transactions per day
+
     //Array for unique customerID
     char uniqueCustomerIDs[Rows][FieldLength];
     int uniqueIds = 0;
@@ -42,10 +48,6 @@ int main(){
     }
     cout << "Found " << uniqueIds << " unique customers:\n\n";
     
-
-
-
-    // Question 1: Count transactions per day
 
     //Merge Sort
     auto start = Clock::now();
