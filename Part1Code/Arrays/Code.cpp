@@ -142,15 +142,11 @@ int main(){
             }
         }
         if (minIdx != i) {
-            // swap the two rows [i] and [minIdx]
             char tmpDate [FieldLength], tmpCID[FieldLength];
-            // save row i
             strcpy(tmpDate,  trRevDates[i][0]);
             strcpy(tmpCID,   trRevDates[i][1]);
-            // copy minIdx → i
             strcpy(trRevDates[i][0], trRevDates[minIdx][0]);
             strcpy(trRevDates[i][1], trRevDates[minIdx][1]);
-            // copy saved i → minIdx
             strcpy(trRevDates[minIdx][0], tmpDate);
             strcpy(trRevDates[minIdx][1], tmpCID);
         }
@@ -158,23 +154,24 @@ int main(){
     
     cout << "\nComparing it to transactions+review array\n";
 
-    // Dynamic arrays for date analysis
+    //date analysis
+    //Transaction Dates
     int fullDateCount = 0;
     char (*fullDates)[FieldLength] = nullptr;
     int *fullCounts = nullptr;
 
-    // Filtered summary from trRevDates array:
+    // trRevDates
     int filtDateCount = 0;
     char (*filtDates)[FieldLength] = nullptr;
     int *filtCounts = nullptr;
 
-    // Allocate memory - worst case is every transaction has a different date
     fullDates = new char[transactionCount][FieldLength];
     fullCounts = new int[transactionCount];
     
     filtDates = new char[transactionCount][FieldLength];
     filtCounts = new int[transactionCount];
 
+    //Compare
     bool match = (fullDateCount == filtDateCount);
     if (match) {
         for (int i = 0; i < fullDateCount; ++i) {
@@ -195,7 +192,6 @@ int main(){
 
 
     //Algorithms Here
-
     // Question 2: Electronics and Credit Card Analysis
     mergeSort(transactions, 0, transactionCount - 1, 2);
     int idx = binarySearch(transactions, transactionCount, "Electronics", 2);
@@ -243,7 +239,7 @@ int main(){
     cout << "Reviews found: " << total1Stars << "\n";
 
     // Use dynamic allocation for word counting
-    int MAX_WORDS = 5000; // Keep this fixed for simplicity
+    int MAX_WORDS = total1Stars*50;
     char (*words)[FieldLength] = new char[MAX_WORDS][FieldLength];
     int *counts = new int[MAX_WORDS]();
     int unique = 0;
