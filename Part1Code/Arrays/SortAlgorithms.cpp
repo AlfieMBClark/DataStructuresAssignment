@@ -1,14 +1,20 @@
 #include "SortAlgorithms.h"
 #include <cstring>
 
-static TransactionRow buffer[Rows];
+// Buffer defined based on transactionCount
+TransactionRow* buffer = nullptr;
 
-void mergeSort(TransactionRow EntireArray[], int leftSide, int rightSide, int column) {
+void mergeSort(char (*EntireArray)[TransactionFields][FieldLength], int leftSide, int rightSide, int column) {
+    // Allocate buffer if needed
+    if (buffer == nullptr) {
+        buffer = new TransactionRow[transactionCount];
+    }
+    
     if (leftSide >= rightSide) return;
     int mid = (leftSide + rightSide) / 2;
 
-    mergeSort(EntireArray, leftSide,  mid, column);
-    mergeSort(EntireArray, mid+1,rightSide, column);
+    mergeSort(EntireArray, leftSide, mid, column);
+    mergeSort(EntireArray, mid+1, rightSide, column);
 
     int i = leftSide, j = mid+1, k = leftSide;
     while (i <= mid && j <= rightSide) {
@@ -24,24 +30,30 @@ void mergeSort(TransactionRow EntireArray[], int leftSide, int rightSide, int co
         memcpy(EntireArray[idx], buffer[idx], sizeof(TransactionRow));
 }
 
-static ReviewRow reviewBuffer[Rows];
-void mergeSortReviews(ReviewRow entireArray[],int leftSide,int rightSide,int column){
+// Buffer defined based on reviewCount
+ReviewRow* reviewBuffer = nullptr;
+
+void mergeSortReviews(char (*entireArray)[ReviewFields][FieldLength], int leftSide, int rightSide, int column) {
+    // Allocate buffer if needed
+    if (reviewBuffer == nullptr) {
+        reviewBuffer = new ReviewRow[reviewCount];
+    }
 
     if (leftSide >= rightSide) return;
 
     int mid = (leftSide + rightSide) / 2;
-    mergeSortReviews(entireArray, leftSide,  mid, column);
-    mergeSortReviews(entireArray, mid+1,   rightSide, column);
+    mergeSortReviews(entireArray, leftSide, mid, column);
+    mergeSortReviews(entireArray, mid+1, rightSide, column);
 
-    int i = leftSide,      
-    j = mid + 1,       
-    k = leftSide;     
+    int i = leftSide;      
+    int j = mid + 1;       
+    int k = leftSide;     
 
     while (i <= mid && j <= rightSide) {
-        if (strcmp(entireArray[i][column],entireArray[j][column]) <= 0){
-            memcpy(reviewBuffer[k++],entireArray[i++],sizeof(ReviewRow));
+        if (strcmp(entireArray[i][column], entireArray[j][column]) <= 0) {
+            memcpy(reviewBuffer[k++], entireArray[i++], sizeof(ReviewRow));
         } else {
-            memcpy(reviewBuffer[k++],entireArray[j++],sizeof(ReviewRow));
+            memcpy(reviewBuffer[k++], entireArray[j++], sizeof(ReviewRow));
         }
     }
    
@@ -56,7 +68,6 @@ void mergeSortReviews(ReviewRow entireArray[],int leftSide,int rightSide,int col
         sizeof(ReviewRow));
     }
 
-    
     for (int idx = leftSide; idx <= rightSide; ++idx) {
         memcpy(entireArray[idx],
         reviewBuffer[idx],
@@ -64,8 +75,8 @@ void mergeSortReviews(ReviewRow entireArray[],int leftSide,int rightSide,int col
     }
 }
 
-
-static WordCount wcBuffer[5000];
+// WordCount buffer with fixed size
+WordCount wcBuffer[5000];
 
 static void mergeWordCounts(WordCount arr[], int left, int mid, int right) {
     int i = left, j = mid+1, k = left;
@@ -88,7 +99,7 @@ static void mergeWordCounts(WordCount arr[], int left, int mid, int right) {
 void mergeSortWordCounts(WordCount arr[], int left, int right) {
     if (left >= right) return;
     int mid = (left + right) / 2;
-    mergeSortWordCounts(arr, left,  mid);
+    mergeSortWordCounts(arr, left, mid);
     mergeSortWordCounts(arr, mid+1, right);
-    mergeWordCounts    (arr, left,  mid, right);
+    mergeWordCounts(arr, left, mid, right);
 }

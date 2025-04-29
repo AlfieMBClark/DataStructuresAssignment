@@ -5,12 +5,7 @@
 #include <cstring>
 using namespace std;
 
-// Definitions of the globals declared in DataCleaning.h
-char transactions[Rows][TransactionFields][FieldLength];
-int  transactionCount = 0;
-
-char reviews[Rows][ReviewFields][FieldLength];
-int  reviewCount      = 0;
+// Keep only the cleaning-related global variables and helper functions
 
 // Trim whitespace from both ends of a string
 static string trim(const string& s) {
@@ -82,7 +77,7 @@ void cleanTransactions(const char* inputFile) {
         } else {
             continue;
         }
-        fout<< fields[0] << ','<< fields[1] << ','<< fields[2] << ','<< price       << ','<< fields[4] << ','<< fields[5] << "\n";
+        fout<< fields[0] << ','<< fields[1] << ','<< fields[2] << ','<< price << ','<< fields[4] << ','<< fields[5] << "\n";
     }
 
     fin.close();
@@ -141,64 +136,4 @@ void cleanReviews(const char* inputFile) {
 
     fin.close();
     fout.close();
-}
-
-void loadTransactions(const char* cleanedFile) {
-    ifstream fin(cleanedFile);
-    if (!fin.is_open()) {
-        cerr << "Failed to open " << cleanedFile << "\n";
-        return;
-    }
-
-    string line;
-    getline(fin, line);  // skip header
-    transactionCount = 0;
-
-    while (getline(fin, line) && transactionCount < Rows) {
-        string fields[TransactionFields];
-        stringstream ss(line);
-        for (int i = 0; i < TransactionFields; ++i) {
-            if (i < TransactionFields - 1)
-                getline(ss, fields[i], ',');
-            else
-                getline(ss, fields[i]);
-            strncpy(transactions[transactionCount][i],
-                    fields[i].c_str(),
-                    FieldLength - 1);
-            transactions[transactionCount][i][FieldLength - 1] = '\0';
-        }
-        ++transactionCount;
-    }
-
-    fin.close();
-}
-
-void loadReviews(const char* cleanedFile) {
-    ifstream fin(cleanedFile);
-    if (!fin.is_open()) {
-        cerr << "Failed to open " << cleanedFile << "\n";
-        return;
-    }
-
-    string line;
-    getline(fin, line);  // skip header
-    reviewCount = 0;
-
-    while (getline(fin, line) && reviewCount < Rows) {
-        string fields[ReviewFields];
-        stringstream ss(line);
-        for (int i = 0; i < ReviewFields; ++i) {
-            if (i < ReviewFields - 1)
-                getline(ss, fields[i], ',');
-            else
-                getline(ss, fields[i]);
-            strncpy(reviews[reviewCount][i],
-                    fields[i].c_str(),
-                    FieldLength - 1);
-            reviews[reviewCount][i][FieldLength - 1] = '\0';
-        }
-        ++reviewCount;
-    }
-
-    fin.close();
 }

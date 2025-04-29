@@ -1,4 +1,5 @@
 #include "DataCleaning.h"
+#include "LoadData.h"
 #include "SortAlgorithms.h"
 #include "SearchAlgorithms.h"
 
@@ -11,41 +12,52 @@
 using namespace std;
 using Clock = chrono::high_resolution_clock;
 
-
 int main(){
     // Clean Data
     cleanTransactions("transactions.csv");
     cleanReviews    ("reviews.csv");
 
+    // Load data into dynamically sized arrays
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
     
-    
-
-
+    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
 
     // Question 1: Count transactions per day
 
-    //Array for unique customerID
-    char uniqueCustomerIDs[Rows][FieldLength];
+    // Count unique customer IDs and create the array in one pass
+    char (*tempIDs)[FieldLength] = new char[transactionCount][FieldLength];
     int uniqueIds = 0;
 
-    for (int i=0; i<transactionCount; ++i){
+    // First identify all unique IDs
+    for (int i = 0; i < transactionCount; ++i) {
         char* currentID = transactions[i][0];
-        bool exists=false;
-        for (int j =0; j<uniqueIds; ++j){
-            if(strcmp(uniqueCustomerIDs[j], currentID)==0){
-                exists=true;
+        bool exists = false;
+        
+        // Check if we've seen this ID before
+        for (int j = 0; j < uniqueIds; ++j) {
+            if (strcmp(tempIDs[j], currentID) == 0) {
+                exists = true;
                 break;
             }
         }
-
-        if(!exists){
-            strncpy(uniqueCustomerIDs[uniqueIds], currentID, FieldLength-1);
-            uniqueCustomerIDs[uniqueIds][FieldLength-1]='\0';
+        
+        if (!exists) {
+            // Add to our temporary tracking array
+            strncpy(tempIDs[uniqueIds], currentID, FieldLength-1);
+            tempIDs[uniqueIds][FieldLength-1] = '\0';
             ++uniqueIds;
         }
     }
+
+    // Now create the final array with the exact size we need
+    char (*uniqueCustomerIDs)[FieldLength] = new char[uniqueIds][FieldLength];
+
+    // Copy from temp array to final array
+    for (int i = 0; i < uniqueIds; ++i) {
+        strcpy(uniqueCustomerIDs[i], tempIDs[i]);
+    }
+    
     cout << "Found " << uniqueIds << " unique customers:\n\n";
     
 
@@ -82,9 +94,12 @@ int main(){
 
 
 
-    //With Reviews
-    static char trRevDates[Rows][2][FieldLength];
-    int    trRevCount = 0;
+    //With Reviews - now using dynamic allocation
+    char (*trRevDates)[2][FieldLength] = nullptr;
+    int trRevCount = 0;
+
+    // Allocate memory - can't be larger than transactions
+    trRevDates = new char[transactionCount][2][FieldLength];
 
     for (int c = 0; c < uniqueIds; ++c) {
         char* cid = uniqueCustomerIDs[c];
@@ -109,11 +124,13 @@ int main(){
         // add *all* their transaction dates + ID
         for (int i = 0; i < transactionCount; ++i) {
             if (strcmp(transactions[i][0], cid) == 0) {
-                // date is field 4 in transactions
-                strcpy(trRevDates[trRevCount][0], transactions[i][4]);
-                // customerID is field 0
-                strcpy(trRevDates[trRevCount][1], cid);
-                ++trRevCount;
+                if (trRevCount < transactionCount) { // Safety check
+                    // date is field 4 in transactions
+                    strcpy(trRevDates[trRevCount][0], transactions[i][4]);
+                    // customerID is field 0
+                    strcpy(trRevDates[trRevCount][1], cid);
+                    ++trRevCount;
+                }
             }
         }
     }
@@ -140,34 +157,23 @@ int main(){
     }
     
     cout << "\nComparing it to transactions+review array\n";
-    /* //This Outputs the results from the transaction+review Array
-    if (trRevCount > 0) {
-        char currentDate[FieldLength];
-        strcpy(currentDate, trRevDates[0][0]);
-        int countOnDate = 0;
 
-        for (int i = 0; i < trRevCount; ++i) {
-            if (strcmp(trRevDates[i][0], currentDate) == 0) {
-                ++countOnDate;
-            } else {
-                cout << currentDate << " : " << countOnDate << "\n";
-                strcpy(currentDate, trRevDates[i][0]);
-                countOnDate = 1;
-            }
-        }
-        // print the final date’s count
-        cout << currentDate << " : " << countOnDate << "\n";
-    
-    }
-    */
+    // Dynamic arrays for date analysis
     int fullDateCount = 0;
-    static char fullDates [Rows][FieldLength];
-    static int  fullCounts[Rows];
+    char (*fullDates)[FieldLength] = nullptr;
+    int *fullCounts = nullptr;
 
-    // Filtered summary from your trRevDates array:
+    // Filtered summary from trRevDates array:
     int filtDateCount = 0;
-    static char filtDates [Rows][FieldLength];
-    static int  filtCounts[Rows];
+    char (*filtDates)[FieldLength] = nullptr;
+    int *filtCounts = nullptr;
+
+    // Allocate memory - worst case is every transaction has a different date
+    fullDates = new char[transactionCount][FieldLength];
+    fullCounts = new int[transactionCount];
+    
+    filtDates = new char[transactionCount][FieldLength];
+    filtCounts = new int[transactionCount];
 
     bool match = (fullDateCount == filtDateCount);
     if (match) {
@@ -217,12 +223,6 @@ int main(){
 
     //Algorithms Here
 
-
-
-
-
-
-
     // Question 3: Word frequency in 1-star reviews
     auto startQ3 = Clock::now();
 
@@ -242,9 +242,10 @@ int main(){
     cout << "\n1-Star Reviews Word Count\n";
     cout << "Reviews found: " << total1Stars << "\n";
 
-    static const int MAX_WORDS = 5000;
-    static char words[MAX_WORDS][FieldLength];
-    static int counts[MAX_WORDS] = {0};
+    // Use dynamic allocation for word counting
+    int MAX_WORDS = 5000; // Keep this fixed for simplicity
+    char (*words)[FieldLength] = new char[MAX_WORDS][FieldLength];
+    int *counts = new int[MAX_WORDS]();
     int unique = 0;
 
     for (int i = firstQ3Alfie; i <= lastQ3Alfie; ++i) {
@@ -273,7 +274,8 @@ int main(){
         }
     }
 
-    static WordCount wc[MAX_WORDS];
+    // Allocate WordCount array dynamically
+    WordCount *wc = new WordCount[unique];
     for (int i = 0; i < unique; ++i) {
         strcpy(wc[i].word, words[i]);
         wc[i].count = counts[i];
@@ -289,4 +291,5 @@ int main(){
 
     cout << "Done in " << durQ3.count() << " ms\n";
     
+    return 0;
 }

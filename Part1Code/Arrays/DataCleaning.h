@@ -1,19 +1,19 @@
+
 #ifndef DATA_CLEANING_H
 #define DATA_CLEANING_H
 
 #include <string>
 
-
-static const int Rows              = 5000;
+// Constants for array dimensions
 static const int TransactionFields = 6;   
 static const int ReviewFields      = 4;  
 static const int FieldLength       = 255; 
 
-// In‑memory storage for cleaned data
-extern char transactions[Rows][TransactionFields][FieldLength];
+// In‑memory storage for cleaned data - now using dynamic arrays
+extern char (*transactions)[TransactionFields][FieldLength];
 extern int  transactionCount;
 
-extern char reviews[Rows][ReviewFields][FieldLength];
+extern char (*reviews)[ReviewFields][FieldLength];
 extern int  reviewCount;
 
 // Produce cleaned CSVs from raw input
