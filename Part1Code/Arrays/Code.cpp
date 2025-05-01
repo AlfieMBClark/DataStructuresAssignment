@@ -52,7 +52,7 @@ int main(){
     //Merge Sort
     auto AlfieStartQ1 = Clock::now();
     mergeSortTransactions(transactions, 0, transactionCount - 1, 4);
-    auto AlfieEndQ1 = Clock::now();
+    auto AlfieEndMergeSortQ1 = Clock::now();
 
     
     // Date+Count 2D array
@@ -127,24 +127,12 @@ int main(){
             }
         }
     }
+
+    //cout << TransReviewArray[1][0]<<"AND"<<TransReviewArray[1][1];
     //cout << "TR" << totalReviewsTR <<"TT"<< totalTransactionsTR;
 
     // Sort by date
-    for (int i = 0; i < pairCount; ++i) {
-        for (int j = i + 1; j < pairCount; ++j) {
-            if (strcmp(TransReviewArray[j][0], TransReviewArray[i][0]) < 0) {
-                char tempDate[FieldLength], tempCID[FieldLength];
-                strcpy(tempDate, TransReviewArray[i][0]);
-                strcpy(tempCID, TransReviewArray[i][1]);
-
-                strcpy(TransReviewArray[i][0], TransReviewArray[j][0]);
-                strcpy(TransReviewArray[i][1], TransReviewArray[j][1]);
-
-                strcpy(TransReviewArray[j][0], tempDate);
-                strcpy(TransReviewArray[j][1], tempCID);
-            }
-        }
-    }
+    mergeSortTransReviewArray(TransReviewArray, 0, pairCount - 1);
 
     // for (int i=0; i<pairCount; i++){
     //     cout << TransReviewArray[i][0] << "And" <<TransReviewArray[i][1]<<endl;
@@ -154,7 +142,7 @@ int main(){
     //  2D array for storing dates and counts
     char (*revDateCounts)[2][FieldLength] = new char[uniqueDatesCount][2][FieldLength];
 
-    //Get date and count with TransReview Data
+    //Count Trans per day in TransReview Data
     char currentRevDate[FieldLength];
     strcpy(currentRevDate, TransReviewArray[0][0]);
     int dailyRevCount = 1;
@@ -177,7 +165,6 @@ int main(){
 
     //Compare
     cout << "\nComparing Trans+Review Transactions to Transactions:\n";
-
     int matchingDates = 0;
     int matchingCounts = 0;
     int NotmatchingDates = 0;
@@ -201,13 +188,14 @@ int main(){
     }
     
     if(FullMatch){
-        cout <<"Full Match!\t"<< "Matching Dates:"<< matchingDates << "\tMatching Counts\t" << matchingCounts<<"\n\n";
+        cout <<"Full Match! Total Dates: "<<uniqueDatesCount<< "\tMatching Dates:"<< matchingDates << "\tMatching Counts\t" << matchingCounts<<endl;
     }else{
-        cout << "Not Full match\t"<< "UnMatching Dates:"<< NotmatchingDates << "\tUnMatching Counts\t" << NotmatchingCounts<<"\n\n";
+        cout << "Not Full match\t"<< "UnMatching Dates:"<< NotmatchingDates << "\tUnMatching Counts\t" << NotmatchingCounts<<endl;
     }
     auto AlfieEnd2Q1 = Clock::now();
-    cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndQ1 - AlfieStartQ1).count() << " ms\n";
-    cout << "Entire Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n";
+
+    cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndMergeSortQ1 - AlfieStartQ1).count() << " ms\n";
+    cout << "Entire Merge Sort Implementation Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n\n";
 
     //Algorithms Here
 
@@ -215,7 +203,9 @@ int main(){
 
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
+    auto AlfieStartFullQ2 = Clock::now();
     mergeSortTransactions(transactions, 0, transactionCount - 1, 2);
+    auto AlfieStartBinaryQ2 = Clock::now();
     int idx = binarySearch(transactions, transactionCount, "Electronics", 2);
 
     if (idx < 0) {
@@ -226,6 +216,7 @@ int main(){
     int firstQ2Alfie = idx, lastQ2Alfie = idx;
     while (firstQ2Alfie > 0 && strcmp(transactions[firstQ2Alfie - 1][2], "Electronics") == 0) --firstQ2Alfie;
     while (lastQ2Alfie + 1 < transactionCount && strcmp(transactions[lastQ2Alfie + 1][2], "Electronics") == 0) ++lastQ2Alfie;
+    auto AlfieEndBinaryQ2 = Clock::now();
 
     int credit = 0;
     for (int i = firstQ2Alfie; i <= lastQ2Alfie; ++i) {
@@ -235,9 +226,13 @@ int main(){
 
     int total = lastQ2Alfie - firstQ2Alfie + 1;
     double percent = (double)credit / total * 100;
-
+    auto AlfieEndfullQ2 = Clock::now();
+    
     cout << "\nElectronics purchases:\n";
-    cout << "Total: " << total << ", using Credit Card: " << credit << " (" << fixed << setprecision(2) << percent << "%)\n";
+    cout << "Total: " << total << ", using Credit Card: " << credit << "\nPercentage = " << fixed << setprecision(2) << percent << "%\n";
+
+    cout << "Binary Search Process for all 1 star Reviews: " << chrono::duration_cast<chrono::nanoseconds>(AlfieEndBinaryQ2 - AlfieStartBinaryQ2).count() << " nano seconds\n";
+    cout << "Entire Q2 Implementation BinarySearch: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndfullQ2 - AlfieStartFullQ2).count() << " ms\n\n";
 
     //Algorithms Here
 
@@ -293,14 +288,15 @@ int main(){
         }
     }
 
-    // Allocate WordCount array dynamically
+    // WordCount array 
     WordCount *wc = new WordCount[unique];
     for (int i = 0; i < unique; ++i) {
         strcpy(wc[i].word, words[i]);
         wc[i].count = counts[i];
     }
 
-    mergeSortWordCounts(wc, 0, unique - 1);
+    WordCount* wcBuffer = new WordCount[unique];
+    mergeSortWordCounts(wc, 0, unique - 1, wcBuffer);
     auto endAlfieQ3 = Clock::now();
     auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 
@@ -308,7 +304,7 @@ int main(){
         cout << wc[i].word << ": " << wc[i].count << "\n";
     }
 
-    cout << "Done in " << durAlfieQ3.count() << " ms\n";
+    cout << "Q3 using merge Sort and Binary Search was completed in:" << durAlfieQ3.count() << " ms\n";
     
     return 0;
 }

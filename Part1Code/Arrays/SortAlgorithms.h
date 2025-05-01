@@ -11,14 +11,17 @@ struct WordCount {
     int count; 
 };
 
+
 typedef char TransactionRow[TransactionFields][FieldLength];
 typedef char ReviewRow[ReviewFields][FieldLength];
+typedef char TransReviewPair[2][FieldLength]; 
 
-void MergeSort(void* entireArray, void* buffer, int elementSize, int leftSide, int rightSide, int column, int fieldLength);
+void MergeSort(void* dataArray, void* Buffer, int rowSize, int left, int right, int colIndex, int fieldLen);
 
-// Original function signatures for backward compatibility
-void mergeSortTransactions(char (*entireArray)[TransactionFields][FieldLength], int leftSide, int rightSide, int column);
-void mergeSortReviews(char (*entireArray)[ReviewFields][FieldLength], int left, int right, int column);
-void mergeSortWordCounts(WordCount arr[], int left, int right);
+// Functions
+void mergeSortTransactions(char array[][TransactionFields][FieldLength], int left, int right, int colToSort);
+void mergeSortReviews(char array[][ReviewFields][FieldLength], int left, int right, int colToSort);
+void mergeSortTransReviewArray(char (*array)[2][FieldLength], int left, int right, int colToSort = 0);
+void mergeSortWordCounts(WordCount arr[], int left, int right, WordCount buffer[]);
 
-#endif
+#endif 

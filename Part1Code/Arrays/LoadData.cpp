@@ -1,11 +1,11 @@
-#include "DataCleaning.h"
+#include "LoadData.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <cstring>
 using namespace std;
 
-// Initialize our global variables
+//variables
 char (*transactions)[TransactionFields][FieldLength] = nullptr;
 int transactionCount = 0;
 
@@ -13,7 +13,7 @@ char (*reviews)[ReviewFields][FieldLength] = nullptr;
 int reviewCount = 0;
 
 void loadTransactions(const char* cleanedFile) {
-    // First pass: count the records
+    //Find number of rows
     ifstream countFile(cleanedFile);
     if (!countFile.is_open()) {
         cerr << "Failed to open " << cleanedFile << " for counting\n";
@@ -29,15 +29,15 @@ void loadTransactions(const char* cleanedFile) {
     }
     countFile.close();
     
-    cout << "Found " << transactionCount << " transactions\n";
+    //cout << "Found " << transactionCount << " transactions\n";
     
-    // Clean up any previous allocation
+    // Clean previous allocation
     if (transactions != nullptr) {
         delete[] transactions;
         transactions = nullptr;
     }
     
-    // Allocate the exact amount of memory needed
+    // Allocate array
     if (transactionCount > 0) {
         transactions = new char[transactionCount][TransactionFields][FieldLength];
     } else {
@@ -45,7 +45,7 @@ void loadTransactions(const char* cleanedFile) {
         return;
     }
 
-    // Second pass: actually load the data
+    // load the data
     ifstream fin(cleanedFile);
     if (!fin.is_open()) {
         cerr << "Failed to open " << cleanedFile << " for reading\n";
@@ -73,11 +73,12 @@ void loadTransactions(const char* cleanedFile) {
     }
     
     fin.close();
-    cout << "Loaded " << index << " transactions\n";
+    int totalCleanedDataCount = index;
+    //cout << "Loaded " << index << " transactions\n";
 }
 
 void loadReviews(const char* cleanedFile) {
-    // First pass: count the records
+    // Find num of rows
     ifstream countFile(cleanedFile);
     if (!countFile.is_open()) {
         cerr << "Failed to open " << cleanedFile << " for counting\n";
@@ -93,15 +94,15 @@ void loadReviews(const char* cleanedFile) {
     }
     countFile.close();
     
-    cout << "Found " << reviewCount << " reviews\n";
+    //cout << "Found " << reviewCount << " reviews\n";
     
-    // Clean up any previous allocation
+    // Clean
     if (reviews != nullptr) {
         delete[] reviews;
         reviews = nullptr;
     }
     
-    // Allocate the exact amount of memory needed
+    // Allocate array size
     if (reviewCount > 0) {
         reviews = new char[reviewCount][ReviewFields][FieldLength];
     } else {
@@ -109,7 +110,7 @@ void loadReviews(const char* cleanedFile) {
         return;
     }
 
-    // Second pass: actually load the data
+    // load reviews
     ifstream fin(cleanedFile);
     if (!fin.is_open()) {
         cerr << "Failed to open " << cleanedFile << " for reading\n";
@@ -137,5 +138,5 @@ void loadReviews(const char* cleanedFile) {
     }
     
     fin.close();
-    cout << "Loaded " << index << " reviews\n";
+    //cout << "Loaded " << index << " reviews\n";
 }

@@ -5,7 +5,6 @@
 #include <cstring>
 using namespace std;
 
-// Keep only the cleaning-related global variables and helper functions
 
 // Trim whitespace from both ends of a string
 static string trim(const string& s) {

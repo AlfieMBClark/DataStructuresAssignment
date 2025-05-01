@@ -23,15 +23,13 @@ double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][Fie
     int idx=binarySearch(SortedArray,size,category,2);
     if(idx<0) return 0.0;
     int total=0, match=0;
-
-    // Scan backwards to count all matching category entries
+    // Scan backwards
     for(int i=idx; i>=0 && strcmp(SortedArray[i][2],category)==0; --i){
         if(strcmp(SortedArray[i][5],paymentMethod)==0) 
             ++match;
             ++total;
     }
-
-    // Scan forwards to count the rest
+    // Scan forwards
     for(int i=idx+1; i<size && strcmp(SortedArray[i][2],category)==0; ++i){
         if(strcmp(SortedArray[i][5],paymentMethod)==0) ++match;
         ++total;
