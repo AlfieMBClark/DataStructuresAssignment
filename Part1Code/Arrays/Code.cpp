@@ -23,177 +23,199 @@ int main(){
     
     cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
 
+
     // Question 1: Count transactions per day
+    // Unique customer ID's
+    char (*uniqueCustomerIDs)[FieldLength] = new char[transactionCount][FieldLength];
+    int uIDCount = 0;
 
-    // Count unique customer IDs and create the array in one pass
-    char (*tempIDs)[FieldLength] = new char[transactionCount][FieldLength];
-    int uniqueIds = 0;
-
-    // First identify all unique IDs
     for (int i = 0; i < transactionCount; ++i) {
         char* currentID = transactions[i][0];
-        bool exists = false;
-        
-        // Check if we've seen this ID before
-        for (int j = 0; j < uniqueIds; ++j) {
-            if (strcmp(tempIDs[j], currentID) == 0) {
-                exists = true;
+        bool isNew = true;
+
+        for (int j = 0; j < uIDCount; ++j) {
+            if (strcmp(uniqueCustomerIDs[j], currentID) == 0) {
+                isNew = false;
                 break;
             }
         }
-        
-        if (!exists) {
-            // Add to our temporary tracking array
-            strncpy(tempIDs[uniqueIds], currentID, FieldLength-1);
-            tempIDs[uniqueIds][FieldLength-1] = '\0';
-            ++uniqueIds;
+
+        if (isNew) {
+            strncpy(uniqueCustomerIDs[uIDCount], currentID, FieldLength - 1);
+            ++uIDCount;
         }
     }
-
-    // Now create the final array with the exact size we need
-    char (*uniqueCustomerIDs)[FieldLength] = new char[uniqueIds][FieldLength];
-
-    // Copy from temp array to final array
-    for (int i = 0; i < uniqueIds; ++i) {
-        strcpy(uniqueCustomerIDs[i], tempIDs[i]);
-    }
     
-    cout << "Found " << uniqueIds << " unique customers:\n\n";
+    cout << "Found " << uIDCount << " unique customers.\n\n";
     
 
     //Merge Sort
-    auto start = Clock::now();
-    mergeSort(transactions, 0, transactionCount - 1, 4);
-    auto end = Clock::now();
+    auto AlfieStartQ1 = Clock::now();
+    mergeSortTransactions(transactions, 0, transactionCount - 1, 4);
+    auto AlfieEndQ1 = Clock::now();
 
-    cout << "Sorted by date in " 
-        << chrono::duration_cast<chrono::milliseconds>(end - start).count() << " ms\n";
+    
+    // Date+Count 2D array
+    int uniqueDatesCount = 1; 
+    string currentDate = transactions[0][4];
 
-    if (transactionCount == 0) {
-        cout << "No transactions available.\n";
-        return 0;
+    for (int i = 1; i < transactionCount; ++i) {
+        if (strcmp(transactions[i][4], currentDate.c_str()) != 0) {
+            uniqueDatesCount++;
+            currentDate = transactions[i][4];
+        }
     }
 
-    string currentDate = transactions[0][4];
-    int count = 0;
+    char (*dateTransactions)[2][FieldLength] = new char[uniqueDatesCount][2][FieldLength];
+    
+    //Count transactions
+    currentDate = transactions[0][4];
+    int dailyCount = 0;
+    int arrayIndex = 0;
 
     cout << "\nTransactions by Date:\n";
-
     for (int i = 0; i < transactionCount; ++i) {
         string date = transactions[i][4];
         if (date == currentDate) {
-            count++;
+            dailyCount++;
         } else {
-            cout << currentDate << ":\t" << count << "\n";
+            strcpy(dateTransactions[arrayIndex][0], currentDate.c_str());
+            sprintf(dateTransactions[arrayIndex][1], "%d", dailyCount);
+            arrayIndex++;
+            cout << currentDate << ":\t" << dailyCount << "\n";
             currentDate = date;
-            count = 1;
+            dailyCount = 1;
         }
     }
-    cout << currentDate << ":\t" << count << "\n";
+
+    strcpy(dateTransactions[arrayIndex][0], currentDate.c_str());
+    sprintf(dateTransactions[arrayIndex][1], "%d", dailyCount);
+    cout << currentDate << ":\t" << dailyCount << "\n";
+
     cout << "Total: " << transactionCount << "\n";
 
 
 
-    //With Reviews - now using dynamic allocation
-    char (*trRevDates)[2][FieldLength] = nullptr;
-    int trRevCount = 0;
-
-    // Allocate memory - can't be larger than transactions
-    trRevDates = new char[transactionCount][2][FieldLength];
-
-    for (int c = 0; c < uniqueIds; ++c) {
-        char* cid = uniqueCustomerIDs[c];
-
-        //count transaction
-        int trCount = 0;
+    // Transaction + Reviews Array
+    char (*TransReviewArray)[2][FieldLength] = new char[transactionCount][2][FieldLength];
+    int pairCount = 0;
+    int totalTransactionsTR = 0;
+    int totalReviewsTR = 0;
+    
+    for (int customerIndex = 0; customerIndex < uIDCount; ++customerIndex) {
+        char* customerID = uniqueCustomerIDs[customerIndex];
+        // Transaction per cust
         for (int i = 0; i < transactionCount; ++i) {
-            if (strcmp(transactions[i][0], cid) == 0)
-                ++trCount;
+            if (strcmp(transactions[i][0], customerID) == 0) {
+                ++totalTransactionsTR;
+            }
         }
-
-        //count Reviews
-        int rvCount = 0;
+        //reviews per cust
         for (int i = 0; i < reviewCount; ++i) {
-            if (strcmp(reviews[i][1], cid) == 0)
-                ++rvCount;
+            if (strcmp(reviews[i][1], customerID) == 0) {
+                ++totalReviewsTR;
+            }
         }
-
-        // if they reviewed more than they transacted skip
-        if (rvCount > trCount) continue;
-
-        // add *all* their transaction dates + ID
+        // Skip customers with more reviews than transactions
+        if (totalReviewsTR > totalTransactionsTR) continue;
+    
         for (int i = 0; i < transactionCount; ++i) {
-            if (strcmp(transactions[i][0], cid) == 0) {
-                if (trRevCount < transactionCount) { // Safety check
-                    // date is field 4 in transactions
-                    strcpy(trRevDates[trRevCount][0], transactions[i][4]);
-                    // customerID is field 0
-                    strcpy(trRevDates[trRevCount][1], cid);
-                    ++trRevCount;
+            if (strcmp(transactions[i][0], customerID) == 0) {
+                strcpy(TransReviewArray[pairCount][0], transactions[i][4]);
+                strcpy(TransReviewArray[pairCount][1], customerID);
+                ++pairCount;
+            }
+        }
+    }
+    //cout << "TR" << totalReviewsTR <<"TT"<< totalTransactionsTR;
+
+    // Sort by date
+    for (int i = 0; i < pairCount; ++i) {
+        for (int j = i + 1; j < pairCount; ++j) {
+            if (strcmp(TransReviewArray[j][0], TransReviewArray[i][0]) < 0) {
+                char tempDate[FieldLength], tempCID[FieldLength];
+                strcpy(tempDate, TransReviewArray[i][0]);
+                strcpy(tempCID, TransReviewArray[i][1]);
+
+                strcpy(TransReviewArray[i][0], TransReviewArray[j][0]);
+                strcpy(TransReviewArray[i][1], TransReviewArray[j][1]);
+
+                strcpy(TransReviewArray[j][0], tempDate);
+                strcpy(TransReviewArray[j][1], tempCID);
+            }
+        }
+    }
+
+    // for (int i=0; i<pairCount; i++){
+    //     cout << TransReviewArray[i][0] << "And" <<TransReviewArray[i][1]<<endl;
+    // }
+
+    
+    //  2D array for storing dates and counts
+    char (*revDateCounts)[2][FieldLength] = new char[uniqueDatesCount][2][FieldLength];
+
+    //Get date and count with TransReview Data
+    char currentRevDate[FieldLength];
+    strcpy(currentRevDate, TransReviewArray[0][0]);
+    int dailyRevCount = 1;
+    int TRAindex = 0;
+
+    for (int i = 1; i < pairCount; ++i) {
+        if (strcmp(TransReviewArray[i][0], currentRevDate) == 0) {
+            dailyRevCount++;
+        } else {
+            strcpy(revDateCounts[TRAindex][0], currentRevDate);
+            sprintf(revDateCounts[TRAindex][1], "%d", dailyRevCount);
+            TRAindex++;
+            //cout << currentRevDate << ":\t" << dailyRevCount << "\n";
+            strcpy(currentRevDate, TransReviewArray[i][0]);
+            dailyRevCount = 1;
+        }
+    }
+    strcpy(revDateCounts[TRAindex][0], currentRevDate);
+    sprintf(revDateCounts[TRAindex][1], "%d", dailyRevCount);
+
+    //Compare
+    cout << "\nComparing Trans+Review Transactions to Transactions:\n";
+
+    int matchingDates = 0;
+    int matchingCounts = 0;
+    int NotmatchingDates = 0;
+    int NotmatchingCounts = 0;
+    bool FullMatch = true;
+
+    for (int i = 0; i < uniqueDatesCount; i++) {
+        for(int j=0; j<uniqueDatesCount; j++){
+            if (strcmp(dateTransactions[i][0], revDateCounts[j][0]) == 0) {
+                //cout<<dateTransactions[i][0]<<"\t";
+                matchingDates++;
+                if (strcmp(dateTransactions[i][1], revDateCounts[j][1]) == 0) {
+                    //cout<<dateTransactions[i][1]<<endl;
+                    matchingCounts++;
+                } else {
+                    FullMatch = false;
+                    NotmatchingCounts++;
                 }
             }
         }
     }
-    for (int i = 0; i < trRevCount - 1; ++i) {
-        int minIdx = i;
-        for (int j = i + 1; j < trRevCount; ++j) {
-            if (strcmp(trRevDates[j][0], trRevDates[minIdx][0]) < 0) {
-                minIdx = j;
-            }
-        }
-        if (minIdx != i) {
-            char tmpDate [FieldLength], tmpCID[FieldLength];
-            strcpy(tmpDate,  trRevDates[i][0]);
-            strcpy(tmpCID,   trRevDates[i][1]);
-            strcpy(trRevDates[i][0], trRevDates[minIdx][0]);
-            strcpy(trRevDates[i][1], trRevDates[minIdx][1]);
-            strcpy(trRevDates[minIdx][0], tmpDate);
-            strcpy(trRevDates[minIdx][1], tmpCID);
-        }
-    }
     
-    cout << "\nComparing it to transactions+review array\n";
-
-    //date analysis
-    //Transaction Dates
-    int fullDateCount = 0;
-    char (*fullDates)[FieldLength] = nullptr;
-    int *fullCounts = nullptr;
-
-    // trRevDates
-    int filtDateCount = 0;
-    char (*filtDates)[FieldLength] = nullptr;
-    int *filtCounts = nullptr;
-
-    fullDates = new char[transactionCount][FieldLength];
-    fullCounts = new int[transactionCount];
-    
-    filtDates = new char[transactionCount][FieldLength];
-    filtCounts = new int[transactionCount];
-
-    //Compare
-    bool match = (fullDateCount == filtDateCount);
-    if (match) {
-        for (int i = 0; i < fullDateCount; ++i) {
-            if (strcmp(fullDates[i], filtDates[i]) != 0 ||
-                fullCounts[i] != filtCounts[i])
-            {
-                match = false;
-                break;
-            }
-        }
+    if(FullMatch){
+        cout <<"Full Match!\t"<< "Matching Dates:"<< matchingDates << "\tMatching Counts\t" << matchingCounts<<"\n\n";
+    }else{
+        cout << "Not Full match\t"<< "UnMatching Dates:"<< NotmatchingDates << "\tUnMatching Counts\t" << NotmatchingCounts<<"\n\n";
     }
-
-    if (match) {
-        cout << "Outputs Match\n";
-    } else {
-        cout << "Outputs Do Not Match\n";
-    }
-
+    auto AlfieEnd2Q1 = Clock::now();
+    cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndQ1 - AlfieStartQ1).count() << " ms\n";
+    cout << "Entire Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n";
 
     //Algorithms Here
+
+
+
     // Question 2: Electronics and Credit Card Analysis
-    mergeSort(transactions, 0, transactionCount - 1, 2);
+    cout<<"Question 2\n";
+    mergeSortTransactions(transactions, 0, transactionCount - 1, 2);
     int idx = binarySearch(transactions, transactionCount, "Electronics", 2);
 
     if (idx < 0) {
@@ -201,17 +223,17 @@ int main(){
         return 0;
     }
 
-    int first = idx, last = idx;
-    while (first > 0 && strcmp(transactions[first - 1][2], "Electronics") == 0) --first;
-    while (last + 1 < transactionCount && strcmp(transactions[last + 1][2], "Electronics") == 0) ++last;
+    int firstQ2Alfie = idx, lastQ2Alfie = idx;
+    while (firstQ2Alfie > 0 && strcmp(transactions[firstQ2Alfie - 1][2], "Electronics") == 0) --firstQ2Alfie;
+    while (lastQ2Alfie + 1 < transactionCount && strcmp(transactions[lastQ2Alfie + 1][2], "Electronics") == 0) ++lastQ2Alfie;
 
     int credit = 0;
-    for (int i = first; i <= last; ++i) {
+    for (int i = firstQ2Alfie; i <= lastQ2Alfie; ++i) {
         if (strcmp(transactions[i][5], "Credit Card") == 0)
             ++credit;
     }
 
-    int total = last - first + 1;
+    int total = lastQ2Alfie - firstQ2Alfie + 1;
     double percent = (double)credit / total * 100;
 
     cout << "\nElectronics purchases:\n";
@@ -220,7 +242,8 @@ int main(){
     //Algorithms Here
 
     // Question 3: Word frequency in 1-star reviews
-    auto startQ3 = Clock::now();
+    cout<<"\n\nQuestion 3\n";
+    auto startAlfieQ3 = Clock::now();
 
     mergeSortReviews(reviews, 0, reviewCount - 1, 2);
     int found = binarySearchReviews(reviews, reviewCount, "1", 2);
@@ -278,14 +301,14 @@ int main(){
     }
 
     mergeSortWordCounts(wc, 0, unique - 1);
-    auto endQ3 = Clock::now();
-    auto durQ3 = chrono::duration_cast<chrono::milliseconds>(endQ3 - startQ3);
+    auto endAlfieQ3 = Clock::now();
+    auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 
     for (int i = 0; i < unique; ++i) {
         cout << wc[i].word << ": " << wc[i].count << "\n";
     }
 
-    cout << "Done in " << durQ3.count() << " ms\n";
+    cout << "Done in " << durAlfieQ3.count() << " ms\n";
     
     return 0;
 }

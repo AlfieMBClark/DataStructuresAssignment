@@ -1,83 +1,84 @@
 #include "SortAlgorithms.h"
 #include <cstring>
 
-// Buffer defined based on transactionCount
+// Buffer for transactions
 TransactionRow* buffer = nullptr;
 
-void mergeSort(char (*EntireArray)[TransactionFields][FieldLength], int leftSide, int rightSide, int column) {
-    // Allocate buffer if needed
+// Buffer for reviews
+ReviewRow* reviewBuffer = nullptr;
+
+// Generic merge sort function for arrays
+void MergeSort(void* entireArray, void* buffer, int elementSize, int leftSide, int rightSide, int column, int fieldLength) {
+    if (leftSide >= rightSide) return;
+    
+    int mid = (leftSide + rightSide) / 2;
+    
+    MergeSort(entireArray, buffer, elementSize, leftSide, mid, column, fieldLength);
+    MergeSort(entireArray, buffer, elementSize, mid+1, rightSide, column, fieldLength);
+    
+    // Merge the two halves
+    int i = leftSide, j = mid+1, k = leftSide;
+    char* typedArray = (char*)entireArray;
+    char* typedBuffer = (char*)buffer;
+    
+    while (i <= mid && j <= rightSide) {
+        char* elemI = typedArray + (i * elementSize);
+        char* elemJ = typedArray + (j * elementSize);
+        
+        char* colI = elemI + (column * fieldLength);
+        char* colJ = elemJ + (column * fieldLength);
+        
+        // Compare column 
+        if (strcmp(colI, colJ) <= 0) {
+            memcpy(typedBuffer + (k * elementSize), elemI, elementSize);
+            i++;
+        } else {
+            memcpy(typedBuffer + (k * elementSize), elemJ, elementSize);
+            j++;
+        }
+        k++;
+    }
+    
+    // Copy remaining elements
+    while (i <= mid) {
+        memcpy(typedBuffer + (k * elementSize), typedArray + (i * elementSize), elementSize);
+        i++;
+        k++;
+    }
+    
+    while (j <= rightSide) {
+        memcpy(typedBuffer + (k * elementSize), typedArray + (j * elementSize), elementSize);
+        j++;
+        k++;
+    }
+    
+    for (int idx = leftSide; idx <= rightSide; idx++) {
+        memcpy(typedArray + (idx * elementSize), typedBuffer + (idx * elementSize), elementSize);
+    }
+}
+
+// function for transactions
+void mergeSortTransactions(char (*entireArray)[TransactionFields][FieldLength], int leftSide, int rightSide, int column) {
     if (buffer == nullptr) {
         buffer = new TransactionRow[transactionCount];
     }
-    
-    if (leftSide >= rightSide) return;
-    int mid = (leftSide + rightSide) / 2;
-
-    mergeSort(EntireArray, leftSide, mid, column);
-    mergeSort(EntireArray, mid+1, rightSide, column);
-
-    int i = leftSide, j = mid+1, k = leftSide;
-    while (i <= mid && j <= rightSide) {
-        if (strcmp(EntireArray[i][column], EntireArray[j][column]) <= 0)
-            memcpy(buffer[k++], EntireArray[i++], sizeof(TransactionRow));
-        else
-            memcpy(buffer[k++], EntireArray[j++], sizeof(TransactionRow));
-    }
-    while (i <= mid)   memcpy(buffer[k++], EntireArray[i++], sizeof(TransactionRow));
-    while (j <= rightSide) memcpy(buffer[k++], EntireArray[j++], sizeof(TransactionRow));
-
-    for (int idx = leftSide; idx <= rightSide; ++idx)
-        memcpy(EntireArray[idx], buffer[idx], sizeof(TransactionRow));
+    int elementSize = sizeof(char) * TransactionFields * FieldLength;
+    MergeSort(entireArray, buffer, elementSize, leftSide, rightSide, column, FieldLength);
 }
 
-// Buffer defined based on reviewCount
-ReviewRow* reviewBuffer = nullptr;
-
+//function for reviews
 void mergeSortReviews(char (*entireArray)[ReviewFields][FieldLength], int leftSide, int rightSide, int column) {
-    // Allocate buffer if needed
     if (reviewBuffer == nullptr) {
         reviewBuffer = new ReviewRow[reviewCount];
     }
-
-    if (leftSide >= rightSide) return;
-
-    int mid = (leftSide + rightSide) / 2;
-    mergeSortReviews(entireArray, leftSide, mid, column);
-    mergeSortReviews(entireArray, mid+1, rightSide, column);
-
-    int i = leftSide;      
-    int j = mid + 1;       
-    int k = leftSide;     
-
-    while (i <= mid && j <= rightSide) {
-        if (strcmp(entireArray[i][column], entireArray[j][column]) <= 0) {
-            memcpy(reviewBuffer[k++], entireArray[i++], sizeof(ReviewRow));
-        } else {
-            memcpy(reviewBuffer[k++], entireArray[j++], sizeof(ReviewRow));
-        }
-    }
-   
-    while (i <= mid) {
-        memcpy(reviewBuffer[k++],
-        entireArray[i++],
-        sizeof(ReviewRow));
-    }
-    while (j <= rightSide) {
-        memcpy(reviewBuffer[k++],
-        entireArray[j++],
-        sizeof(ReviewRow));
-    }
-
-    for (int idx = leftSide; idx <= rightSide; ++idx) {
-        memcpy(entireArray[idx],
-        reviewBuffer[idx],
-        sizeof(ReviewRow));
-    }
+    
+    int elementSize = sizeof(char) * ReviewFields * FieldLength;
+    
+    MergeSort(entireArray, reviewBuffer, elementSize, leftSide, rightSide, column, FieldLength);
 }
 
-// WordCount buffer with fixed size
-WordCount wcBuffer[5000];
 
+WordCount wcBuffer[5000];
 static void mergeWordCounts(WordCount arr[], int left, int mid, int right) {
     int i = left, j = mid+1, k = left;
 
