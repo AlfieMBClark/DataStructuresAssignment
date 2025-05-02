@@ -110,3 +110,32 @@ void mergeSortWordCounts(WordCount words[], int low, int high, WordCount temp[])
         words[x] = temp[x];
     }
 }
+
+
+//Insertion Sort
+void insertionSort(char data[][TransactionFields][FieldLength], int rowCount, int columnIndex) {
+    for (int i = 1; i < rowCount; ++i) {
+        char temp[TransactionFields][FieldLength];
+        memcpy(temp, data[i], sizeof(temp));  // Store the current row
+
+        int j = i - 1;
+        while (j >= 0 && strcmp(data[j][columnIndex], temp[columnIndex]) > 0) {
+            memcpy(data[j + 1], data[j], sizeof(data[j]));  // Shift row up
+            --j;
+        }
+
+        memcpy(data[j + 1], temp, sizeof(temp));  // Insert the saved row
+    }
+}
+
+void insertionSort(WordCount array[], int size) {
+    for (int i = 1; i < size; ++i) {
+        WordCount temp = array[i];
+        int j = i - 1;
+        while (j >= 0 && array[j].count < temp.count) {
+            array[j + 1] = array[j];
+            --j;
+        }
+        array[j + 1] = temp;
+    }
+}

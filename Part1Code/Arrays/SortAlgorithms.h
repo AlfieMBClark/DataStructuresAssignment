@@ -23,5 +23,6 @@ void mergeSortTransactions(char array[][TransactionFields][FieldLength], int lef
 void mergeSortReviews(char array[][ReviewFields][FieldLength], int left, int right, int colToSort);
 void mergeSortTransReviewArray(char (*array)[2][FieldLength], int left, int right, int colToSort = 0);
 void mergeSortWordCounts(WordCount arr[], int left, int right, WordCount buffer[]);
-
+void insertionSort(WordCount array[], int size);
+void insertionSort(char data[][TransactionFields][FieldLength], int rowCount, int columnIndex);
 #endif 

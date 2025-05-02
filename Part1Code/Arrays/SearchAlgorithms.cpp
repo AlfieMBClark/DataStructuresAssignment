@@ -50,3 +50,20 @@ int binarySearchReviews(char SortedReviewArray[][ReviewFields][FieldLength],int 
     }
     return -1;
 }
+
+//Linear search
+int linearSearch(char** array, int n, const char* target) {
+    for (int i = 0; i < n; ++i) {
+        if (strcmp(array[i], target) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+int linearSearch(char array[][FieldLength], int n, const char* target) {
+    for (int i = 0; i < n; ++i) {
+        if (strcmp(array[i], target) == 0)
+            return i;
+    }
+    return -1;
+}
