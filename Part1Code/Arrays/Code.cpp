@@ -314,6 +314,7 @@ void Alfie(){
     cout << "Q3 using merge Sort and Binary Search was completed in:" << durAlfieQ3.count() << " ms\n";
 
 }
+
 void Stanlie() {
 
     loadTransactions("cleaned_transactions.csv");
@@ -425,6 +426,8 @@ void Stanlie() {
     cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEndQ3 - StanlieStartQ3).count()<<"ms\n";
     auto StanlieEnd1Q3 = Clock::now();
     cout <<"Question 3 timer: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEnd1Q3 - StanlieStartQ3).count()<<"ms\n";
+    
+    return;
     // Cleanup
     for (int i = 0; i < uniqueWordCount; ++i)
     {
@@ -434,7 +437,7 @@ void Stanlie() {
     delete[] wordFreq;
     }
    
-    }
+}
 
 
 
@@ -448,7 +451,7 @@ int main(){
     do {
         cout << "\n===== MENU =====\n";
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
-        cout << "2. Place 2\n";
+        cout << "2. Insertion Sort + Linear Search (Stanlie Lin - TP073945)\n";
         cout << "3. Place 3\n";
         cout << "4. Place 4\n";
         cout << "5. Exit\n";
@@ -461,24 +464,22 @@ int main(){
                 Alfie();
                 break;
             case 2:
-                cout << "\nBadr\n";
+                cout << "\nInsertion Sort + Linear Search\n";
                 Stanlie();
                 break;
             case 3:
-                cout << "\nStanlie\n";
+                cout << "\nBadr\n";
                 break;
             case 4:
                 cout << "\nHadi\n";
                 break;
             case 5:
                 cout << "\nExiting...\n";
-                break;
+                return 0;
             default:
                 cout << "\nInvalid choice. Please try again.\n";
         }
 
     } while (choice != 0);
-
-    return 0;
 
 }
