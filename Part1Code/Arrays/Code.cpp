@@ -339,13 +339,13 @@ int main(){
                 Alfie();
                 break;
             case 2:
-                cout << "\nPlace 2\n";
+                cout << "\nBadr\n";
                 break;
             case 3:
-                cout << "\nPlace 3\n";
+                cout << "\nStanlie\n";
                 break;
             case 4:
-                cout << "\nPlace 4\n";
+                cout << "\nHadi\n";
                 break;
             case 5:
                 cout << "\nExiting...\n";
