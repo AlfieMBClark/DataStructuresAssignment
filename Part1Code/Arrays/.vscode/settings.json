@@ -62,6 +62,7 @@
     "chrono": "cpp",
     "type_traits": "cpp",
     "new": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "iomanip": "cpp"
   }
 }

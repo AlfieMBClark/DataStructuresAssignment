@@ -12,11 +12,8 @@
 using namespace std;
 using Clock = chrono::high_resolution_clock;
 
-int main(){
-    // Clean Data
-    cleanTransactions("transactions.csv");
-    cleanReviews    ("reviews.csv");
 
+void Alfie(){
     // Load data into dynamically sized arrays
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
@@ -210,7 +207,7 @@ int main(){
 
     if (idx < 0) {
         cout << "\nDidn't find any Electronics transactions.\n";
-        return 0;
+        return;
     }
 
     int firstQ2Alfie = idx, lastQ2Alfie = idx;
@@ -227,6 +224,17 @@ int main(){
     int total = lastQ2Alfie - firstQ2Alfie + 1;
     double percent = (double)credit / total * 100;
     auto AlfieEndfullQ2 = Clock::now();
+
+    // cout << "\nList of Electronics purchases using Credit Card:\n";
+    // for (int i = firstQ2Alfie; i <= lastQ2Alfie; ++i) {
+    //     if (strcmp(transactions[i][5], "Credit Card") == 0) {
+    //         for (int j = 0; j < TransactionFields; ++j) {
+    //             cout << transactions[i][j];
+    //             if (j < TransactionFields - 1) cout << ", ";
+    //         }
+    //         cout << "\n";
+    //     }
+    // }
     
     cout << "\nElectronics purchases:\n";
     cout << "Total: " << total << ", using Credit Card: " << credit << "\nPercentage = " << fixed << setprecision(2) << percent << "%\n";
@@ -234,7 +242,6 @@ int main(){
     cout << "Binary Search Process for all 1 star Reviews: " << chrono::duration_cast<chrono::nanoseconds>(AlfieEndBinaryQ2 - AlfieStartBinaryQ2).count() << " nano seconds\n";
     cout << "Entire Q2 Implementation BinarySearch: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndfullQ2 - AlfieStartFullQ2).count() << " ms\n\n";
 
-    //Algorithms Here
 
     // Question 3: Word frequency in 1-star reviews
     cout<<"\n\nQuestion 3\n";
@@ -244,8 +251,8 @@ int main(){
     int found = binarySearchReviews(reviews, reviewCount, "1", 2);
 
     if (found < 0) {
-        cout << "No 1-star reviews found.\n";
-        return 0;
+        cout << "No 1-star\n";
+        return;
     }
 
     int firstQ3Alfie = found, lastQ3Alfie = found;
@@ -305,6 +312,50 @@ int main(){
     }
 
     cout << "Q3 using merge Sort and Binary Search was completed in:" << durAlfieQ3.count() << " ms\n";
-    
+
+}
+
+
+int main(){
+    // Clean Data
+    cleanTransactions("transactions.csv");
+    cleanReviews    ("reviews.csv");
+
+    int choice;
+
+    do {
+        cout << "\n===== MENU =====\n";
+        cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
+        cout << "2. Place 2\n";
+        cout << "3. Place 3\n";
+        cout << "4. Place 4\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "\nMerge Sort & Binary Search\n";
+                Alfie();
+                break;
+            case 2:
+                cout << "\nPlace 2\n";
+                break;
+            case 3:
+                cout << "\nPlace 3\n";
+                break;
+            case 4:
+                cout << "\nPlace 4\n";
+                break;
+            case 5:
+                cout << "\nExiting...\n";
+                break;
+            default:
+                cout << "\nInvalid choice. Please try again.\n";
+        }
+
+    } while (choice != 0);
+
     return 0;
+
 }
