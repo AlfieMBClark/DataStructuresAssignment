@@ -65,6 +65,7 @@
     "iosfwd": "cpp",
     "fstream": "cpp",
     "array": "cpp",
-    "new": "cpp"
+    "new": "cpp",
+    "sstream": "cpp"
   }
 }

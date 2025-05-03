@@ -129,7 +129,7 @@ void Alfie(){
     //cout << "TR" << totalReviewsTR <<"TT"<< totalTransactionsTR;
 
     // Sort by date
-    mergeSortTransReviewArray(TransReviewArray, 0, pairCount - 1);
+    mergeSortTransReviewArray(TransReviewArray, 0, pairCount - 1, 0);
 
     // for (int i=0; i<pairCount; i++){
     //     cout << TransReviewArray[i][0] << "And" <<TransReviewArray[i][1]<<endl;
