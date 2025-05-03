@@ -10,7 +10,7 @@
 #include <cstring>
 using namespace std;
 
-// Constants for array dimensions
+//array dimensions
 static const int TransactionFields = 6;   
 static const int ReviewFields      = 4;  
 static const int FieldLength       = 255; 
