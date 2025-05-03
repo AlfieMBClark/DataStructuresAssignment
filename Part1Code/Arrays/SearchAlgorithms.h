@@ -9,6 +9,11 @@
 #include <chrono>  
 #include <cctype>
 #include <math.h>
+#include <map>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+
 using namespace std;
 
 //binary search transactions
@@ -196,6 +201,7 @@ void displayTopWords(WordCount* wc, int unique, int N) {
 //#####################################################################################################
 //#####################################################################################################
 
+//-----------------------------------------------------------------------------------------------------
 //Basic jump search algorithm
 
 int jumpSearch(char arr[][TransactionFields][FieldLength], int n, const string& target, int column) {
@@ -256,4 +262,84 @@ void findElectronicsAndCreditCardPurchases(char arr[][TransactionFields][FieldLe
     }
 }
 
+//Word count algorithm using bubble sort and jump search
+
+void reviewsBubbleSort(char arr[][ReviewFields][FieldLength], int n, int column) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (strcmp(arr[j][column], arr[j + 1][column]) > 0) {
+                for (int k = 0; k < ReviewFields; ++k) {
+                    char temp[FieldLength];
+                    strcpy(temp, arr[j][k]);
+                    strcpy(arr[j][k], arr[j + 1][k]);
+                    strcpy(arr[j + 1][k], temp);
+                }
+            }
+        }
+    }
+}
+
+int reviewsJumpSearch(char arr[][ReviewFields][FieldLength], int n, const string& target, int column) {
+    int step = sqrt(n);
+    int prev = 0;
+
+    // Find the block
+    while (prev < n && strcmp(arr[min(step, n) - 1][column], target.c_str()) < 0) {
+        prev = step;
+        step += sqrt(n);
+        if (prev >= n) return -1;
+    }
+
+    // Linear search within the block
+    for (int i = prev; i < min(step, n); ++i) {
+        if (strcmp(arr[i][column], target.c_str()) == 0) return i;
+    }
+
+    return -1;
+}
+
+void analyzeOneStarReviews(char reviews[][ReviewFields][FieldLength], int reviewCount) {
+    const string targetRating = "1";
+
+    // Step 1: Jump search to find first 1-star review
+    int startIndex = reviewsJumpSearch(reviews, reviewCount, targetRating, 2); // 2 = rating column
+    if (startIndex == -1) {
+        cout << "No 1-star reviews found.\n";
+        return;
+    }
+
+    map<string, int> wordCount;
+
+    // Step 2: Loop through all 1-star reviews
+    for (int i = startIndex; i < reviewCount; ++i) {
+        if (strcmp(reviews[i][2], targetRating.c_str()) != 0) break;  // Stop when rating changes
+
+        // Step 3: Extract words from review text (assume column 3)
+        string reviewText = reviews[i][3];
+        stringstream ss(reviewText);
+        string word;
+
+        while (ss >> word) {
+            // Optional: clean punctuation
+            word.erase(remove_if(word.begin(), word.end(), ::ispunct), word.end());
+            transform(word.begin(), word.end(), word.begin(), ::tolower);  // normalize
+            if (!word.empty())
+                wordCount[word]++;
+        }
+    }
+
+    // Step 4: Sort words by frequency
+    vector<pair<string, int>> sortedWords(wordCount.begin(), wordCount.end());
+    sort(sortedWords.begin(), sortedWords.end(), [](auto& a, auto& b) {
+        return b.second < a.second; // descending
+    });
+
+    // Step 5: Display top results
+    cout << "\n===== Word Frequency in 1-Star Reviews =====\n";
+    for (auto& entry : sortedWords) {
+        cout << entry.first << ": " << entry.second << "\n";
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------
 #endif

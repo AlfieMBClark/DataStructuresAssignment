@@ -558,7 +558,7 @@ void Hadi() {
     cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
 
     auto bubblSortQ1Start = Clock::now(); // Start timer for Question 1
-    bubbleSort(transactions, transactionCount, 4);  // Sorting transactions by the 'date' column (index 4)
+    bubbleSort(transactions, transactionCount, 4);  // Sorting transactions by the date
     auto bubbleSortQ1End = Clock::now();  // End timer for Question 1
 
     // Count transactions per date
@@ -584,15 +584,38 @@ void Hadi() {
 
     // Question 2: Jump Search for Electronics purchases using Credit Card
 
-    auto bubblSortQ2Start = Clock::now(); // Start timer for Question 1
-    bubbleSort(transactions, transactionCount, 2);  // 2 = category column
+    auto bubblSortQ2Start = Clock::now();
+    bubbleSort(transactions, transactionCount, 2);  // Re-sort transactions by category
     findElectronicsAndCreditCardPurchases(transactions, transactionCount);
-    auto bubbleSortQ2End = Clock::now();  // End timer for Question 1
+    auto bubbleSortQ2End = Clock::now();
 
     cout << "Jump Search for Electronics using Credit Card completed in "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count() << " ms\n";
 
-}  
+
+    // Question 3: Word Frequency in 1-Star Reviews
+
+    auto bubbleSortQ3Start = Clock::now(); // Start timer for Question 3
+    reviewsBubbleSort(reviews, reviewCount, 2); // Sort reviews by rating
+    analyzeOneStarReviews(reviews, reviewCount);
+    auto bubbleSortQ3End = Clock::now();  // End timer for Question 3
+
+    cout << "Word Frequency Analysis for 1-Star Reviews using bubble sort and jump search completed in "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count() << " ms\n";
+
+
+    //Final Summary
+
+    cout << "Summary of all times:\n";
+    cout << "Sorting the array: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ1End - bubblSortQ1Start).count() << " ms\n";
+    cout << "Searching for all electronics purchased using a credit card: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count() << " ms\n";
+    cout << "Finding all 1-star reviews and extracting the individual words: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count() << " ms\n";
+}
+
+
 
 int main(){
     // Clean Data
