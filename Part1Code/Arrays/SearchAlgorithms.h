@@ -8,6 +8,7 @@
 #include <cstring>
 #include <chrono>  
 #include <cctype>
+#include <math.h>
 using namespace std;
 
 //binary search transactions
@@ -195,5 +196,64 @@ void displayTopWords(WordCount* wc, int unique, int N) {
 //#####################################################################################################
 //#####################################################################################################
 
+//Basic jump search algorithm
+
+int jumpSearch(char arr[][TransactionFields][FieldLength], int n, const string& target, int column) {
+    int step = sqrt(n);  // Determine block size
+    int prev = 0;
+
+    // Jump in blocks to find the block containing the target
+    while (strcmp(arr[min(step, n) - 1][column], target.c_str()) < 0) {
+        prev = step;
+        step += sqrt(n);
+        if (prev >= n) return -1;  // Target not found
+    }
+
+    // Linear search within the identified block
+    for (int i = prev; i < min(step, n); ++i) {
+        if (strcmp(arr[i][column], target.c_str()) == 0) {
+            return i;  // Return index of the first match
+        }
+    }
+
+    return -1;  // Not found
+}
+
+// Jump search for finding electrnics purchases with credit cards
+
+void findElectronicsAndCreditCardPurchases(char arr[][TransactionFields][FieldLength], int n) {
+    const string category = "Electronics";
+    const string paymentMethod = "Credit Card";
+
+    // Step 1: Use Jump Search to find first occurrence of "Electronics" in column 2
+    int startIndex = jumpSearch(arr, n, category, 2);  // 2 = category column
+    if (startIndex == -1) {
+        cout << "No Electronics purchases found.\n";
+        return;
+    }
+
+    // Step 2: Count Electronics purchases and those made with Credit Card
+    int electronicsCount = 0;
+    int creditCardCount = 0;
+
+    for (int i = startIndex; i < n; ++i) {
+        if (strcmp(arr[i][2], category.c_str()) != 0) break;  // Stop if category changes (data is sorted)
+        electronicsCount++;
+
+        if (strcmp(arr[i][5], paymentMethod.c_str()) == 0) {
+            creditCardCount++;
+        }
+    }
+
+    // Step 3: Display results
+    cout << "\n===== Electronics Purchase Analysis =====\n";
+    cout << "Total Electronics Purchases: " << electronicsCount << "\n";
+    cout << "Purchases with Credit Card: " << creditCardCount << "\n";
+
+    if (electronicsCount > 0) {
+        float percentage = (creditCardCount * 100.0f) / electronicsCount;
+        cout << "Percentage using Credit Card: " << percentage << "%\n";
+    }
+}
 
 #endif

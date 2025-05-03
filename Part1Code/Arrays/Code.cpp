@@ -548,15 +548,18 @@ void Badr() {
 }
 
 void Hadi() {
+
+    //Question 1: Sorting transactions by date and counting them
+
     // Load data into dynamically sized arrays
     loadTransactions("cleaned_transactions.csv");
     loadReviews("cleaned_reviews.csv");
 
     cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
 
-    auto Q1Start = Clock::now(); // Start timer for Question 1
+    auto bubblSortQ1Start = Clock::now(); // Start timer for Question 1
     bubbleSort(transactions, transactionCount, 4);  // Sorting transactions by the 'date' column (index 4)
-    auto Q1End = Clock::now();  // End timer for Question 1
+    auto bubbleSortQ1End = Clock::now();  // End timer for Question 1
 
     // Count transactions per date
     string currentDate = transactions[0][4];
@@ -575,9 +578,20 @@ void Hadi() {
     cout << currentDate << ":\t" << count << "\n";  // Output last date count
     cout << "Total Transactions: " << transactionCount << "\n";
 
-    cout << "Heap Sort and Counting Transactions completed in "
-         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
+    cout << "Bubble Sort completed in: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ1End - bubblSortQ1Start).count() << " ms\n";
     
+
+    // Question 2: Jump Search for Electronics purchases using Credit Card
+
+    auto bubblSortQ2Start = Clock::now(); // Start timer for Question 1
+    bubbleSort(transactions, transactionCount, 2);  // 2 = category column
+    findElectronicsAndCreditCardPurchases(transactions, transactionCount);
+    auto bubbleSortQ2End = Clock::now();  // End timer for Question 1
+
+    cout << "Jump Search for Electronics using Credit Card completed in "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count() << " ms\n";
+
 }  
 
 int main(){
