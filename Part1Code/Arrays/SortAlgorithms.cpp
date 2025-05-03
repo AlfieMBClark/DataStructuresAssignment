@@ -37,8 +37,8 @@ void MergeSort(void* dataArray, void* Buffer, int rowSize, int left, int right, 
         } else {
             memcpy(temp + (k * rowSize), rowJ, rowSize);
             j++;
+            k++;
         }
-        k++;
     }
 
     //copy leftover in left
@@ -110,3 +110,93 @@ void mergeSortWordCounts(WordCount words[], int low, int high, WordCount temp[])
         words[x] = temp[x];
     }
 }
+
+//##################################################################################################
+//##################################################################################################
+// heap sort algorithm for transactions by date 
+
+void heapify(char arr[][TransactionFields][FieldLength], int n, int i, int column) {
+    int largest = i; // root
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    // Compare with left child
+    if (left < n && strcmp(arr[left][column], arr[largest][column]) > 0)
+        largest = left;
+
+    // Compare with right child
+    if (right < n && strcmp(arr[right][column], arr[largest][column]) > 0)
+        largest = right;
+
+    // Swap if needed
+    if (largest != i) {
+        for (int j = 0; j < TransactionFields; ++j) {
+            char temp[FieldLength];
+            strcpy(temp, arr[i][j]);
+            strcpy(arr[i][j], arr[largest][j]);
+            strcpy(arr[largest][j], temp);
+        }
+
+        // Recursively heapify
+        heapify(arr, n, largest, column);
+    }
+}
+
+void heapSort(char arr[][TransactionFields][FieldLength], int n, int column) {
+    // Build max heap
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i, column);
+
+    // Extract elements from heap
+    for (int i = n - 1; i > 0; i--) {
+        // Swap root with last element
+        for (int j = 0; j < TransactionFields; ++j) {
+            char temp[FieldLength];
+            strcpy(temp, arr[0][j]);
+            strcpy(arr[0][j], arr[i][j]);
+            strcpy(arr[i][j], temp);
+        }
+
+        // Heapify reduced heap
+        heapify(arr, i, 0, column);
+    }
+}
+//##################################################################################################
+//##################################################################################################
+
+// Function to maintain the heap property (max-heap) for transactions
+// For WordCount (sorting by frequency)
+void heapify(WordCount* wc, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && wc[left].count > wc[largest].count)
+        largest = left;
+
+    if (right < n && wc[right].count > wc[largest].count)
+        largest = right;
+
+    if (largest != i) {
+        WordCount temp = wc[i];
+        wc[i] = wc[largest];
+        wc[largest] = temp;
+        heapify(wc, n, largest);
+    }
+}
+
+void heapSort(WordCount* wc, int n) {
+    for (int i = n / 2 - 1; i >= 0; --i)  // Build max heap
+        heapify(wc, n, i);
+
+    for (int i = n - 1; i > 0; --i) {
+        WordCount temp = wc[0];
+        wc[0] = wc[i];
+        wc[i] = temp;
+        heapify(wc, i, 0);  // Heapify reduced heap
+    }
+}
+
+//##################################################################################################
+//##################################################################################################
+
