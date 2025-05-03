@@ -63,6 +63,8 @@
     "chrono": "cpp",
     "iostream": "cpp",
     "iosfwd": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "array": "cpp",
+    "new": "cpp"
   }
 }

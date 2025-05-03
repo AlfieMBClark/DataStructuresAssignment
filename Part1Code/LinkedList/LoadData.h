@@ -1,18 +1,29 @@
 #ifndef LOADDATA_H
 #define LOADDATA_H
 
-struct Transaction {char* customerID;char* product;char* category;double price;char* date;char* paymentMethod;};
+#include <string>
+using namespace std;
 
-struct TransactionNode {Transaction data;TransactionNode* next;TransactionNode(const Transaction& t);~TransactionNode();};
+//Structs
+struct Transaction {string customerID;string product;string category;double price;string date;string paymentMethod;};
 
-struct Review {char* productID;char* customerID;int rating;char* Reviewtext;};
+struct Review {string productID;string customerID;int rating;string reviewText;};
 
-struct ReviewNode {Review data;ReviewNode* next;ReviewNode(const Review& r);~ReviewNode();};
+//Node structs
+struct TransactionNode {
+    Transaction data;
+    TransactionNode* next;
+    TransactionNode(const Transaction& t);
+};
 
-TransactionNode* loadTransactions(const char* filename);
-ReviewNode* loadReviews(const char* filename);
+struct ReviewNode {
+    Review data;
+    ReviewNode* next;
+    ReviewNode(const Review& r);
+};
 
-int listLength(TransactionNode* head);
-int listLength(ReviewNode* head);
+// Function
+TransactionNode* loadTransactions(const string& filename);
+ReviewNode* loadReviews(const string& filename);
 
 #endif

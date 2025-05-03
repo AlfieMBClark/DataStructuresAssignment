@@ -19,37 +19,50 @@ void Alfie(){
 
 
 int main(){
-    
-    TransactionNode* txHead = loadTransactions("transactions_cleaned.csv");
-    ReviewNode*      rvHead = loadReviews    ("reviews_cleaned.csv");
+    const string transactionsFile = "transactions_cleaned.csv";
+    const string reviewsFile = "reviews_cleaned.csv";
+
+    TransactionNode* txHead = loadTransactions(transactionsFile);
+    ReviewNode* rvHead = loadReviews(reviewsFile);
+
     if (!txHead || !rvHead) {
-        cerr << "Error loading data\n";
+        std::cerr << "Error loading data\n";
         return 1;
     }
-    cout << "Loaded " << listLength(txHead) << " transactions and "<< listLength(rvHead) << " reviews.\n";
 
-    
-    //Prints out all the data
-    int totalTransactions =0;
-    int totalReviews=0;
-    //cout << "\nAll loaded transactions:\n";
+    int totalTransactions = 0;
+    int totalReviews = 0;
+
+    //cout << "All loaded transactions:\n";
     //cout << "CustID | Product | Category | Price | Date | Payment\n";
     for (TransactionNode* cur = txHead; cur != nullptr; cur = cur->next) {
-        auto &t = cur -> data;
-        cout << t.customerID << "|"<< t.product<< " | "<< t.category<< " | "<< t.price<< " | "<< t.date<< " | "<< t.paymentMethod<< "\n";
+        const auto& t = cur->data;
+        //cout << t.customerID << " | " << t.product << " | "<< t.category << " | " << t.price << " | "<< t.date << " | " << t.paymentMethod << "\n";
         totalTransactions++;
     }
 
-    // 4) Print every review
     //cout << "\nAll loaded reviews:\n";
     //cout << "ProdID | CustID | Rating | Text\n";
     for (ReviewNode* cur = rvHead; cur != nullptr; cur = cur->next) {
-        auto &r = cur->data;
-        cout << r.productID  << " | "<< r.customerID << " | "<< r.rating     << " | "<< r.Reviewtext << "\n";
+        const auto& r = cur->data;
+        //cout << r.productID << " | " << r.customerID << " | "<< r.rating << " | " << r.reviewText << "\n";
         totalReviews++;
     }
-    
-    cout << "Total Reviews: "<<totalReviews<<"\tTotal Transactions: "<<totalTransactions;
+
+    cout << "\nTotal Reviews: " << totalReviews<< "\tTotal Transactions: " << totalTransactions << "\n";
+
+    //Clena
+    while (txHead) {
+        TransactionNode* temp = txHead;
+        txHead = txHead->next;
+        delete temp;
+    }
+
+    while (rvHead) {
+        ReviewNode* temp = rvHead;
+        rvHead = rvHead->next;
+        delete temp;
+    }
 
     int choice;
 
@@ -79,6 +92,7 @@ int main(){
                 break;
             case 5:
                 cout << "\nExiting...\n";
+                return 0;
                 break;
             default:
                 cout << "\nInvalid choice. Please try again.\n";
@@ -86,7 +100,4 @@ int main(){
 
     } while (choice != 0);
 
-   
-    
-    return 0;
 }

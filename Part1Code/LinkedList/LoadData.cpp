@@ -2,131 +2,104 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cstring>
-#include <cstdlib>
 
 using namespace std;
 
-char* allocString(const string& str) {
-    char* ptr = new char[str.length() + 1];
-    strcpy(ptr, str.c_str());
-    return ptr;
-}
+// Constructors
+TransactionNode::TransactionNode(const Transaction& t) : data(t), next(nullptr) {}
+ReviewNode::ReviewNode(const Review& r) : data(r), next(nullptr) {}
 
-// Constructor
-TransactionNode::TransactionNode(const Transaction& t) {
-    data.customerID=allocString(t.customerID);
-    data.product= allocString(t.product);
-    data.category= allocString(t.category);
-    data.price= t.price;
-    data.date= allocString(t.date);
-    data.paymentMethod=allocString(t.paymentMethod);
-    next= nullptr;
-}
-
-// Destructor
-TransactionNode::~TransactionNode() {
-    delete[] data.customerID;
-    delete[] data.product;
-    delete[] data.category;
-    delete[] data.date;
-    delete[] data.paymentMethod;
-}
-
-// Constructor
-ReviewNode::ReviewNode(const Review& r) {
-    data.productID=allocString(r.productID);
-    data.customerID= allocString(r.customerID);
-    data.rating= r.rating;
-    data.Reviewtext=allocString(r.Reviewtext);
-    next = nullptr;
-}
-
-// Destructor
-ReviewNode::~ReviewNode() {
-    delete[] data.productID;
-    delete[] data.customerID;
-    delete[] data.Reviewtext;
-}
-
-TransactionNode* loadTransactions(const char* filename) {
+// CSV file to linked list 
+TransactionNode* loadTransactions(const string& filename) {
     ifstream file(filename);
+    if (!file) {
+        cerr << "COuldnt open transaction file:";
+        return nullptr;
+    }
+
     string line;
-    getline(file, line); // Skip header
+    getline(file, line); // skip header 
 
     TransactionNode* head = nullptr;
     TransactionNode* tail = nullptr;
 
     while (getline(file, line)) {
         stringstream ss(line);
-        string f[6];
-        for (int i = 0; i < 6; ++i)
-            getline(ss, f[i], (i < 5) ? ',' : '\n');
+        string CusID, Prod, Cat, PriceStr, Date, PayMethod;
+
+        getline(ss, CusID, ',');
+        getline(ss, Prod, ',');
+        getline(ss, Cat, ',');
+        getline(ss, PriceStr, ',');
+        getline(ss, Date, ',');
+        getline(ss, PayMethod);
+
+        if (PriceStr == "") PriceStr = "0";
 
         Transaction t;
-        t.customerID= (char*)f[0].c_str();
-        t.product= (char*)f[1].c_str();
-        t.category= (char*)f[2].c_str();
-        t.price= atof(f[3].c_str());
-        t.date= (char*)f[4].c_str();
-        t.paymentMethod= (char*)f[5].c_str();
+        t.customerID = CusID;
+        t.product = Prod;
+        t.category = Cat;
+        t.price = atof(PriceStr.c_str());
+        t.date = Date;
+        t.paymentMethod = PayMethod;
 
         TransactionNode* node = new TransactionNode(t);
-        if (!head)
+
+        if (!head) {
             head = tail = node;
-        else {
+        } else {
             tail->next = node;
             tail = node;
         }
+
+        //cout << "[Transaction Added] " << t.customerID << " - " << t.product << endl;
     }
+
     return head;
 }
 
-ReviewNode* loadReviews(const char* filename) {
+// Same for reviews
+ReviewNode* loadReviews(const string& filename) {
     ifstream file(filename);
+    if (!file) {
+        cerr << "Could not open review file";
+        return nullptr;
+    }
+
     string line;
-    getline(file, line); // Skip header
+    getline(file, line); // header skip
 
     ReviewNode* head = nullptr;
     ReviewNode* tail = nullptr;
 
     while (getline(file, line)) {
         stringstream ss(line);
-        string f[4];
-        for (int i = 0; i < 4; ++i)
-            getline(ss, f[i], (i < 3) ? ',' : '\n');
+        string ProdID, CusID, RatingStr, RevText;
+
+        getline(ss, ProdID, ',');
+        getline(ss, CusID, ',');
+        getline(ss, RatingStr, ',');
+        getline(ss, RevText); 
 
         Review r;
-        r.productID=(char*)f[0].c_str();
-        r.customerID=(char*)f[1].c_str();
-        r.rating=atoi(f[2].c_str());
-        r.Reviewtext= (char*)f[3].c_str();
+        r.productID = ProdID;
+        r.customerID = CusID;
+        r.rating = atoi(RatingStr.c_str());
+        r.reviewText = RevText;
 
-        ReviewNode* node=new ReviewNode(r);
-        if (!head)
+        ReviewNode* node = new ReviewNode(r);
+
+        if (!head) {
             head = tail = node;
-        else {
+        } else {
             tail->next = node;
             tail = node;
         }
+
+
+        //cout << "[Review Added] " << r.productID << " - Rating: " << r.rating << endl;
     }
+
     return head;
-}
-
-int listLength(TransactionNode* head) {
-    int count = 0;
-    while (head) {
-        count++;
-        head = head->next;
-    }
-    return count;
-}
-
-int listLength(ReviewNode* head) {
-    int count = 0;
-    while (head) {
-        count++;
-        head = head->next;
-    }
-    return count;
 }
