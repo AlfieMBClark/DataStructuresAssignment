@@ -66,6 +66,7 @@
     "fstream": "cpp",
     "array": "cpp",
     "new": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "cstring": "cpp"
   }
 }

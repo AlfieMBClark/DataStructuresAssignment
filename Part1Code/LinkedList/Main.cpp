@@ -19,7 +19,7 @@ void Alfie(){
         return;
     }
 
-    // Access and print transaction data
+    // print trans data
     // TransactionNode* current = loader.getTransHead();
     // while (current != nullptr) {
     //     const Transaction& t = current->data;

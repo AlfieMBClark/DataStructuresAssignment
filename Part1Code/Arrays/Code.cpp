@@ -20,6 +20,8 @@ void Alfie(){
     
     cout << "Transactions:"<< transactionCount<< "\tReviews: "<<reviewCount<<endl;
 
+     // object
+     MergeSort sort;
 
     // Question 1: Count transactions per day
     // Unique customer ID's
@@ -48,7 +50,7 @@ void Alfie(){
 
     //Merge Sort
     auto AlfieStartQ1 = Clock::now();
-    mergeSortTransactions(transactions, 0, transactionCount - 1, 4);
+    sort.sortTransactions(transactions, 0, transactionCount - 1, 4, transactionCount);
     auto AlfieEndMergeSortQ1 = Clock::now();
 
     
@@ -125,11 +127,11 @@ void Alfie(){
         }
     }
 
-    //cout << TransReviewArray[1][0]<<"AND"<<TransReviewArray[1][1];
-    //cout << "TR" << totalReviewsTR <<"TT"<< totalTransactionsTR;
+    //cout << TransReviewArray[1][0]<<" AND "<<TransReviewArray[1][1];
+    cout << "\nTR " << totalReviewsTR <<"  TT "<< totalTransactionsTR;
 
     // Sort by date
-    mergeSortTransReviewArray(TransReviewArray, 0, pairCount - 1, 0);
+    sort.sortTransRevArray(TransReviewArray, 0, pairCount - 1, 0, transactionCount);
 
     // for (int i=0; i<pairCount; i++){
     //     cout << TransReviewArray[i][0] << "And" <<TransReviewArray[i][1]<<endl;
@@ -198,7 +200,7 @@ void Alfie(){
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
     auto AlfieStartFullQ2 = Clock::now();
-    mergeSortTransactions(transactions, 0, transactionCount - 1, 2);
+    sort.sortTransactions(transactions, 0, transactionCount - 1, 4, transactionCount);
     auto AlfieStartBinaryQ2 = Clock::now();
     int idx = binarySearch(transactions, transactionCount, "Electronics", 2);
 
@@ -244,7 +246,7 @@ void Alfie(){
     cout<<"\n\nQuestion 3\n";
     auto startAlfieQ3 = Clock::now();
 
-    mergeSortReviews(reviews, 0, reviewCount - 1, 2);
+    sort.sortReviews(reviews, 0, reviewCount - 1, 2, reviewCount);
     int found = binarySearchReviews(reviews, reviewCount, "1", 2);
 
     if (found < 0) {
@@ -312,7 +314,7 @@ void Alfie(){
     }
 
     WordCount* wcBuffer = new WordCount[foundWords];
-    mergeSortWordCounts(wc, 0, foundWords - 1, wcBuffer);
+    sort.sortWordCounts(wc, 0, foundWords - 1, wcBuffer);
     auto endAlfieQ3 = Clock::now();
     auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 

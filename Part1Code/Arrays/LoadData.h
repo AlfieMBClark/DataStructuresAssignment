@@ -64,7 +64,7 @@ void loadTransactions(const char* cleanedFile) {
         }
         row++;
     }
-
+    int TransRows = row;
     fin.close();
     //cout << "Trans Data Loaded: "<<row;
 }
@@ -112,6 +112,7 @@ void loadReviews(const char* cleanedFile) {
         row++;
     }
 
+    int RevRows=row;
     fin.close();
     //cout << "Rev Data Loaded: "<<row;
 }
