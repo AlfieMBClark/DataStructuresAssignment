@@ -6,6 +6,7 @@
 int binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,const char* target,int column);
 int binarySearchReviews(char SortedReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column);
 double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][FieldLength],int  size,const char* category,const char* paymentMethod);
+
 //LinearSearch
 int linearSearch(char** array, int n, const char* target);
 int linearSearch(char array[][FieldLength], int n, const char* target);

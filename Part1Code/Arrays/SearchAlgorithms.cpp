@@ -1,7 +1,7 @@
 #include "SearchAlgorithms.h"
 #include <cstring>
 
-//binary search on transactions
+//binary search transactions
 int binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,const char* target,int  column) {
     int l=0,r=size-1;
     
@@ -38,18 +38,25 @@ double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][Fie
     return total ? (double)match/total*100.0 : 0.0;
 }
 
-//binary search on reviews
+//binary search reviews
 int binarySearchReviews(char SortedReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column) {
     int l = 0, r = size - 1;
     while (l <= r) {
-        int m   = (l + r) / 2;
-        int cmp = strcmp(SortedReviewArray[m][column], target);
-        if      (cmp <  0) l = m + 1;
-        else if (cmp >  0) r = m - 1;
-        else               return m;
+        int m =(l + r)/2;
+        int cmp=strcmp(SortedReviewArray[m][column],target);
+        if (cmp <  0) 
+            l = m + 1;
+        else if (cmp >  0) 
+            r = m - 1;
+        else               
+            return m;
     }
     return -1;
 }
+
+
+
+
 
 //Linear search
 int linearSearch(char** array, int n, const char* target) {
