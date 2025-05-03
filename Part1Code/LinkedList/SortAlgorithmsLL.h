@@ -62,7 +62,7 @@ struct TransReviewPair {
 //MergeSort Class
 class MergeSortLL {
 private:
-    // Split the linked list in two halves - helper for all merge sorts
+    // Split the linked list in two halves
     template<typename NodeType>
     NodeType* splitList(NodeType* head) {
         if (!head || !head->next) return NULL;

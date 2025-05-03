@@ -16,7 +16,7 @@ using Clock = chrono::high_resolution_clock;
 
 void Alfie(){
     cout << "\nMerge Sort & Binary Search\n";
-    Loader loader("transactions_cleaned.csv", "reviews_cleaned.csv");
+    Loader loader("cleaned_transactions.csv", "cleaned_reviews.csv");
 
     if (!loader.loadTrans()||!loader.loadRev()) {
         cerr << "Failed to load files";
@@ -54,8 +54,6 @@ void Alfie(){
     auto sortStartTime = Clock::now();
     transHead = sort.sortTransactions(transHead, 4);
     auto sortEndTime = Clock::now();
-      
-    
     cout << "\nTransactions by Date:\n";
       
     // DateCount linked list
@@ -72,16 +70,15 @@ void Alfie(){
             if (current->data.date == currentDate) {
                 dailyCount++;
             } else {
-                // Add to DateCount linked list
-                DateCount* newNode = new DateCount(currentDate.c_str(), dailyCount);
-                newNode->next = dateCountHead;
-                dateCountHead = newNode;
+                // Add to Date
+                DateCount* newDateNode = new DateCount(currentDate.c_str(), dailyCount);
+                newDateNode->next = dateCountHead;
+                dateCountHead = newDateNode;
                 uniqueDatesCount++;
                   
-                  // Print the date and count
                 cout << currentDate << ":\t" << dailyCount << "\n";
-                  
-                // Reset for next date
+            
+                // Reset
                 currentDate = current->data.date;
                 dailyCount = 1;
             }
@@ -89,18 +86,17 @@ void Alfie(){
           }
           
         // Add the last date
-        DateCount* newNode = new DateCount(currentDate.c_str(), dailyCount);
-        newNode->next = dateCountHead;
-        dateCountHead = newNode;
+        DateCount* newDateNode = new DateCount(currentDate.c_str(), dailyCount);
+        newDateNode->next = dateCountHead;
+        dateCountHead = newDateNode;
         uniqueDatesCount++;
           
-        // Print the last date and count
+        // last date and count
         cout << currentDate << ":\t" << dailyCount << "\n";
     }
       
     //cout << "Total unique dates: " << uniqueDatesCount << "\n";
     cout << "Total transactions: " << loader.getTransCount() << "\n";
-      
     auto sortDuration = chrono::duration_cast<chrono::nanoseconds>(sortEndTime - sortStartTime).count();
     cout << "Merge sort time: " << sortDuration << " ns\n";
       
@@ -110,11 +106,11 @@ void Alfie(){
     // Create Transaction + Review pairs
     cout << "\nCreating transaction-review pairs...";
 
-    // Simply create a TransReviewPair list with ALL transactions
+    // TransReviewPair list
     TransReviewPair* trHead = nullptr;
     int pairCount = 0;
 
-    // Copy all transactions directly to TransReviewPair list
+    // Copytransactions to TransReviewPair list
     TransactionNode* transCurrent = transHead;
     while (transCurrent != nullptr) {
         TransReviewPair* newPair = new TransReviewPair(
@@ -154,7 +150,6 @@ void Alfie(){
     // Now analyze which reviews correspond to transactions
     int matchedReviews = 0;
     int unmatchedReviews = 0;
-
     // For each review, check if there's a matching customer in the transactions
     ReviewInfo* currReview = reviewInfoHead;
     while (currReview != nullptr) {
@@ -169,13 +164,11 @@ void Alfie(){
             }
             transCurrent = transCurrent->next;
         }
-        
         if (foundCustomer) {
             matchedReviews++;
         } else {
             unmatchedReviews++;
         }
-        
         currReview = currReview->next;
     }
 
@@ -183,7 +176,7 @@ void Alfie(){
     //cout << "Sorting transaction-review pairs by date...\n";
     trHead = sort.sortTransReviewPairs(trHead, 0);
 
-    // Count transactions per date in the TransReviewPair list
+    //transactions per date in the TransReviewPair
     DateCount* revDateCountHead = nullptr;
 
     if (trHead != nullptr) {
@@ -321,31 +314,31 @@ void Alfie(){
 
     //all Electronics leftright of node
     // backwards
-    TransactionNode* firstElectronics = foundNode;
-    TransactionNode* prev = nullptr;
-    TransactionNode* temp = sortedTransHead;
+    TransactionNode* firstElectNode = foundNode;
+    TransactionNode* prevNode = nullptr;
+    TransactionNode* tempTrans = sortedTransHead;
 
-    //Predecessor map to find the node before any given node
-    while (temp != nullptr) {
-        if (temp->next == firstElectronics) {
-            prev = temp;
+    //Predecessor to find node before
+    while (tempTrans != nullptr) {
+        if (tempTrans->next == firstElectNode) {
+            prevNode = tempTrans;
             break;
         }
-        temp = temp->next;
+        tempTrans = tempTrans->next;
     }
     //back until first node
-    while (prev != nullptr && prev->data.category == "Electronics") {
-        firstElectronics = prev;
+    while (prevNode != nullptr && prevNode->data.category == "Electronics") {
+        firstElectNode = prevNode;
     
         //node before elect
-        temp = sortedTransHead;
-        prev = nullptr;
-        while (temp != firstElectronics) {
-            if (temp->next == firstElectronics) {
-                prev = temp;
+        tempTrans = sortedTransHead;
+        prevNode = nullptr;
+        while (tempTrans != firstElectNode) {
+            if (tempTrans->next == firstElectNode) {
+                prevNode = tempTrans;
                 break;
             }
-            temp = temp->next;
+            tempTrans = tempTrans->next;
         }
     }
 
@@ -356,18 +349,17 @@ void Alfie(){
     }
 
     auto searchEndTimeQ2 = Clock::now();
-
     //Count Electronics transactions and those using Credit Card
     //cout << "Counting Credit Card transactions...\n";
-    int totalElectronics = 0;
-    int creditCardElectronics = 0;
+    int ElectronicsCount = 0;
+    int CCElectronicsCount = 0;
 
     //Go through each
-    TransactionNode* Q2 = firstElectronics;
+    TransactionNode* Q2 = firstElectNode;
     while (true) {
-        totalElectronics++;
+        ElectronicsCount++;
         if (Q2->data.paymentMethod == "Credit Card") {
-            creditCardElectronics++;
+            CCElectronicsCount++;
         }
         if (Q2 == lastElectronics) {
             break;
@@ -377,15 +369,15 @@ void Alfie(){
     }
 
     double percentage = 0.0;
-    if (totalElectronics > 0) {
-        percentage = (double)creditCardElectronics / totalElectronics * 100.0;
+    if (ElectronicsCount > 0) {
+        percentage = (double)CCElectronicsCount / ElectronicsCount * 100.0;
     }
 
     auto endTimeQ2 = Clock::now();
 
     cout << "\nElectronics purchases analysis:\n";
-    cout << "Total Electronics transactions: " << totalElectronics << "\n";
-    cout << "Electronics transactions using Credit Card: " << creditCardElectronics << "\n";
+    cout << "Total Electronics transactions: " << ElectronicsCount << "\n";
+    cout << "Electronics transactions using Credit Card: " << CCElectronicsCount << "\n";
     cout << "Percentage: " << fixed << setprecision(2) << percentage << "%\n";
 
     // Performance statistics
@@ -394,6 +386,176 @@ void Alfie(){
     cout << "Search and boundary finding time: " << chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ2 - searchStartTimeQ2).count() << " ns\n";
     cout << "Total analysis time: " << chrono::duration_cast<chrono::milliseconds>(endTimeQ2 - startTimeQ2).count() << " ms\n";
     
+
+
+
+    //Question 3: Word Counts in 1 star Reviews
+    cout << "\n\nQuestion 3: Frequent Words in 1 star Reviews\n";
+    auto startTimeQ3 = Clock::now();
+    ReviewNode* sortedRevHead = sort.sortReviews(reviewHead, 2); // Sort by rating 
+    
+    auto MergeTimeQ3 = Clock::now();
+    auto searchStartTimeQ3 = Clock::now();
+    ReviewNode* foundRevNode = binarySearchReviews(sortedRevHead, "1", 2);
+
+    if (foundRevNode == nullptr) {
+        cout << "\nNo 1 Star Reviews\n";
+        return;
+    }
+
+    // Find all 1-star reviews
+    ReviewNode* firstOneStarReview = foundRevNode;
+    ReviewNode* prevReview = nullptr;
+    ReviewNode* tempReview = sortedRevHead;
+
+    //Same q2
+    while (tempReview != nullptr) {
+        if (tempReview->next == firstOneStarReview) {
+            prevReview = tempReview;
+            break;
+        }
+        tempReview = tempReview->next;
+    }
+
+    // backward until 1
+    while (prevReview != nullptr && prevReview->data.rating == 1) {
+        firstOneStarReview = prevReview;
+        
+        //pred
+        tempReview = sortedRevHead;
+        prevReview = nullptr;
+        while (tempReview != firstOneStarReview) {
+            if (tempReview->next == firstOneStarReview) {
+                prevReview = tempReview;
+                break;
+            }
+            tempReview = tempReview->next;
+        }
+    }
+
+    //last 1-star  forward
+    ReviewNode* lastOneStarReview = foundRevNode;
+    while (lastOneStarReview->next != nullptr && lastOneStarReview->next->data.rating == 1) {
+        lastOneStarReview = lastOneStarReview->next;
+    }
+
+    auto searchEndTimeQ3 = Clock::now();
+
+    // Count
+    int totalOneStarReviews = 0;
+    ReviewNode* currentReview = firstOneStarReview;
+    while (true) {
+        totalOneStarReviews++;
+        if (currentReview == lastOneStarReview) {
+            break;
+        }
+        currentReview = currentReview->next;
+    }
+
+    cout << "\nFound " << totalOneStarReviews << " 1-star reviews\n";
+
+    // linked list for word counts
+    WordCountNode* wordCountHead = nullptr;
+    int totalWords = 0;
+
+    //count word frequencies
+    currentReview = firstOneStarReview;
+    while (true) {
+        // text to a C-string for tokenization
+        char reviewText[1024];
+        strncpy(reviewText, currentReview->data.reviewText.c_str(), sizeof(reviewText) - 1);
+        reviewText[sizeof(reviewText) - 1] = '\0';
+        
+        // lowercase + replace punc with space
+        for (int i = 0; reviewText[i]; ++i) {
+            if (isalpha((unsigned char)reviewText[i])) {
+                reviewText[i] = tolower((unsigned char)reviewText[i]);
+            } else {
+                reviewText[i] = ' ';
+            }
+        }
+        
+        //count words
+        char* token = strtok(reviewText, " ");
+        while (token) {
+            // Skip empty
+            if (strlen(token) == 0) {
+                token = strtok(nullptr, " ");
+                continue;
+            }
+            
+            totalWords++;
+            
+            // Check if alrdy read
+            bool wordFound = false;
+            WordCountNode* wcNode = wordCountHead;
+            
+            while (wcNode) {
+                if (strcmp(wcNode->data.word, token) == 0) {
+                    wcNode->data.count++;
+                    wordFound = true;
+                    break;
+                }
+                wcNode = wcNode->next;
+            }
+            
+            // add new
+            if (!wordFound) {
+                WordCount newWC;
+                strcpy(newWC.word, token);
+                newWC.count = 1;
+                
+                WordCountNode* newNode = new WordCountNode(newWC);
+                newNode->next = wordCountHead;
+                wordCountHead = newNode;
+            }
+            
+            token = strtok(nullptr, " ");
+        }
+        
+        // Move to next
+        if (currentReview == lastOneStarReview) {
+            break;
+        }
+        currentReview = currentReview->next;
+    }
+
+    // Sort
+    wordCountHead = sort.sortWordCounts(wordCountHead);
+
+    cout << "\nAll words found in 1-star reviews:\n";
+    cout << "--------------------------------------------\n";
+    cout << "Word\t\tCount\n";
+    cout << "--------------------------------------------\n";
+
+    WordCountNode* wcDisplay = wordCountHead;
+    int uniqueWordCount = 0;
+
+    while (wcDisplay) {
+        cout << wcDisplay->data.word;
+        
+        // Format output with proper spacing
+        int tabCount = 1;
+        if (strlen(wcDisplay->data.word) < 8) tabCount = 2;
+        for (int t = 0; t < tabCount; t++) cout << "\t";
+        
+        cout << wcDisplay->data.count << "\n";
+        
+        wcDisplay = wcDisplay->next;
+        uniqueWordCount++;
+    }
+
+    cout << "\nTotal unique words found: " << uniqueWordCount << "\n";
+    cout << "Total word occurrences: " << totalWords << "\n";
+    auto endTimeQ3 = Clock::now();
+    cout << "\nPerformance metrics:\n";
+    cout << "Merge sort time: " << chrono::duration_cast<chrono::nanoseconds>(MergeTimeQ3 - startTimeQ3).count() << " ns\n";
+    cout << "Search and boundary finding time: " << chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count() << " ns\n";
+    cout << "Total word counting and analysis time: " << chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count() << " ms\n";
+
+
+
+
 
 }
 
