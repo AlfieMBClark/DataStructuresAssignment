@@ -242,6 +242,24 @@ void heapSort(WordCount* wc, int n) {
 }
 
 
+//Bubble sort algortihm
+
+void bubbleSort(char arr[][TransactionFields][FieldLength], int n, int column) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (strcmp(arr[j][column], arr[j + 1][column]) > 0) {
+                // Swap rows
+                for (int k = 0; k < TransactionFields; ++k) {
+                    char temp[FieldLength];
+                    strcpy(temp, arr[j][k]);
+                    strcpy(arr[j][k], arr[j + 1][k]);
+                    strcpy(arr[j + 1][k], temp);
+                }
+            }
+        }
+    }
+}
+
 
 
 

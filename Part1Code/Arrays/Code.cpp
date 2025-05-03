@@ -1,6 +1,6 @@
 #include "DataCleaning.h"
 #include "LoadData.h"
-#include "SortAlgorithms.h"
+#include "SortAlgorithms.h" // Ensure this header defines the MergeSort class
 #include "SearchAlgorithms.h"
 
 #include <iostream>
@@ -21,7 +21,7 @@ void Alfie(){
     cout << "Transactions:"<< transactionCount<< "\tReviews: "<<reviewCount<<endl;
 
      // object
-     MergeSort sort;
+     MergeSort sort; // Ensure that the MergeSort class is defined or included
 
     // Question 1: Count transactions per day
     // Unique customer ID's
@@ -547,6 +547,38 @@ void Badr() {
     cout << "Total Time: " << totalTime << " ms\n";
 }
 
+void Hadi() {
+    // Load data into dynamically sized arrays
+    loadTransactions("cleaned_transactions.csv");
+    loadReviews("cleaned_reviews.csv");
+
+    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
+
+    auto Q1Start = Clock::now(); // Start timer for Question 1
+    bubbleSort(transactions, transactionCount, 4);  // Sorting transactions by the 'date' column (index 4)
+    auto Q1End = Clock::now();  // End timer for Question 1
+
+    // Count transactions per date
+    string currentDate = transactions[0][4];
+    int count = 1;
+    cout << "\n===== Transactions by Date =====\n";
+    
+    for (int i = 1; i < transactionCount; ++i) {
+        if (strcmp(transactions[i][4], currentDate.c_str()) == 0) {
+            count++;
+        } else {
+            cout << currentDate << ":\t" << count << "\n";
+            currentDate = transactions[i][4];
+            count = 1;
+        }
+    }
+    cout << currentDate << ":\t" << count << "\n";  // Output last date count
+    cout << "Total Transactions: " << transactionCount << "\n";
+
+    cout << "Heap Sort and Counting Transactions completed in "
+         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
+    
+}  
 
 int main(){
     // Clean Data
@@ -560,7 +592,7 @@ int main(){
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
         cout << "2. Insertion Sort + Linear Search (Stanlie Lin - TP073945)\n";
         cout << "3. Heap Sort + Hashing Search (Badr Abduldaim - TP074644)\n";
-        cout << "4. Place 4\n";
+        cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad TP077939) 4\n";
         cout << "5. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -579,7 +611,8 @@ int main(){
                 Badr();
                 break;
             case 4:
-                cout << "\nHadi\n";
+                cout << "\nBubble Sort + Jump Search\n";
+                Hadi();
                 break;
             case 5:
                 cout << "\nExiting...\n";
