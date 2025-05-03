@@ -63,6 +63,8 @@
     "type_traits": "cpp",
     "new": "cpp",
     "string": "cpp",
-    "iomanip": "cpp"
+    "iomanip": "cpp",
+    "fstream": "cpp",
+    "iosfwd": "cpp"
   }
 }

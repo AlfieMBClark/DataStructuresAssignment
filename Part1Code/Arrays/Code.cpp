@@ -18,7 +18,7 @@ void Alfie(){
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
     
-    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
+    cout << "Transactions:"<< transactionCount<< "\tReviews: "<<reviewCount<<endl;
 
 
     // Question 1: Count transactions per day
@@ -43,7 +43,7 @@ void Alfie(){
         }
     }
     
-    cout << "Found " << uIDCount << " unique customers.\n\n";
+    cout << uIDCount << " unique customers.\n\n";
     
 
     //Merge Sort
@@ -113,7 +113,7 @@ void Alfie(){
                 ++totalReviewsTR;
             }
         }
-        // Skip customers with more reviews than transactions
+        // Skip cust with more reviews than transactions
         if (totalReviewsTR > totalTransactionsTR) continue;
     
         for (int i = 0; i < transactionCount; ++i) {
@@ -194,9 +194,6 @@ void Alfie(){
     cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndMergeSortQ1 - AlfieStartQ1).count() << " ms\n";
     cout << "Entire Merge Sort Implementation Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n\n";
 
-    //Algorithms Here
-
-
 
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
@@ -263,51 +260,63 @@ void Alfie(){
     cout << "\n1-Star Reviews Word Count\n";
     cout << "Reviews found: " << total1Stars << "\n";
 
-    // Use dynamic allocation for word counting
-    int MAX_WORDS = total1Stars*50;
-    char (*words)[FieldLength] = new char[MAX_WORDS][FieldLength];
-    int *counts = new int[MAX_WORDS]();
-    int unique = 0;
+    //Count words
+    int maxWords = total1Stars * 50;
+    char (*words)[FieldLength] = new char[maxWords][FieldLength];
+    int* counts = new int[maxWords]();
+    int foundWords = 0;
 
+    // Count
     for (int i = firstQ3Alfie; i <= lastQ3Alfie; ++i) {
-        char tmp[FieldLength];
-        strcpy(tmp, reviews[i][3]);
+        char temp[FieldLength];
+        strcpy(temp, reviews[i][3]);
 
-        for (int j = 0; tmp[j]; ++j) {
-            tmp[j] = isalpha((unsigned char)tmp[j]) ? tolower((unsigned char)tmp[j]) : ' ';
+        //lowercase, punct - space
+        for (int j = 0; temp[j]; ++j) {
+            if (isalpha((unsigned char)temp[j])) {
+                temp[j] = tolower((unsigned char)temp[j]);
+            } else {
+                temp[j] = ' ';
+            }
         }
 
-        for (char* token = strtok(tmp, " "); token; token = strtok(nullptr, " ")) {
-            int match = -1;
-            for (int w = 0; w < unique; ++w) {
-                if (strcmp(words[w], token) == 0) {
-                    match = w;
+        // split space and count
+        char* word = strtok(temp, " ");
+        while (word) {
+            int existing = -1;
+
+            for (int w = 0; w < foundWords; ++w) {
+                if (strcmp(words[w], word) == 0) {
+                    existing = w;
                     break;
                 }
             }
-            if (match >= 0) {
-                counts[match]++;
-            } else if (unique < MAX_WORDS) {
-                strcpy(words[unique], token);
-                counts[unique] = 1;
-                ++unique;
+
+            if (existing != -1) {
+                counts[existing]++;
+            } else if (foundWords < maxWords) {
+                strcpy(words[foundWords], word);
+                counts[foundWords] = 1;
+                foundWords++;
             }
+
+            word = strtok(nullptr, " ");
         }
     }
 
-    // WordCount array 
-    WordCount *wc = new WordCount[unique];
-    for (int i = 0; i < unique; ++i) {
+    //WordCount struct
+    WordCount* wc = new WordCount[foundWords];
+    for (int i = 0; i < foundWords; ++i) {
         strcpy(wc[i].word, words[i]);
         wc[i].count = counts[i];
     }
 
-    WordCount* wcBuffer = new WordCount[unique];
-    mergeSortWordCounts(wc, 0, unique - 1, wcBuffer);
+    WordCount* wcBuffer = new WordCount[foundWords];
+    mergeSortWordCounts(wc, 0, foundWords - 1, wcBuffer);
     auto endAlfieQ3 = Clock::now();
     auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 
-    for (int i = 0; i < unique; ++i) {
+    for (int i = 0; i < foundWords; ++i) {
         cout << wc[i].word << ": " << wc[i].count << "\n";
     }
 

@@ -5,7 +5,7 @@
 #include <cstring>
 using namespace std;
 
-//variables
+
 char (*transactions)[TransactionFields][FieldLength] = nullptr;
 int transactionCount = 0;
 
@@ -13,130 +13,96 @@ char (*reviews)[ReviewFields][FieldLength] = nullptr;
 int reviewCount = 0;
 
 void loadTransactions(const char* cleanedFile) {
-    //Find number of rows
+    // Count lines 
     ifstream countFile(cleanedFile);
-    if (!countFile.is_open()) {
-        cerr << "Failed to open " << cleanedFile << " for counting\n";
+    if (!countFile) {
+        cerr << "Couldn't open " << cleanedFile << "\n";
         return;
     }
 
     string line;
     transactionCount = 0;
-    getline(countFile, line);  // Skip header
-    
-    while (getline(countFile, line)) {
-        transactionCount++;
-    }
+    getline(countFile, line); // Skip header
+    while (getline(countFile, line)) transactionCount++;
     countFile.close();
-    
-    //cout << "Found " << transactionCount << " transactions\n";
-    
-    // Clean previous allocation
-    if (transactions != nullptr) {
-        delete[] transactions;
-        transactions = nullptr;
-    }
-    
-    // Allocate array
-    if (transactionCount > 0) {
-        transactions = new char[transactionCount][TransactionFields][FieldLength];
-    } else {
-        cout << "No transactions to load\n";
+
+    //cout<<"Trans Rows: "<< transactionCount;
+
+    if (transactionCount == 0) {
+        cout << "No data trans.\n";
         return;
     }
 
-    // load the data
+    // Allocate
+    transactions = new char[transactionCount][TransactionFields][FieldLength];
+    // Load data 
     ifstream fin(cleanedFile);
-    if (!fin.is_open()) {
-        cerr << "Failed to open " << cleanedFile << " for reading\n";
+    if (!fin) {
+        cerr << "Couldn't reopen " << cleanedFile << "\n";
         return;
     }
 
-    getline(fin, line);  // Skip header
-    int index = 0;
-    
-    while (getline(fin, line) && index < transactionCount) {
+    getline(fin, line); // Skip header
+    int row = 0;
+    while (getline(fin, line) && row < transactionCount) {
         string fields[TransactionFields];
         stringstream ss(line);
-        
+
         for (int i = 0; i < TransactionFields; ++i) {
-            if (i < TransactionFields - 1)
-                getline(ss, fields[i], ',');
-            else
-                getline(ss, fields[i]);
-            
-            strncpy(transactions[index][i], fields[i].c_str(), FieldLength - 1);
-            transactions[index][i][FieldLength - 1] = '\0';
+            getline(ss, fields[i], (i < TransactionFields - 1) ? ',' : '\n');
+            strncpy(transactions[row][i], fields[i].c_str(), FieldLength - 1);
+            transactions[row][i][FieldLength - 1] = '\0';
         }
-        
-        index++;
+        row++;
     }
-    
+
     fin.close();
-    int totalCleanedDataCount = index;
-    //cout << "Loaded " << index << " transactions\n";
+    //cout << "Trans Data Loaded: "<<row;
 }
 
 void loadReviews(const char* cleanedFile) {
-    // Find num of rows
+    // Count rows
     ifstream countFile(cleanedFile);
-    if (!countFile.is_open()) {
-        cerr << "Failed to open " << cleanedFile << " for counting\n";
-        return;
+    if (!countFile) {
+        cerr << "Couldn't open " << cleanedFile;
     }
 
     string line;
     reviewCount = 0;
-    getline(countFile, line);  // Skip header
-    
-    while (getline(countFile, line)) {
-        reviewCount++;
-    }
+    getline(countFile, line); // Skip header
+    while (getline(countFile, line)) reviewCount++;
     countFile.close();
-    
-    //cout << "Found " << reviewCount << " reviews\n";
-    
-    // Clean
-    if (reviews != nullptr) {
-        delete[] reviews;
-        reviews = nullptr;
-    }
-    
-    // Allocate array size
-    if (reviewCount > 0) {
-        reviews = new char[reviewCount][ReviewFields][FieldLength];
-    } else {
-        cout << "No reviews to load\n";
+    //cout<<"Rev Rows: "<< reviewCount;
+
+    if (reviewCount == 0) {
+        cout << "No review data found.\n";
         return;
     }
 
-    // load reviews
+    // Allocate
+    reviews = new char[reviewCount][ReviewFields][FieldLength];
+
+    // Load data
     ifstream fin(cleanedFile);
-    if (!fin.is_open()) {
-        cerr << "Failed to open " << cleanedFile << " for reading\n";
+    if (!fin) {
+        cerr << "Couldn't reopen " << cleanedFile ;
         return;
     }
 
-    getline(fin, line);  // Skip header
-    int index = 0;
-    
-    while (getline(fin, line) && index < reviewCount) {
+    getline(fin, line); // Skip
+    int row = 0;
+    while (getline(fin, line) && row < reviewCount) {
         string fields[ReviewFields];
         stringstream ss(line);
-        
+
         for (int i = 0; i < ReviewFields; ++i) {
-            if (i < ReviewFields - 1)
-                getline(ss, fields[i], ',');
-            else
-                getline(ss, fields[i]);
-            
-            strncpy(reviews[index][i], fields[i].c_str(), FieldLength - 1);
-            reviews[index][i][FieldLength - 1] = '\0';
+            getline(ss, fields[i], (i < ReviewFields - 1) ? ',' : '\n');
+            strncpy(reviews[row][i], fields[i].c_str(), FieldLength - 1);
+            reviews[row][i][FieldLength - 1] = '\0';
         }
-        
-        index++;
+        row++;
     }
-    
+
     fin.close();
-    //cout << "Loaded " << index << " reviews\n";
+    //cout << "Rev Data Loaded: "<<row;
 }
