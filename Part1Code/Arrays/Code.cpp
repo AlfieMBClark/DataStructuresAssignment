@@ -449,6 +449,102 @@ void Stanlie() {
 }
 
 
+void Badr() {
+    // Load data into dynamically sized arrays
+    loadTransactions("cleaned_transactions.csv");
+    loadReviews("cleaned_reviews.csv");
+
+    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
+
+    // =====================================================================================
+    // Question 1: Heap Sort and Counting Transactions by Date
+    // =====================================================================================
+    auto Q1Start = Clock::now(); // Start timer for Question 1
+    heapSort(transactions, transactionCount, 4);  // Sorting transactions by the 'date' column (index 4)
+    auto Q1End = Clock::now();  // End timer for Question 1
+
+    // Count transactions per date
+    string currentDate = transactions[0][4];
+    int count = 1;
+    cout << "\n===== Transactions by Date =====\n";
+    
+    for (int i = 1; i < transactionCount; ++i) {
+        if (strcmp(transactions[i][4], currentDate.c_str()) == 0) {
+            count++;
+        } else {
+            cout << currentDate << ":\t" << count << "\n";
+            currentDate = transactions[i][4];
+            count = 1;
+        }
+    }
+    cout << currentDate << ":\t" << count << "\n";  // Output last date count
+    cout << "Total Transactions: " << transactionCount << "\n";
+
+    cout << "Heap Sort and Counting Transactions completed in "
+         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
+
+    // =====================================================================================
+    // Question 2: Hash Search for Electronics purchases using Credit Card
+    // =====================================================================================
+    auto Q2Start = Clock::now(); // Start timer for Question 2
+    hashSearchCategoryPayment(transactions, transactionCount);  // Call Hash Search
+    auto Q2End = Clock::now();  // End timer for Question 2
+
+    cout << "Hash Search for Electronics using Credit Card completed in "
+         << chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count() << " ms\n";
+
+    // =====================================================================================
+    // Question 3: Word Frequency in 1-Star Reviews
+    // =====================================================================================
+    auto Q3Start = Clock::now(); // Start timer for Question 3
+    cout << "\n===== 1-Star Reviews Word Frequency =====\n";
+
+    // Find the 1-star reviews and count word frequencies
+    int first = -1, last = -1;
+    findOneStarReviews(first, last, reviewCount, reviews);
+    
+    if (first == -1) {
+        cout << "No 1-star reviews found.\n";
+        return;
+    }
+
+    int total1Stars = last - first + 1;
+    cout << "Total 1-Star Reviews: " << total1Stars << "\n";
+
+    WordCount* wc = new WordCount[total1Stars * 50];  // Maximum words
+    int unique = 0;
+    countWordFrequencies(first, last, reviews, wc, unique);  // Count word frequencies
+
+    heapSort(wc, unique);  // Sort word frequencies using Heap Sort
+
+    displayTopWords(wc, unique, 10);  // Display top 10 words
+
+    auto Q3End = Clock::now();  // End timer for Question 3
+    cout << "Word Frequency Analysis for 1-Star Reviews completed in "
+         << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
+
+
+    // After all the questions have been processed, calculate the time taken for each question
+    long long Q1Time = chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count();
+    long long Q2Time = chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count();
+    long long Q3Time = chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count();
+
+    // Calculate the total time as the sum of individual question times
+    long long totalTime = Q1Time + Q2Time + Q3Time;
+
+    // =====================================================================================
+    // Time Summary for All Questions
+    // =====================================================================================
+    cout << "\n===== Time Summary =====\n";
+    cout << "Question 1 (Heap Sort + Counting Transactions): "
+         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
+    cout << "Question 2 (Hash Search for Electronics + Credit Card): "
+         << chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count() << " ms\n";
+    cout << "Question 3 (Word Frequency in 1-Star Reviews): "
+         << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
+    cout << "Total Time: " << totalTime << " ms\n";
+}
+
 
 int main(){
     // Clean Data
@@ -461,7 +557,7 @@ int main(){
         cout << "\n===== MENU =====\n";
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
         cout << "2. Insertion Sort + Linear Search (Stanlie Lin - TP073945)\n";
-        cout << "3. Place 3\n";
+        cout << "3. Heap Sort + Hashing Search (Badr Abduldaim - TP074644)\n";
         cout << "4. Place 4\n";
         cout << "5. Exit\n";
         cout << "Enter your choice: ";
@@ -477,7 +573,8 @@ int main(){
                 Stanlie();
                 break;
             case 3:
-                cout << "\nBadr\n";
+                cout << "\nHeap Sort & Hashing Search\n";
+                Badr();
                 break;
             case 4:
                 cout << "\nHadi\n";
