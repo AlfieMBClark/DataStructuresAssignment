@@ -11,14 +11,6 @@ using Clock = chrono::high_resolution_clock;
 
 
 void Alfie(){
-    cout << "Merge Sort & Binary Search\n";
-
-    //Question 1
-    cout << "Question 1: Sort by date.\n\n";
-}
-
-
-int main(){
     const string transactionsFile = "transactions_cleaned.csv";
     const string reviewsFile = "reviews_cleaned.csv";
 
@@ -27,7 +19,7 @@ int main(){
 
     if (!txHead || !rvHead) {
         std::cerr << "Error loading data\n";
-        return 1;
+        return;
     }
 
     int totalTransactions = 0;
@@ -63,7 +55,15 @@ int main(){
         rvHead = rvHead->next;
         delete temp;
     }
+    cout << "Merge Sort & Binary Search\n";
 
+    //Question 1
+    cout << "Question 1: Sort by date.\n\n";
+}
+
+
+int main(){
+    
     int choice;
 
     do {
