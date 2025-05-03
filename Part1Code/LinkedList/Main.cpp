@@ -397,6 +397,55 @@ void Alfie(){
 
 }
 
+void Hadi() {
+
+    //Question 1: Sorting transactions by date and counting them
+
+    Loader loader("cleaned_transactions.csv", "cleaned_reviews.csv"); // Load data into linked lists
+    loader.loadAll();
+    TransactionNode* transHead = loader.getTransHead();
+    ReviewNode* reviewHead = loader.getRevHead();
+
+    auto bubblSortLLQ1Start = Clock::now(); // Start timer for Question 1
+    bubbleSortTransactionsByDate(transHead); //Sorts linked list by date
+    countTransactionsByDate(transHead, loader.getTransCount()); //Prints transaction counts by date
+    auto bubbleSortLLQ1End = Clock::now();  // End timer for Question 1
+    cout << "Bubble Sort completed in: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ1End - bubblSortLLQ1Start).count() << " ms\n";
+
+    // Question 2: Jump Search for Electronics purchases using Credit Card
+
+    auto bubblSortLLQ2Start = Clock::now();
+    bubbleSortTransactionsByCategory(transHead); //Sorts linked list by category
+    countCreditCardPurchases(transHead);
+    auto bubbleSortLLQ2End = Clock::now(); // End timer for Question 2
+    cout << "Jump Search completed in: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count() << " ms\n";
+
+    // Question 3: Counting words in 1-star reviews
+
+    auto wordCountStart = Clock::now(); // Start timer for Question 3
+    ReviewNode* oneStarReview = jumpSearch(reviewHead, 1);  // 1-star rating
+    
+    if (oneStarReview != NULL) {
+        cout << "1-Star Review Found: " << oneStarReview->data.reviewText << endl;
+    } else {
+        cout << "No 1-Star Review Found!" << endl;
+    }
+    tallyWordsInReview(reviewHead);
+    auto wordCountEnd = Clock::now(); // End timer for Question 3
+    cout << "Word Count completed in: "
+         << chrono::duration_cast<chrono::milliseconds>(wordCountEnd - wordCountStart).count() << " ms\n";
+
+    cout << "Summary of all times:\n";
+    cout << "Sorting the array: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ1End - bubblSortLLQ1Start).count() << " ms\n";
+    cout << "Searching for all electronics purchased using a credit card: "
+         << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count() << " ms\n";
+    cout << "Finding all 1-star reviews and extracting the individual words: "
+         << chrono::duration_cast<chrono::milliseconds>(wordCountEnd - wordCountStart).count() << " ms\n";
+    }
+    
 
 
 int main(){
@@ -405,17 +454,17 @@ int main(){
 
     do {
         cout << "\n \tMENU\t\n";
-        cout << "1. Merge Sort + Binary Search\n";
+        cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
         cout << "2. Place 2\n";
         cout << "3. Place 3\n";
-        cout << "4. Place 4\n";
+        cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad - TP077939)\n";
         cout << "5. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1:
-                cout << "\nRunning Merge Sort and Binary Search (Alfiansyah Clark - TP075566\n";
+                cout << "\nRunning Merge Sort and Binary Search\n";
                 Alfie();
                 break;
             case 2:
@@ -425,7 +474,8 @@ int main(){
                 cout << "\nPlace 3\n";
                 break;
             case 4:
-                cout << "\nPlace 4\n";
+                cout << "\nBubble Sort + Jump Search: 4\n";
+                Hadi();
                 break;
             case 5:
                 cout << "\nExiting...\n";

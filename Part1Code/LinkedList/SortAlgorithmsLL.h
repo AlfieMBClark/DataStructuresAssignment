@@ -334,4 +334,30 @@ void countTransactionsByDate(TransactionNode* head, int transCount) {
     cout << "Total Transactions: " << transCount << "\n";
 }
 
+void bubbleSortTransactionsByCategory(TransactionNode*& head) {
+    if (!head || !head->next) return; // No need to sort if list has 0 or 1 element
+
+    bool swapped;
+    TransactionNode* ptr;
+    TransactionNode* lptr = nullptr;
+
+    do {
+        swapped = false;
+        ptr = head;
+
+        // Traverse through the list and swap nodes if needed
+        while (ptr->next != lptr) {
+            if (ptr->data.category > ptr->next->data.category) {
+                // Swap entire Transaction data (not nodes)
+                Transaction temp = ptr->data;
+                ptr->data = ptr->next->data;
+                ptr->next->data = temp;
+                swapped = true;
+            }
+            ptr = ptr->next;
+        }
+
+        lptr = ptr; // Mark the last sorted node
+    } while (swapped);
+}
 #endif
