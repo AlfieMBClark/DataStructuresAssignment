@@ -6,7 +6,7 @@
 using namespace std;
 
 
-// Trim whitespace from both ends of a string
+// Trim whitespace
 static string trim(const string& s) {
     size_t a = s.find_first_not_of(" \t\r\n");
     size_t b = s.find_last_not_of (" \t\r\n");
@@ -15,7 +15,7 @@ static string trim(const string& s) {
          : s.substr(a, b - a + 1);
 }
 
-// Remove all occurrences of `ch` from `s`
+// Remove `ch` from `s`
 static string removeChar(const string& s, char ch) {
     string out;
     out.reserve(s.size());
@@ -28,17 +28,17 @@ static string removeChar(const string& s, char ch) {
 void cleanTransactions(const char* inputFile) {
     ifstream fin(inputFile);
     if (!fin.is_open()) {
-        cerr << "Failed to open transactions input file: " << inputFile << "\n";
+        cerr << "Failed to open transactions" << inputFile;
         return;
     }
     ofstream fout("cleaned_transactions.csv");
     if (!fout.is_open()) {
-        cerr << "Failed to open cleaned_transactions.csv for writing\n";
+        cerr << "Failed write cleaned_transactions.csv\n";
         fin.close();
         return;
     }
 
-    // Write header
+    // header
     fout << "customerID,product,category,price,date,paymentMethod\n";
 
     string line;
@@ -62,7 +62,7 @@ void cleanTransactions(const char* inputFile) {
         }
         if (bad) continue;
 
-        // Validate and clean price
+        // clean price
         string price = removeChar(removeChar(fields[3], '$'), ',');
         try {
             stod(price);
@@ -70,7 +70,7 @@ void cleanTransactions(const char* inputFile) {
             continue;
         }
 
-        // Reformat date from dd/mm/yyyy to yyyy-mm-dd
+        //format date
         if (fields[4].size() == 10 &&fields[4][2] == '/' &&fields[4][5] == '/') {
             fields[4] = fields[4].substr(6,4) + "-" +fields[4].substr(3,2) + "-" +fields[4].substr(0,2);
         } else {
@@ -86,12 +86,12 @@ void cleanTransactions(const char* inputFile) {
 void cleanReviews(const char* inputFile) {
     ifstream fin(inputFile);
     if (!fin.is_open()) {
-        cerr << "Failed to open reviews input file: " << inputFile << "\n";
+        cerr << "Failed to open reviews" << inputFile << "\n";
         return;
     }
     ofstream fout("cleaned_reviews.csv");
     if (!fout.is_open()) {
-        cerr << "Failed to open cleaned_reviews.csv for writing\n";
+        cerr << "Failed write cleaned_reviews.csv\n";
         fin.close();
         return;
     }
@@ -127,7 +127,7 @@ void cleanReviews(const char* inputFile) {
             continue;
         }
 
-        // Strip quotation marks from review text
+        //Remove quotate
         fields[3] = removeChar(fields[3], '"');
 
         fout<< fields[0] << ','<< fields[1] << ','<< fields[2] << ','<< fields[3] << "\n";

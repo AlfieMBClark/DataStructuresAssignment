@@ -18,10 +18,7 @@ ReviewNode::ReviewNode(const Review& r)
 
 TransactionNode* loadTransactions(const char* filename) {
     ifstream in(filename);
-    if (!in) {
-        cerr << "Cannot open " << filename << "\n";
-        return nullptr;
-    }
+
     string line;
     getline(in, line); // skip header
 
@@ -35,12 +32,12 @@ TransactionNode* loadTransactions(const char* filename) {
             if (!getline(ss, f[i], i<5? ',':'\n')) continue;
 
         Transaction t;
-        strncpy(t.customerID, f[0].c_str(), MAX_FIELD-1);
-        strncpy(t.product   , f[1].c_str(), MAX_FIELD-1);
-        strncpy(t.category  , f[2].c_str(), MAX_FIELD-1);
+        strncpy(t.customerID,f[0].c_str(),MAX_FIELD-1);
+        strncpy(t.product,f[1].c_str(),MAX_FIELD-1);
+        strncpy(t.category,f[2].c_str(),MAX_FIELD-1);
         t.price = atof(f[3].c_str());
-        strncpy(t.date      , f[4].c_str(), MAX_FIELD-1);
-        strncpy(t.payment   , f[5].c_str(), MAX_FIELD-1);
+        strncpy(t.date,f[4].c_str(),MAX_FIELD-1);
+        strncpy(t.payment,f[5].c_str(),MAX_FIELD-1);
 
         TransactionNode* node = new TransactionNode(t);
         if (!head) head = tail = node;
@@ -51,10 +48,7 @@ TransactionNode* loadTransactions(const char* filename) {
 
 ReviewNode* loadReviews(const char* filename) {
     ifstream in(filename);
-    if (!in) {
-        cerr << "Cannot open " << filename << "\n";
-        return nullptr;
-    }
+
     string line;
     getline(in, line); // skip header
 
@@ -68,10 +62,10 @@ ReviewNode* loadReviews(const char* filename) {
             if (!getline(ss, f[i], i<3? ',':'\n')) continue;
 
         Review r;
-        strncpy(r.productID , f[0].c_str(), MAX_FIELD-1);
-        strncpy(r.customerID, f[1].c_str(), MAX_FIELD-1);
+        strncpy(r.productID,f[0].c_str(), MAX_FIELD-1);
+        strncpy(r.customerID,f[1].c_str(), MAX_FIELD-1);
         r.rating = atoi(f[2].c_str());
-        strncpy(r.text      , f[3].c_str(), MAX_FIELD-1);
+        strncpy(r.text,f[3].c_str(), MAX_FIELD-1);
 
         ReviewNode* node = new ReviewNode(r);
         if (!head) head = tail = node;

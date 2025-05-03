@@ -36,7 +36,7 @@ int main(){
     //cout << "CustID | Product | Category | Price | Date | Payment\n";
     for (TransactionNode* cur = txHead; cur != nullptr; cur = cur->next) {
         auto &t = cur -> data;
-        //cout << t.customerID << "|"<< t.product<< " | "<< t.category<< " | "<< t.price<< " | "<< t.date<< " | "<< t.payment<< "\n";
+        cout << t.customerID << "|"<< t.product<< " | "<< t.category<< " | "<< t.price<< " | "<< t.date<< " | "<< t.payment<< "\n";
         totalTransactions++;
     }
 
@@ -45,7 +45,7 @@ int main(){
     //cout << "ProdID | CustID | Rating | Text\n";
     for (ReviewNode* cur = rvHead; cur != nullptr; cur = cur->next) {
         auto &r = cur->data;
-        //cout << r.productID  << " | "<< r.customerID << " | "<< r.rating     << " | "<< r.text << "\n";
+        cout << r.productID  << " | "<< r.customerID << " | "<< r.rating     << " | "<< r.text << "\n";
         totalReviews++;
     }
     

@@ -7,22 +7,18 @@ TransactionRow* transactionbuffer = nullptr;
 ReviewRow* reviewBuffer = nullptr;
 TransReviewPair* traRevBuffer = nullptr;
 
-// General Merge Sort for trans, rev and transrev array
+// Merge Sort
 void MergeSort(void* dataArray, void* Buffer, int rowSize, int left, int right, int colIndex, int fieldLen) {
     if (left >= right) return;
-
     int mid = (left + right) / 2;
-
     // Sort halves
     MergeSort(dataArray, Buffer, rowSize, left, mid, colIndex, fieldLen);
     MergeSort(dataArray, Buffer, rowSize, mid + 1, right, colIndex, fieldLen);
-
     // Merge tgt
     char* data = (char*)dataArray;
     char* temp = (char*)Buffer;
 
     int i = left, j = mid + 1, k = left;
-
     while (i <= mid && j <= right) {
         char* rowI = data + (i * rowSize);
         char* rowJ = data + (j * rowSize);
@@ -37,8 +33,8 @@ void MergeSort(void* dataArray, void* Buffer, int rowSize, int left, int right, 
         } else {
             memcpy(temp + (k * rowSize), rowJ, rowSize);
             j++;
-            k++;
         }
+        k++;
     }
 
     //copy leftover in left
@@ -84,8 +80,7 @@ void mergeSortTransReviewArray(char (*array)[2][FieldLength], int left, int righ
     MergeSort(array, traRevBuffer, elementSize, left, right, colToSort, FieldLength);
 }
 
-
-
+//MergeCount
 void mergeSortWordCounts(WordCount words[], int low, int high, WordCount temp[]) {
     if (low >= high) return;
 
@@ -111,92 +106,31 @@ void mergeSortWordCounts(WordCount words[], int low, int high, WordCount temp[])
     }
 }
 
-//##################################################################################################
-//##################################################################################################
-// heap sort algorithm for transactions by date 
 
-void heapify(char arr[][TransactionFields][FieldLength], int n, int i, int column) {
-    int largest = i; // root
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+//Insertion Sort
+void insertionSort(char data[][TransactionFields][FieldLength], int rowCount, int columnIndex) {
+    for (int i = 1; i < rowCount; ++i) {
+        char temp[TransactionFields][FieldLength];
+        memcpy(temp, data[i], sizeof(temp));  // Store the current row
 
-    // Compare with left child
-    if (left < n && strcmp(arr[left][column], arr[largest][column]) > 0)
-        largest = left;
-
-    // Compare with right child
-    if (right < n && strcmp(arr[right][column], arr[largest][column]) > 0)
-        largest = right;
-
-    // Swap if needed
-    if (largest != i) {
-        for (int j = 0; j < TransactionFields; ++j) {
-            char temp[FieldLength];
-            strcpy(temp, arr[i][j]);
-            strcpy(arr[i][j], arr[largest][j]);
-            strcpy(arr[largest][j], temp);
+        int j = i - 1;
+        while (j >= 0 && strcmp(data[j][columnIndex], temp[columnIndex]) > 0) {
+            memcpy(data[j + 1], data[j], sizeof(data[j]));  // Shift row up
+            --j;
         }
 
-        // Recursively heapify
-        heapify(arr, n, largest, column);
+        memcpy(data[j + 1], temp, sizeof(temp));  // Insert the saved row
     }
 }
 
-void heapSort(char arr[][TransactionFields][FieldLength], int n, int column) {
-    // Build max heap
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i, column);
-
-    // Extract elements from heap
-    for (int i = n - 1; i > 0; i--) {
-        // Swap root with last element
-        for (int j = 0; j < TransactionFields; ++j) {
-            char temp[FieldLength];
-            strcpy(temp, arr[0][j]);
-            strcpy(arr[0][j], arr[i][j]);
-            strcpy(arr[i][j], temp);
+void insertionSort(WordCount array[], int size) {
+    for (int i = 1; i < size; ++i) {
+        WordCount temp = array[i];
+        int j = i - 1;
+        while (j >= 0 && array[j].count < temp.count) {
+            array[j + 1] = array[j];
+            --j;
         }
-
-        // Heapify reduced heap
-        heapify(arr, i, 0, column);
+        array[j + 1] = temp;
     }
 }
-//##################################################################################################
-//##################################################################################################
-
-// Function to maintain the heap property (max-heap) for transactions
-// For WordCount (sorting by frequency)
-void heapify(WordCount* wc, int n, int i) {
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
-
-    if (left < n && wc[left].count > wc[largest].count)
-        largest = left;
-
-    if (right < n && wc[right].count > wc[largest].count)
-        largest = right;
-
-    if (largest != i) {
-        WordCount temp = wc[i];
-        wc[i] = wc[largest];
-        wc[largest] = temp;
-        heapify(wc, n, largest);
-    }
-}
-
-void heapSort(WordCount* wc, int n) {
-    for (int i = n / 2 - 1; i >= 0; --i)  // Build max heap
-        heapify(wc, n, i);
-
-    for (int i = n - 1; i > 0; --i) {
-        WordCount temp = wc[0];
-        wc[0] = wc[i];
-        wc[i] = temp;
-        heapify(wc, i, 0);  // Heapify reduced heap
-    }
-}
-
-//##################################################################################################
-//##################################################################################################
-

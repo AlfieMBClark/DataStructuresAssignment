@@ -18,7 +18,7 @@ void Alfie(){
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
     
-    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
+    cout << "Transactions:"<< transactionCount<< "\tReviews: "<<reviewCount<<endl;
 
 
     // Question 1: Count transactions per day
@@ -43,7 +43,7 @@ void Alfie(){
         }
     }
     
-    cout << "Found " << uIDCount << " unique customers.\n\n";
+    cout << uIDCount << " unique customers.\n\n";
     
 
     //Merge Sort
@@ -113,7 +113,7 @@ void Alfie(){
                 ++totalReviewsTR;
             }
         }
-        // Skip customers with more reviews than transactions
+        // Skip cust with more reviews than transactions
         if (totalReviewsTR > totalTransactionsTR) continue;
     
         for (int i = 0; i < transactionCount; ++i) {
@@ -194,9 +194,6 @@ void Alfie(){
     cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndMergeSortQ1 - AlfieStartQ1).count() << " ms\n";
     cout << "Entire Merge Sort Implementation Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n\n";
 
-    //Algorithms Here
-
-
 
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
@@ -263,51 +260,63 @@ void Alfie(){
     cout << "\n1-Star Reviews Word Count\n";
     cout << "Reviews found: " << total1Stars << "\n";
 
-    // Use dynamic allocation for word counting
-    int MAX_WORDS = total1Stars*50;
-    char (*words)[FieldLength] = new char[MAX_WORDS][FieldLength];
-    int *counts = new int[MAX_WORDS]();
-    int unique = 0;
+    //Count words
+    int maxWords = total1Stars * 50;
+    char (*words)[FieldLength] = new char[maxWords][FieldLength];
+    int* counts = new int[maxWords]();
+    int foundWords = 0;
 
+    // Count
     for (int i = firstQ3Alfie; i <= lastQ3Alfie; ++i) {
-        char tmp[FieldLength];
-        strcpy(tmp, reviews[i][3]);
+        char temp[FieldLength];
+        strcpy(temp, reviews[i][3]);
 
-        for (int j = 0; tmp[j]; ++j) {
-            tmp[j] = isalpha((unsigned char)tmp[j]) ? tolower((unsigned char)tmp[j]) : ' ';
+        //lowercase, punct - space
+        for (int j = 0; temp[j]; ++j) {
+            if (isalpha((unsigned char)temp[j])) {
+                temp[j] = tolower((unsigned char)temp[j]);
+            } else {
+                temp[j] = ' ';
+            }
         }
 
-        for (char* token = strtok(tmp, " "); token; token = strtok(nullptr, " ")) {
-            int match = -1;
-            for (int w = 0; w < unique; ++w) {
-                if (strcmp(words[w], token) == 0) {
-                    match = w;
+        // split space and count
+        char* word = strtok(temp, " ");
+        while (word) {
+            int existing = -1;
+
+            for (int w = 0; w < foundWords; ++w) {
+                if (strcmp(words[w], word) == 0) {
+                    existing = w;
                     break;
                 }
             }
-            if (match >= 0) {
-                counts[match]++;
-            } else if (unique < MAX_WORDS) {
-                strcpy(words[unique], token);
-                counts[unique] = 1;
-                ++unique;
+
+            if (existing != -1) {
+                counts[existing]++;
+            } else if (foundWords < maxWords) {
+                strcpy(words[foundWords], word);
+                counts[foundWords] = 1;
+                foundWords++;
             }
+
+            word = strtok(nullptr, " ");
         }
     }
 
-    // WordCount array 
-    WordCount *wc = new WordCount[unique];
-    for (int i = 0; i < unique; ++i) {
+    //WordCount struct
+    WordCount* wc = new WordCount[foundWords];
+    for (int i = 0; i < foundWords; ++i) {
         strcpy(wc[i].word, words[i]);
         wc[i].count = counts[i];
     }
 
-    WordCount* wcBuffer = new WordCount[unique];
-    mergeSortWordCounts(wc, 0, unique - 1, wcBuffer);
+    WordCount* wcBuffer = new WordCount[foundWords];
+    mergeSortWordCounts(wc, 0, foundWords - 1, wcBuffer);
     auto endAlfieQ3 = Clock::now();
     auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 
-    for (int i = 0; i < unique; ++i) {
+    for (int i = 0; i < foundWords; ++i) {
         cout << wc[i].word << ": " << wc[i].count << "\n";
     }
 
@@ -315,105 +324,132 @@ void Alfie(){
 
 }
 
+void Stanlie() {
 
-void Badr() {
-    // Load data into dynamically sized arrays
     loadTransactions("cleaned_transactions.csv");
-    loadReviews("cleaned_reviews.csv");
+    loadReviews     ("cleaned_reviews.csv");
 
-    cout << "Working with " << transactionCount << " transactions and " << reviewCount << " reviews\n";
+    char (*categoryTarget)[FieldLength] = new char[1][FieldLength];
+    char (*paymentTarget)[FieldLength] = new char[1][FieldLength];
 
-    // =====================================================================================
-    // Question 1: Heap Sort and Counting Transactions by Date
-    // =====================================================================================
-    auto Q1Start = Clock::now(); // Start timer for Question 1
-    heapSort(transactions, transactionCount, 4);  // Sorting transactions by the 'date' column (index 4)
-    auto Q1End = Clock::now();  // End timer for Question 1
+    strcpy(categoryTarget[0], "Electronics");
+    strcpy(paymentTarget[0], "Credit Card");
 
-    // Count transactions per date
-    string currentDate = transactions[0][4];
-    int count = 1;
-    cout << "\n===== Transactions by Date =====\n";
-    
-    for (int i = 1; i < transactionCount; ++i) {
-        if (strcmp(transactions[i][4], currentDate.c_str()) == 0) {
-            count++;
-        } else {
-            cout << currentDate << ":\t" << count << "\n";
-            currentDate = transactions[i][4];
-            count = 1;
+    int electronicsTotal = 0;
+    int creditCardCount = 0;
+
+    auto StanlieStartQ2 = Clock::now();
+    for (int i = 0; i < transactionCount; ++i) {
+        // Use linearSearch with dynamically allocated arrays
+        if (linearSearch(categoryTarget, 1, transactions[i][2]) >= 0) {
+            ++electronicsTotal;
+
+            if (linearSearch(paymentTarget, 1, transactions[i][5]) >= 0) {
+                ++creditCardCount;
+            }
         }
     }
-    cout << currentDate << ":\t" << count << "\n";  // Output last date count
-    cout << "Total Transactions: " << transactionCount << "\n";
+    auto StanlieEndQ2 = Clock::now();
 
-    cout << "Heap Sort and Counting Transactions completed in "
-         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
-
-    // =====================================================================================
-    // Question 2: Hash Search for Electronics purchases using Credit Card
-    // =====================================================================================
-    auto Q2Start = Clock::now(); // Start timer for Question 2
-    hashSearchCategoryPayment(transactions, transactionCount);  // Call Hash Search
-    auto Q2End = Clock::now();  // End timer for Question 2
-
-    cout << "Hash Search for Electronics using Credit Card completed in "
-         << chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count() << " ms\n";
-
-    // =====================================================================================
-    // Question 3: Word Frequency in 1-Star Reviews
-    // =====================================================================================
-    auto Q3Start = Clock::now(); // Start timer for Question 3
-    cout << "\n===== 1-Star Reviews Word Frequency =====\n";
-
-    // Find the 1-star reviews and count word frequencies
-    int first = -1, last = -1;
-    findOneStarReviews(first, last, reviewCount, reviews);
-    
-    if (first == -1) {
-        cout << "No 1-star reviews found.\n";
-        return;
+    if (electronicsTotal == 0) {
+        cout << "\nNo Electronics transactions found.\n";
+    } else {
+        double percentage = (double)creditCardCount / electronicsTotal * 100;
+        cout << "Linear Search\n";
+        cout << "Total Electronics purchases: " << electronicsTotal << "\n";
+        cout << "Paid with Credit Card: " << creditCardCount << "\n";
+        cout << "Percentage: " << fixed << setprecision(2) << percentage << "%\n";
     }
 
-    int total1Stars = last - first + 1;
-    cout << "Total 1-Star Reviews: " << total1Stars << "\n";
+    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::nanoseconds>(StanlieEndQ2 - StanlieStartQ2).count()<<"ns\n";
+    // Clean up dynamic memory
+    delete[] categoryTarget;
+    delete[] paymentTarget;
 
-    WordCount* wc = new WordCount[total1Stars * 50];  // Maximum words
-    int unique = 0;
-    countWordFrequencies(first, last, reviews, wc, unique);  // Count word frequencies
+        //Question 3
+    char** wordList = nullptr;
+    int* wordCounts = nullptr;
+    int capacity = 10;
+    int uniqueWordCount = 0;
 
-    heapSort(wc, unique);  // Sort word frequencies using Heap Sort
+    wordList = new char*[capacity];
+    wordCounts = new int[capacity];
+    auto StanlieStartQ3 = Clock::now();
+    for (int i = 0; i < reviewCount; ++i) {
+        if (strcmp(reviews[i][2], "1") == 0) {
+            char buffer[FieldLength];
+            strcpy(buffer, reviews[i][3]);
 
-    displayTopWords(wc, unique, 10);  // Display top 10 words
+            for (int j = 0; buffer[j]; ++j)
+                buffer[j] = isalpha((unsigned char)buffer[j]) ? tolower((unsigned char)buffer[j]) : ' ';
 
-    auto Q3End = Clock::now();  // End timer for Question 3
-    cout << "Word Frequency Analysis for 1-Star Reviews completed in "
-         << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
+            
+            for (char* token = strtok(buffer, " "); token; token = strtok(nullptr, " ")) {
+                int idx = linearSearch(wordList, uniqueWordCount, token);
 
+                if (idx >= 0) {
+                    wordCounts[idx]++;
+                } else {
+                    if (uniqueWordCount == capacity) {
+                        int newCap = capacity * 2;
 
-    // After all the questions have been processed, calculate the time taken for each question
-    long long Q1Time = chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count();
-    long long Q2Time = chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count();
-    long long Q3Time = chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count();
+                        char** newWordList = new char*[newCap];
+                        for (int k = 0; k < capacity; ++k) newWordList[k] = wordList[k];
+                        delete[] wordList;
+                        wordList = newWordList;
 
-    // Calculate the total time as the sum of individual question times
-    long long totalTime = Q1Time + Q2Time + Q3Time;
+                        int* newWordCounts = new int[newCap];
+                        for (int k = 0; k < capacity; ++k) newWordCounts[k] = wordCounts[k];
+                        delete[] wordCounts;
+                        wordCounts = newWordCounts;
 
-    // =====================================================================================
-    // Time Summary for All Questions
-    // =====================================================================================
-    cout << "\n===== Time Summary =====\n";
-    cout << "Question 1 (Heap Sort + Counting Transactions): "
-         << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
-    cout << "Question 2 (Hash Search for Electronics + Credit Card): "
-         << chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count() << " ms\n";
-    cout << "Question 3 (Word Frequency in 1-Star Reviews): "
-         << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
-    cout << "Total Time: " << totalTime << " ms\n";
+                        capacity = newCap;
+                    }
+
+                    wordList[uniqueWordCount] = new char[FieldLength];
+                    strcpy(wordList[uniqueWordCount], token);
+                    wordCounts[uniqueWordCount] = 1;
+                    uniqueWordCount++;
+                }
+            }
+        }
+    }
+
+    auto StanlieEndQ3 = Clock::now();
+    // Create WordCount array dynamically
+    WordCount* wordFreq = new WordCount[uniqueWordCount];
+    for (int i = 0; i < uniqueWordCount; ++i) {
+        strcpy(wordFreq[i].word, wordList[i]);
+        wordFreq[i].count = wordCounts[i];
+    }
+
+    // Insertion sort (descending)
+    insertionSort(wordFreq, uniqueWordCount);
+
+    // Output
+    cout << "\nTop Words in 1-Star Reviews:\n";
+    for (int i = 0; i < uniqueWordCount; ++i) {
+        cout << wordFreq[i].word << ": " << wordFreq[i].count << "\n";
+    }
+
+    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEndQ3 - StanlieStartQ3).count()<<"ms\n";
+    auto StanlieEnd1Q3 = Clock::now();
+    cout <<"Question 3 timer: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEnd1Q3 - StanlieStartQ3).count()<<"ms\n";
+    
+    return;
+    // Cleanup
+    for (int i = 0; i < uniqueWordCount; ++i)
+    {
+    delete[] wordList[i];
+    delete[] wordList;
+    delete[] wordCounts;
+    delete[] wordFreq;
+    }
+   
 }
 
 
-// Main function
+
 int main(){
     // Clean Data
     cleanTransactions("transactions.csv");
@@ -424,7 +460,7 @@ int main(){
     do {
         cout << "\n===== MENU =====\n";
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
-        cout << "2. Heap Sort + Hashing Search (Badr Abduldaim - TP074644)\n";
+        cout << "2. Insertion Sort + Linear Search (Stanlie Lin - TP073945)\n";
         cout << "3. Place 3\n";
         cout << "4. Place 4\n";
         cout << "5. Exit\n";
@@ -437,24 +473,22 @@ int main(){
                 Alfie();
                 break;
             case 2:
-                cout << "\n Heap Sort & Hashing Search\n";
-                Badr();
+                cout << "\nInsertion Sort + Linear Search\n";
+                Stanlie();
                 break;
             case 3:
-                cout << "\nStanlie\n";
+                cout << "\nBadr\n";
                 break;
             case 4:
                 cout << "\nHadi\n";
                 break;
             case 5:
                 cout << "\nExiting...\n";
-                break;
+                return 0;
             default:
                 cout << "\nInvalid choice. Please try again.\n";
         }
 
     } while (choice != 0);
-
-    return 0;
 
 }
