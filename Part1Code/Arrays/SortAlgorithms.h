@@ -10,11 +10,11 @@ struct WordCount {
     char word[FieldLength];
     int count; 
 };
-
-//Merge Sort
 typedef char TransactionRow[TransactionFields][FieldLength];
 typedef char ReviewRow[ReviewFields][FieldLength];
 typedef char TransReviewPair[2][FieldLength]; 
+
+//Merge Sort
 void MergeSort(void* dataArray, void* Buffer, int rowSize, int left, int right, int colIndex, int fieldLen);
 void mergeSortTransactions(char array[][TransactionFields][FieldLength], int left, int right, int colToSort);
 void mergeSortReviews(char array[][ReviewFields][FieldLength], int left, int right, int colToSort);
