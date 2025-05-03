@@ -14,7 +14,7 @@ using Clock = chrono::high_resolution_clock;
 
 
 void Alfie(){
-    // Load data into dynamically sized arrays
+    // Load data
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
     
