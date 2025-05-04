@@ -454,6 +454,7 @@ StanResults.Q1_Full     = chrono::duration_cast<chrono::milliseconds>(StanlieEnd
 delete[] dateTransactions;
 
     // Question 2: Electronics & Credit Card Analysis
+    auto StanlieStartQ2 = Clock::now();
     cout << "\nQuestion 2: Electronics & Credit Card Analysis";
     auto StanlieSortStartQ2 = Clock::now();
     insertionSort(transactions, transactionCount, 5); // Sort by payment method first
@@ -488,7 +489,8 @@ delete[] dateTransactions;
         cout << "Paid with Credit Card: " << creditCardCount << "\n";
         cout << "Percentage: " << fixed << setprecision(2) << percentage << "%\n";
     }
-    
+    auto StanlieEndQ2 = Clock::now();
+
     // Show timings
     cout << "Insertion Sort Time: " << chrono::duration_cast<chrono::milliseconds>(StanlieSortEndQ2 - StanlieSortStartQ2).count() << " ms\n";
     cout << "Linear Search Time: " << chrono::duration_cast<chrono::nanoseconds>(StanlieEndSearchQ2 - StanlieStartSearchQ2).count() << " ns\n";
@@ -496,7 +498,7 @@ delete[] dateTransactions;
     // Store timing results
     StanResults.Q2_SortTime   = chrono::duration_cast<chrono::milliseconds>(StanlieSortEndQ2 - StanlieSortStartQ2).count();
     StanResults.Q2_SearchTime = chrono::duration_cast<chrono::nanoseconds>(StanlieEndSearchQ2 - StanlieStartSearchQ2).count();
-    StanResults.Q2_Full       = chrono::duration_cast<chrono::milliseconds>(StanlieEndSearchQ2 - StanlieSortStartQ2).count();
+    StanResults.Q2_Full       = chrono::duration_cast<chrono::milliseconds>(StanlieEndQ2 - StanlieSortStartQ2).count();
     
     // Clean up
     delete[] categoryTarget;
@@ -572,7 +574,7 @@ delete[] dateTransactions;
         cout << wordFreq[i].word << ": " << wordFreq[i].count << "\n";
     }
 
-    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEndQ3 - StanlieStartQ3).count()<<"ms\n";
+    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::nanoseconds>(StanlieEndQ3 - StanlieStartQ3).count()<<"ns\n";
     auto StanlieEnd1Q3 = Clock::now();
     cout << "Sort Time: " << chrono::duration_cast<chrono::nanoseconds>(StanlieEndSortQ3 - StanlieSortQ3).count() << " ns\n";
 
@@ -859,9 +861,9 @@ void PrintResults() {
         cout << "--------------------------\n";
         cout << "Q3 Total: " << stanlieResults.Q3_Full << " ms\n";
         cout << "Q3 Insertion Sort: "<< stanlieResults.Q3_SortTime<<"ns\n";
-        cout << "Q3 Linear Search: "<< stanlieResults.Q3_SearchTime<<"ms\n";
+        cout << "Q3 Linear Search: "<< stanlieResults.Q3_SearchTime<<"ns\n";
         cout << "--------------------------\n";
-        cout << "TOTAL: " << stanlieResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+        cout << "TOTAL: " << stanlieResults.Q1_Full + stanlieResults.Q2_Full + stanlieResults.Q3_Full << " ms\n";
         cout << "===========================\n";
     }
         

@@ -727,6 +727,7 @@ cout << "Q3 : " << results.Q3_Full << " ms\n";
 
 return results;
 }
+
 TimingResults Hadi() {
     TimingResults hadiResults = {0, 0, 0, 0, 0, 0, 0, 0};
     //Question 1: Sorting transactions by date and counting them
@@ -1287,13 +1288,13 @@ void PrintResults() {
         cout << "--------------------------\n";
         cout << "Q2 Total: " << stanlieResults.Q2_Full << " ms\n";
         cout << "Q2 Insertion Sort: "<< stanlieResults.Q2_SortTime<<"ms\n";
-        cout << "Q2 Binary Search: "<< stanlieResults.Q2_SearchTime<<"ns\n";
+        cout << "Q2 Linear Search: "<< stanlieResults.Q2_SearchTime<<"ns\n";
         cout << "--------------------------\n";
         cout << "Q3 Total: " << stanlieResults.Q3_Full << " ms\n";
         cout << "Q3 Insertion Sort: "<< stanlieResults.Q3_SortTime<<"ns\n";
-        cout << "Q3 Binary Search: "<< stanlieResults.Q3_SearchTime<<"ns\n";
-        cout << "----------1----------------\n";
-        cout << "TOTAL: " << stanlieResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+        cout << "Q3 Linear Search: "<< stanlieResults.Q3_SearchTime<<"ms\n";
+        cout << "---------------------------\n";
+        cout << "TOTAL: " << stanlieResults.Q1_Full + stanlieResults.Q2_Full + stanlieResults.Q3_Full << " ms\n";
         cout << "===========================\n";
     }
         
