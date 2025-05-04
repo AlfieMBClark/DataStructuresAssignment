@@ -564,6 +564,8 @@ TransactionNode* InsertionSortByCategory(TransactionNode* head) {
 
 
 
+
+
 // Define a date-count pair structure for Question 1
 struct DateCountPair {
     string date;

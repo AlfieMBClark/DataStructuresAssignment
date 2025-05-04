@@ -846,7 +846,7 @@ TimingResults Badr() {
     int dateCount = 0;
     int totalDates = 0;
     
-    // Custom linked list to replace vector<pair<string, int>>
+    // Custom linked list 
     DateCountPair* dateCountsHead = nullptr;
     DateCountPair* dateCountsTail = nullptr;
 
