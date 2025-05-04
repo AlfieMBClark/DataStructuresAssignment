@@ -237,7 +237,7 @@ TimingResults Alfie(){
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
     auto AlfieStartFullQ2 = Clock::now();
-    sort.sortTransactions(transactions, 0, transactionCount - 1, 4, transactionCount);
+    sort.sortTransactions(transactions, 0, transactionCount - 1, 2, transactionCount);
 
     //search
     auto AlfieStartBinaryQ2 = Clock::now();
