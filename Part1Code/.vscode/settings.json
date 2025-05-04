@@ -68,6 +68,7 @@
     "new": "cpp",
     "sstream": "cpp",
     "cstring": "cpp",
-    "iomanip": "cpp"
+    "iomanip": "cpp",
+    "ostream": "cpp"
   }
 }

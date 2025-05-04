@@ -11,12 +11,11 @@
 #include <algorithm>
 
 TransactionNode* binarySearchTransactions(TransactionNode* head, const char* target, int field) {
-    // Base case: empty list
     if (head == nullptr) {
         return nullptr;
     }
     
-    // Count total nodes for halving the list
+    //total node
     int count = 0;
     TransactionNode* current = head;
     while (current != nullptr) {
@@ -24,13 +23,13 @@ TransactionNode* binarySearchTransactions(TransactionNode* head, const char* tar
         current = current->next;
     }
     
-    // Find the middle node
+    // mid
     TransactionNode* middle = head;
     for (int i = 0; i < count / 2; i++) {
         middle = middle->next;
     }
     
-    // Get field value from middle node
+    // value mid
     const char* value = nullptr;
     switch (field) {
         case 0: value = middle->data.customerID.c_str(); break;
@@ -42,19 +41,19 @@ TransactionNode* binarySearchTransactions(TransactionNode* head, const char* tar
         default: value = middle->data.customerID.c_str(); break;
     }
     
-    // Compare with target
+    // Comp targ
     int comparison = strcmp(value, target);
     
     if (comparison == 0) {
-        // Found a match
+        //match
         return middle;
     } else if (comparison > 0) {
-        // Target is in left half - create a sublist and search
+        //left half search
         if (count <= 1) {
-            return nullptr; // Not found
+            return nullptr;
         }
         
-        // Create a temporary list of the left half
+        //left half lis
         TransactionNode* left = head;
         TransactionNode* temp = left;
         for (int i = 0; i < count / 2 - 1; i++) {
@@ -62,19 +61,19 @@ TransactionNode* binarySearchTransactions(TransactionNode* head, const char* tar
         }
         
         TransactionNode* origNext = temp->next;
-        temp->next = nullptr; // Temporarily break the list
-        
-        // Recursive search on left half
+        temp->next = nullptr; 
+
+        //serch left half
         TransactionNode* result = binarySearchTransactions(left, target, field);
         
-        // Restore the list
+        //Restore
         temp->next = origNext;
         
         return result;
     } else {
-        // Target is in right half - search in second half
+        // Target right half
         if (middle->next == nullptr) {
-            return nullptr; // Not found
+            return nullptr; 
         }
         
         return binarySearchTransactions(middle->next, target, field);
@@ -83,12 +82,11 @@ TransactionNode* binarySearchTransactions(TransactionNode* head, const char* tar
 
 
 ReviewNode* binarySearchReviews(ReviewNode* head, const char* target, int field) {
-    // Base case: empty list
     if (head == nullptr) {
         return nullptr;
     }
     
-    // Count total nodes for halving the list
+    //otal nodes for half
     int count = 0;
     ReviewNode* current = head;
     while (current != nullptr) {
@@ -96,13 +94,13 @@ ReviewNode* binarySearchReviews(ReviewNode* head, const char* target, int field)
         current = current->next;
     }
     
-    // Find the middle node
+    //mid node
     ReviewNode* middle = head;
     for (int i = 0; i < count / 2; i++) {
         middle = middle->next;
     }
     
-    // Get field value from middle node
+    //value from mid
     const char* value = nullptr;
     switch (field) {
         case 0: value = middle->data.productID.c_str(); break;
@@ -112,19 +110,19 @@ ReviewNode* binarySearchReviews(ReviewNode* head, const char* target, int field)
         default: value = middle->data.productID.c_str(); break;
     }
     
-    // Compare with target
+    // Comp to target
     int comparison = strcmp(value, target);
     
     if (comparison == 0) {
-        // Found a match
+        //match found
         return middle;
     } else if (comparison > 0) {
-        // Target is in left half - create a sublist and search
+        // Target left half - sublist
         if (count <= 1) {
             return nullptr; // Not found
         }
         
-        // Create a temporary list of the left half
+        //tmp list left
         ReviewNode* left = head;
         ReviewNode* temp = left;
         for (int i = 0; i < count / 2 - 1; i++) {
@@ -132,9 +130,9 @@ ReviewNode* binarySearchReviews(ReviewNode* head, const char* target, int field)
         }
         
         ReviewNode* origNext = temp->next;
-        temp->next = nullptr; // Temporarily break the list
+        temp->next = nullptr; 
         
-        // Recursive search on left half
+        //search left
         ReviewNode* result = binarySearchReviews(left, target, field);
         
         // Restore the list
@@ -142,7 +140,7 @@ ReviewNode* binarySearchReviews(ReviewNode* head, const char* target, int field)
         
         return result;
     } else {
-        // Target is in right half - search in second half
+        // Target right half
         if (middle->next == nullptr) {
             return nullptr; // Not found
         }

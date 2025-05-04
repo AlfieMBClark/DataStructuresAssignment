@@ -13,14 +13,39 @@
 using namespace std;
 using Clock = chrono::high_resolution_clock;
 
+// Struct fro timing
+struct TimingResults {
+    //Q1
+    long long Q1_SortTime;
+    long long Q1_Full; 
+    //Q2
+    long long Q2_SortTime; 
+    long long Q2_SearchTime; 
+    long long Q2_Full;
+    //Q3
+    long long Q3_SortTime; 
+    long long Q3_SearchTime;
+    long long Q3_Full;
+};
 
-void Alfie(){
+TimingResults alfiResults;
+TimingResults hadiResults;
+TimingResults stanlieResults;
+TimingResults badrResults;
+bool alfiRun = false;
+bool hadiRun = false;
+bool stanlieRun = false;
+bool baderRun = false;
+
+
+TimingResults Alfie(){
     cout << "\nMerge Sort & Binary Search\n";
     Loader loader("cleaned_transactions.csv", "cleaned_reviews.csv");
+    TimingResults results; //timing struct
 
     if (!loader.loadTrans()||!loader.loadRev()) {
         cerr << "Failed to load files";
-        return;
+        return TimingResults{0, 0, 0, 0, 0, 0, 0, 0};;
     }
 
     // print trans data
@@ -110,7 +135,7 @@ void Alfie(){
     TransReviewPair* trHead = nullptr;
     int pairCount = 0;
 
-    // Copytransactions to TransReviewPair list
+    // Copytransactions to TransReviewPair
     TransactionNode* transCurrent = transHead;
     while (transCurrent != nullptr) {
         TransReviewPair* newPair = new TransReviewPair(
@@ -123,7 +148,7 @@ void Alfie(){
         transCurrent = transCurrent->next;
     }
 
-    // If you want to track reviews as well, create a separate data structure
+    //TrackReviews added
     struct ReviewInfo {
         char customerID[255];
         ReviewInfo* next;
@@ -134,7 +159,7 @@ void Alfie(){
         }
     };
 
-    // Create a list of reviews
+    // list of reviews
     ReviewInfo* reviewInfoHead = nullptr;
     int totalReviews = 0;
 
@@ -147,15 +172,15 @@ void Alfie(){
         revCurrent = revCurrent->next;
     }
 
-    // Now analyze which reviews correspond to transactions
+    //Which Reviews Correspond
     int matchedReviews = 0;
     int unmatchedReviews = 0;
-    // For each review, check if there's a matching customer in the transactions
+    //check if matching customer in the transaction
     ReviewInfo* currReview = reviewInfoHead;
     while (currReview != nullptr) {
         bool foundCustomer = false;
         
-        // Check if this customer has any transactions
+        // Check customer transactions
         transCurrent = transHead;
         while (transCurrent != nullptr) {
             if (strcmp(transCurrent->data.customerID.c_str(), currReview->customerID) == 0) {
@@ -190,25 +215,25 @@ void Alfie(){
             if (strcmp(currTR->date, currentRevDate) == 0) {
                 dailyRevCount++;
             } else {
-                // Add to DateCount linked list
+                // Add to DateCount
                 DateCount* newNode = new DateCount(currentRevDate, dailyRevCount);
                 newNode->next = revDateCountHead;
                 revDateCountHead = newNode;
                 
-                // Update current date and reset count
+                //date and reset
                 strcpy(currentRevDate, currTR->date);
                 dailyRevCount = 1;
             }
             currTR = currTR->next;
         }
         
-        // Add the last date
+        // Add last
         DateCount* newNode = new DateCount(currentRevDate, dailyRevCount);
         newNode->next = revDateCountHead;
         revDateCountHead = newNode;
     }
 
-    // Compare date counts
+    // Comp date counts
     cout << "\nComparing Trans+Review Transactions to Transactions:\n";
     int matchingDates = 0;
     int matchingCounts = 0;
@@ -276,11 +301,15 @@ void Alfie(){
         
         DateTranRev = DateTranRev->next;
     }
+    auto Q1EndTime = Clock::now();
+    auto Q1Duration = chrono::duration_cast<chrono::milliseconds>(Q1EndTime - sortStartTime).count();
     
     cout << "Total transactions: " << pairCount << "\n";
     cout << "Total reviews: " << totalReviews << "\n";
     cout << "Reviews matched to customers with transactions: " << matchedReviews << "\n";
     cout << "Reviews from customers with no associated transactions: " << unmatchedReviews << "\n";
+    results.Q1_SortTime=sortDuration;
+    results.Q1_Full=Q1Duration;
 
 
     if (fullMatch) {
@@ -309,7 +338,7 @@ void Alfie(){
 
     if (foundNode == nullptr) {
         cout << "\nDidn't find any Electronics transactions.\n";
-        return;
+        return results;
     }
 
     //all Electronics leftright of node
@@ -381,16 +410,23 @@ void Alfie(){
     cout << "Percentage: " << fixed << setprecision(2) << percentage << "%\n";
 
     // Performance statistics
+    auto SortTimeQ2Duration = chrono::duration_cast<chrono::nanoseconds>(MergeTimeQ2 - startTimeQ2).count();
+    auto SearchTimeQ2Duration = chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ2 - searchStartTimeQ2).count();
+    auto Q2Duration = chrono::duration_cast<chrono::milliseconds>(endTimeQ2 - startTimeQ2).count();
     cout << "\nPerformance metrics:\n";
-    cout << "Merge sort time: " << chrono::duration_cast<chrono::milliseconds>(MergeTimeQ2 - startTimeQ2).count() << " ms\n";
-    cout << "Search and boundary finding time: " << chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ2 - searchStartTimeQ2).count() << " ns\n";
-    cout << "Total analysis time: " << chrono::duration_cast<chrono::milliseconds>(endTimeQ2 - startTimeQ2).count() << " ms\n";
+    cout << "Merge sort time: " << SortTimeQ2Duration << " ns\n";
+    cout << "Search and boundary finding time: "<< SearchTimeQ2Duration<< " ns\n";
+    cout << "Total analysis time: " <<Q2Duration << " ms\n";
     
+    //To time struct
+    results.Q2_SortTime=SortTimeQ2Duration;
+    results.Q2_SearchTime=SearchTimeQ2Duration;
+    results.Q2_Full=Q2Duration;
 
 
 
     //Question 3: Word Counts in 1 star Reviews
-    cout << "\n\nQuestion 3: Frequent Words in 1 star Reviews\n";
+    cout << "\n\nQuestion 3: Frequent Words in 1 star Reviews";
     auto startTimeQ3 = Clock::now();
     ReviewNode* sortedRevHead = sort.sortReviews(reviewHead, 2); // Sort by rating 
     
@@ -400,7 +436,7 @@ void Alfie(){
 
     if (foundRevNode == nullptr) {
         cout << "\nNo 1 Star Reviews\n";
-        return;
+        return results;
     }
 
     // Find all 1-star reviews
@@ -452,13 +488,13 @@ void Alfie(){
         currentReview = currentReview->next;
     }
 
-    cout << "\nFound " << totalOneStarReviews << " 1-star reviews\n";
+    cout << "Found " << totalOneStarReviews << " 1-star reviews";
 
     // linked list for word counts
     WordCountNode* wordCountHead = nullptr;
     int totalWords = 0;
 
-    //count word frequencies
+    //count word freq
     currentReview = firstOneStarReview;
     while (true) {
         // text to a C-string for tokenization
@@ -513,7 +549,7 @@ void Alfie(){
             token = strtok(nullptr, " ");
         }
         
-        // Move to next
+        // Move next
         if (currentReview == lastOneStarReview) {
             break;
         }
@@ -522,12 +558,7 @@ void Alfie(){
 
     // Sort
     wordCountHead = sort.sortWordCounts(wordCountHead);
-
-    cout << "\nAll words found in 1-star reviews:\n";
-    cout << "--------------------------------------------\n";
-    cout << "Word\t\tCount\n";
-    cout << "--------------------------------------------\n";
-
+    cout << "\nWords found in 1-star reviews:\n";
     WordCountNode* wcDisplay = wordCountHead;
     int uniqueWordCount = 0;
 
@@ -548,19 +579,26 @@ void Alfie(){
     cout << "\nTotal unique words found: " << uniqueWordCount << "\n";
     cout << "Total word occurrences: " << totalWords << "\n";
     auto endTimeQ3 = Clock::now();
+
+    auto SortTimeQ3Duration = chrono::duration_cast<chrono::nanoseconds>(MergeTimeQ3 - startTimeQ3).count();
+    auto SearchTimeQ3Duration = chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
+    auto Q3Duration = chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count();
+
     cout << "\nPerformance metrics:\n";
-    cout << "Merge sort time: " << chrono::duration_cast<chrono::nanoseconds>(MergeTimeQ3 - startTimeQ3).count() << " ns\n";
-    cout << "Search and boundary finding time: " << chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count() << " ns\n";
-    cout << "Total word counting and analysis time: " << chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count() << " ms\n";
+    cout << "Merge sort time: " << SortTimeQ3Duration << " ns\n";
+    cout << "Search and boundary finding time: " << SearchTimeQ3Duration << " ns\n";
+    cout << "Total word counting and analysis time: " << Q3Duration<< " ms\n";
 
+    results.Q3_SortTime=SortTimeQ3Duration;
+    results.Q3_SearchTime=SearchTimeQ3Duration;
+    results.Q3_Full=Q3Duration;
 
-
-
+    return results;
 
 }
 
-void Hadi() {
-
+TimingResults Hadi() {
+    TimingResults hadiResults = {0, 0, 0, 0, 0, 0, 0, 0};
     //Question 1: Sorting transactions by date and counting them
 
     Loader loader("cleaned_transactions.csv", "cleaned_reviews.csv"); // Load data into linked lists
@@ -572,6 +610,10 @@ void Hadi() {
     bubbleSortTransactionsByDate(transHead); //Sorts linked list by date
     countTransactionsByDate(transHead, loader.getTransCount()); //Prints transaction counts by date
     auto bubbleSortLLQ1End = Clock::now();  // End timer for Question 1
+
+    hadiResults.Q1_SortTime = chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ1End - bubblSortLLQ1Start).count();
+    hadiResults.Q1_Full = chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ1End - bubblSortLLQ1Start).count();
+
     cout << "Bubble Sort completed in: "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ1End - bubblSortLLQ1Start).count() << " ms\n";
 
@@ -584,16 +626,23 @@ void Hadi() {
     cout << "Jump Search completed in: "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count() << " ms\n";
 
+    hadiResults.Q2_SortTime = chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count();
+    hadiResults.Q2_SearchTime = 0; //No search needed
+    hadiResults.Q2_Full = chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count();
+
     // Question 3: Counting words in 1-star reviews
 
     auto wordCountStart = Clock::now(); // Start timer for Question 3
     ReviewNode* oneStarReview = jumpSearch(reviewHead, 1);  // 1-star rating
+    auto searchQ3End = Clock::now(); //End
     
     if (oneStarReview != NULL) {
         cout << "1-Star Review Found: " << oneStarReview->data.reviewText << endl;
     } else {
         cout << "No 1-Star Review Found!" << endl;
     }
+
+
     tallyWordsInReview(reviewHead);
     auto wordCountEnd = Clock::now(); // End timer for Question 3
     cout << "Word Count completed in: "
@@ -606,9 +655,99 @@ void Hadi() {
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortLLQ2End - bubblSortLLQ2Start).count() << " ms\n";
     cout << "Finding all 1-star reviews and extracting the individual words: "
          << chrono::duration_cast<chrono::milliseconds>(wordCountEnd - wordCountStart).count() << " ms\n";
+
+
+    hadiResults.Q3_SortTime = 0; // No sort
+    hadiResults.Q3_SearchTime = chrono::duration_cast<chrono:: nanoseconds>(searchQ3End - wordCountStart).count();
+    hadiResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(wordCountEnd - wordCountStart).count();
+    return hadiResults;
+}
+
+
+
+
+
+
+
+void PrintResults() {
+    if (!alfiRun && !hadiRun) {
+        cout << "\nNo timing data available.\n";
+        return;
     }
     
+    cout << "\n======  TIMINGS  ======\n";
+    
+    if (alfiRun) {
+        cout << "\nALFIE (Merge Sort + Binary Search):\n";
+        cout << "Q1 Total: " << alfiResults.Q1_Full << " ms\n";
+        cout << "Q1 Merge Sort:"<< alfiResults.Q1_SortTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << alfiResults.Q2_Full << " ms\n";
+        cout << "Q2 Merge Sort: "<< alfiResults.Q2_SortTime<<"ns\n";
+        cout << "Q2 Binary Search: "<< alfiResults.Q2_SearchTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << alfiResults.Q3_Full << " ms\n";
+        cout << "Q3 Merge Sort: "<< alfiResults.Q3_SortTime<<"ns\n";
+        cout << "Q3 Binary Search: "<< alfiResults.Q3_SearchTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << alfiResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
+    
+    if (hadiRun) {
+        cout << "\nHADI (Bubble Sort + Jump Search):\n";
+        cout << "Q1 Total: " << hadiResults.Q1_Full << " ms\n";
+        cout << "Q1 Bubble Sort: " << hadiResults.Q1_SortTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << hadiResults.Q2_Full << " ms\n";
+        cout << "Q2 Bubble Sort: " << hadiResults.Q2_SortTime << " ns\n";
+        cout << "Q2 No Search Required\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << hadiResults.Q3_Full << " ms\n";
+        cout << "Q3 No Sort Required\n";
+        cout << "Q3 Jump Search: " << hadiResults.Q3_SearchTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << hadiResults.Q1_Full + hadiResults.Q2_Full + hadiResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
 
+    // if (stanlieRun) {
+    //     cout << "\nStanlie:\n";
+    //     cout << "Q1 Total: " << stanlieResults.Q1_Full << " ms\n";
+    //     cout << "Q1 Merge Sort:"<< stanlieResults.Q1_SortTime<<"ns\n";
+    //     cout << "--------------------------\n";
+    //     cout << "Q2 Total: " << stanlieResults.Q2_Full << " ms\n";
+    //     cout << "Q2 Merge Sort: "<< stanlieResults.Q2_SortTime<<"ns\n";
+    //     cout << "Q2 Binary Search: "<< stanlieResults.Q2_SearchTime<<"ns\n";
+    //     cout << "--------------------------\n";
+    //     cout << "Q3 Total: " << stanlieResults.Q3_Full << " ms\n";
+    //     cout << "Q3 Merge Sort: "<< stanlieResults.Q3_SortTime<<"ns\n";
+    //     cout << "Q3 Binary Search: "<< stanlieResults.Q3_SearchTime<<"ns\n";
+    //     cout << "--------------------------\n";
+    //     cout << "TOTAL: " << stanlieResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+    //     cout << "===========================\n";
+    // }
+        
+    // if (baderRun) {
+    //     cout << "\nBadr:\n";
+    //     cout << "Q1 Total: " << badrResults.Q1_Full << " ms\n";
+    //     cout << "Q1 Bubble Sort: " << badrResults.Q1_SortTime << " ns\n";
+    //     cout << "--------------------------\n";
+    //     cout << "Q2 Total: " << badrResults.Q2_Full << " ms\n";
+    //     cout << "Q2 Bubble Sort: " << badrResults.Q2_SortTime << " ns\n";
+    //     cout << "Q2 No Search Required\n";
+    //     cout << "--------------------------\n";
+    //     cout << "Q3 Total: " << badrResults.Q3_Full << " ms\n";
+    //     cout << "Q3 No Sort Required\n";
+    //     cout << "Q3 Jump Search: " << badrResults.Q3_SearchTime << " ns\n";
+    //     cout << "--------------------------\n";
+    //     cout << "TOTAL: " << badrResults.Q1_Full + badrResults.Q2_Full + badrResults.Q3_Full << " ms\n";
+    //     cout << "===========================\n";
+    // }
+    
+    
+    cout << "==========================\n";
+}
 
 int main(){
     
@@ -620,26 +759,36 @@ int main(){
         cout << "2. Place 2\n";
         cout << "3. Place 3\n";
         cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad - TP077939)\n";
-        cout << "5. Exit\n";
+        cout << "5. Print Results\n";
+        cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1:
                 cout << "\nRunning Merge Sort and Binary Search\n";
-                Alfie();
+                alfiResults = Alfie();
+                alfiRun = true;
                 break;
             case 2:
-                cout << "\nPlace 2\n";
+                cout << "\nStanlies sott+search\n";
+                // stanlieResults = badr();
+                // stanlieRun = true;
                 break;
             case 3:
-                cout << "\nPlace 3\n";
+                cout << "\nBadrs sort + Search\n";
+                // badrResults = badr();
+                // badrRun = true;
                 break;
             case 4:
                 cout << "\nBubble Sort + Jump Search: 4\n";
-                Hadi();
+                hadiResults = Hadi();
+                hadiRun = true;
                 break;
             case 5:
+                PrintResults();
+                break;
+            case 6:
                 cout << "\nExiting...\n";
                 return 0;
                 break;
@@ -648,5 +797,4 @@ int main(){
         }
 
     } while (choice != 0);
-
 }

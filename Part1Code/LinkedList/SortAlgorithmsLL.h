@@ -11,7 +11,7 @@
 using namespace std;
 
 //Alfie Stuff
-// WordCount struct 
+//Word + freq
 struct WordCount {
     char word[255];
     int count;
@@ -21,7 +21,7 @@ struct WordCount {
     }
 };
 
-// WordCount node
+// node
 struct WordCountNode {
     WordCount data;
     WordCountNode* next;
@@ -33,7 +33,7 @@ struct WordCountNode {
     }
 };
 
-// Date and count pair - transactions per date
+//transactions per date
 struct DateCount {
     char date[255];
     char count[20];
@@ -59,42 +59,90 @@ struct TransReviewPair {
     }
 };
 
-//MergeSort Class
 class MergeSortLL {
 private:
-    // Split the linked list in two halves
-    template<typename NodeType>
-    NodeType* splitList(NodeType* head) {
+    //Trans split
+    TransactionNode* splitTransactionList(TransactionNode* head) {
         if (!head || !head->next) return NULL;
         
-        NodeType* slow = head;
-        NodeType* fast = head->next;
+        TransactionNode* slow = head;
+        TransactionNode* fast = head->next;
         
-        // Use fast/slow pointer technique (tortoise and hare) to find middle
+        // Find mid
         while (fast && fast->next) {
             slow = slow->next;
             fast = fast->next->next;
         }
         
-        NodeType* mid = slow->next;
-        slow->next = NULL; // Split the list
+        TransactionNode* mid = slow->next;
+        slow->next = NULL; // Splits list
+        return mid;
+    }
+    
+    //Review split
+    ReviewNode* splitReviewList(ReviewNode* head) {
+        if (!head || !head->next) return NULL;
+        
+        ReviewNode* slow = head;
+        ReviewNode* fast = head->next;
+        
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        
+        ReviewNode* mid = slow->next;
+        slow->next = NULL;
+        return mid;
+    }
+    
+    //TransRevPair split
+    TransReviewPair* splitTransReviewPairList(TransReviewPair* head) {
+        if (!head || !head->next) return NULL;
+        
+        TransReviewPair* slow = head;
+        TransReviewPair* fast = head->next;
+        
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        
+        TransReviewPair* mid = slow->next;
+        slow->next = NULL;
+        return mid;
+    }
+    
+    //WordCount split
+    WordCountNode* splitWordCountList(WordCountNode* head) {
+        if (!head || !head->next) return NULL;
+        
+        WordCountNode* slow = head;
+        WordCountNode* fast = head->next;
+        
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        
+        WordCountNode* mid = slow->next;
+        slow->next = NULL; 
         return mid;
     }
 
 public:
-    // Merge sort for transaction linked list
+    // Merge sort transactions
     TransactionNode* sortTransactions(TransactionNode* head, int sortBy = 4) {
-        // Base case: empty list or single element
         if (!head || !head->next) return head;
         
-        // Split the list into two halves
-        TransactionNode* mid = splitList(head);
+        // Split into half
+        TransactionNode* mid = splitTransactionList(head);
         
-        // Recursively sort both halves
+        //sort halves
         head = sortTransactions(head, sortBy);
         mid = sortTransactions(mid, sortBy);
         
-        // Merge the sorted halves
+        //Merge halves
         TransactionNode* result = NULL;
         TransactionNode** current = &result;
         
@@ -121,7 +169,7 @@ public:
                 case 5: 
                     useHead = (head->data.paymentMethod <= mid->data.paymentMethod);
                     break;
-                default: // default to date
+                default: //def date
                     useHead = (head->data.date <= mid->data.date);
             }
             
@@ -136,32 +184,27 @@ public:
             current = &((*current)->next);
         }
         
-        // Attach remaining list
+        // Attach remaining
         *current = (head) ? head : mid;
         
         return result;
     }
     
-    // Merge sort Review
+    // Merge sort Review - Same
     ReviewNode* sortReviews(ReviewNode* head, int sortBy = 0) {
-        // Base case: empty list or single element
         if (!head || !head->next) return head;
         
-        // Split two halves
-        ReviewNode* mid = splitList(head);
-        
-        //sort both halves
+        ReviewNode* mid = splitReviewList(head);
+    
         head = sortReviews(head, sortBy);
         mid = sortReviews(mid, sortBy);
-        
-        // Merge halves
+    
         ReviewNode* result = NULL;
         ReviewNode** current = &result;
         
         while (head && mid) {
             bool useHead = false;
             
-            // Compare sortBy
             switch (sortBy) {
                 case 0: 
                     useHead = (head->data.productID <= mid->data.productID);
@@ -190,32 +233,25 @@ public:
             current = &((*current)->next);
         }
         
-        // Attach remaining list
         *current = (head) ? head : mid;
-        
         return result;
     }
     
-    // Mergesort TransReviewPair
+    // Mergesort TransReviewPair - wsame
     TransReviewPair* sortTransReviewPairs(TransReviewPair* head, int sortBy = 0) {
-        // Base case: empty list or single element
         if (!head || !head->next) return head;
         
-        //two halves
-        TransReviewPair* mid = splitList(head);
+        TransReviewPair* mid = splitTransReviewPairList(head);
         
-        // sort halves
         head = sortTransReviewPairs(head, sortBy);
         mid = sortTransReviewPairs(mid, sortBy);
         
-        // Merge halves
         TransReviewPair* result = NULL;
         TransReviewPair** current = &result;
         
         while (head && mid) {
             bool useHead = false;
-            
-            // Compare
+        
             if (sortBy == 0) {
                 useHead = (strcmp(head->date, mid->date) <= 0);
             } else {
@@ -233,19 +269,15 @@ public:
             current = &((*current)->next);
         }
         
-        // Attach remaining list
         *current = (head) ? head : mid;
-        
         return result;
     }
     
-    // Merge sort WordCount 
+    // Merge sort WordCount -same
     WordCountNode* sortWordCounts(WordCountNode* head) {
-        // Base case: empty list or single element
         if (!head || !head->next) return head;
         
-        // Split halves
-        WordCountNode* mid = splitList(head);
+        WordCountNode* mid = splitWordCountList(head);
         
         //sort 
         head = sortWordCounts(head);
@@ -256,7 +288,7 @@ public:
         WordCountNode** current = &result;
         
         while (head && mid) {
-            // Sort by count)
+            // Sort by count
             if (head->data.count >= mid->data.count) {
                 *current = head;
                 head = head->next;
@@ -274,7 +306,6 @@ public:
         return result;
     }
 };
-
 
 
 //----------------------------------------------------------------------------
