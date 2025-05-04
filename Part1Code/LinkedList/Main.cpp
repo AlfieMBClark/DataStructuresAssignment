@@ -914,7 +914,7 @@ TimingResults Badr() {
     
     auto endTimeQ3 = Clock::now();
     auto durationQ3 = chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count();
-    auto searchDurationQ3 = chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
+    auto searchDurationQ3 = chrono::duration_cast<chrono::milliseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
     
     cout << "\nWord frequency analysis completed in: " << durationQ3 << " ms\n";
     
@@ -1015,15 +1015,15 @@ void PrintResults() {
     if (badrRun) {
         cout << "\nBadr:\n";
         cout << "Q1 Total: " << badrResults.Q1_Full << " ms\n";
-        cout << "Q1 Bubble Sort: " << badrResults.Q1_SortTime << " ns\n";
+        cout << "Q1 Heap Sort: " << badrResults.Q1_SortTime << " ns\n";
         cout << "--------------------------\n";
         cout << "Q2 Total: " << badrResults.Q2_Full << " ms\n";
-        cout << "Q2 Bubble Sort: " << badrResults.Q2_SortTime << " ns\n";
+        cout << "Q2 Heap Sort: " << badrResults.Q2_SortTime << " ns\n";
         cout << "Q2 No Search Required\n";
         cout << "--------------------------\n";
         cout << "Q3 Total: " << badrResults.Q3_Full << " ms\n";
         cout << "Q3 No Sort Required\n";
-        cout << "Q3 Jump Search: " << badrResults.Q3_SearchTime << " ns\n";
+        cout << "Q3 Hashing Search: " << badrResults.Q3_SearchTime << " ns\n";
         cout << "--------------------------\n";
         cout << "TOTAL: " << badrResults.Q1_Full + badrResults.Q2_Full + badrResults.Q3_Full << " ms\n";
         cout << "===========================\n";
