@@ -242,6 +242,27 @@ void heapSort(WordCount* wc, int n) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Bubble sort algortihm
 
 void bubbleSort(char arr[][TransactionFields][FieldLength], int n, int column) {
