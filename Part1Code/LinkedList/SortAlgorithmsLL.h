@@ -4,11 +4,13 @@
 
 #include "LoadData.h"
 #include <cstring>
+#include <string>
 #include <iostream>
 
 #include "LoadData.h"
 #include <cstring>
 using namespace std;
+
 
 //Alfie Stuff
 //Word + freq
@@ -467,6 +469,98 @@ void heapSort(TransactionNode*& head) {
     delete[] arr;
 }
 
+//Stanlie's private domicile
+// Make a copy of the transaction node
+TransactionNode* DeepCopyTransactionList(TransactionNode* head) {
+    if (!head) return nullptr;
+
+    TransactionNode* newHead = new TransactionNode(head->data);
+    TransactionNode* currentNew = newHead;
+    TransactionNode* currentOld = head->next;
+
+    while (currentOld) {
+        currentNew->next = new TransactionNode(currentOld->data);
+        currentNew = currentNew->next;
+        currentOld = currentOld->next;
+    }
+
+    return newHead;
+}
+//Stanlie sorts
+void InsertionSortWordFreqDescending(FrequentWord*& head) {
+    FrequentWord* sorted = nullptr;
+
+    while (head) {
+        FrequentWord* node = head;
+        head = head->next;
+
+        if (!sorted || node->count > sorted->count) {
+            node->next = sorted;
+            sorted = node;
+        } else {
+            FrequentWord* temp = sorted;
+            while (temp->next && temp->next->count >= node->count)
+                temp = temp->next;
+
+            node->next = temp->next;
+            temp->next = node;
+        }
+    }
+
+    head = sorted;
+}
+
+TransactionNode* InsertionSortByDate(TransactionNode* head) {
+    if (!head || !head->next) return head;
+
+    TransactionNode* sorted = nullptr;
+
+    while (head) {
+        TransactionNode* node = head;
+        head = head->next;
+        node->next = nullptr;
+
+        if (!sorted || node->data.date < sorted->data.date) {
+            node->next = sorted;
+            sorted = node;
+        } else {
+            TransactionNode* current = sorted;
+            while (current->next && current->next->data.date <= node->data.date) {
+                current = current->next;
+            }
+            node->next = current->next;
+            current->next = node;
+        }
+    }
+
+    return sorted;
+}
+
+TransactionNode* InsertionSortByCategory(TransactionNode* head) {
+    if (!head || !head->next) return head;
+
+    TransactionNode* sorted = nullptr;  // new sorted list
+
+    while (head) {
+        TransactionNode* current = head;
+        head = head->next;
+        current->next = nullptr;
+
+        if (!sorted || current->data.category < sorted->data.category) {
+            current->next = sorted;
+            sorted = current;
+        } else {
+            TransactionNode* temp = sorted;
+            while (temp->next && temp->next->data.category < current->data.category) {
+                temp = temp->next;
+            }
+            current->next = temp->next;
+            temp->next = current;
+        }
+    }
+
+    return sorted;
+}
 
 
 

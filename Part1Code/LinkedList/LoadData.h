@@ -31,6 +31,12 @@ struct ReviewNode {
         next = NULL;
     }
 };
+struct FrequentWord {
+    string word;
+    int count;
+    FrequentWord* next;
+    FrequentWord(string w) : word(w), count(1), next(nullptr) {}
+};
 
 //CLass
 class Loader {
