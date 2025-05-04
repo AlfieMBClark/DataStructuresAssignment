@@ -135,7 +135,7 @@ private:
 public:
     // Merge sort transactions
     TransactionNode* sortTransactions(TransactionNode* head, int sortBy = 4) {
-        if (!head || !head->next) return head;
+        if (!head || !head->next) return head;//if list only 1 node stop
         
         // Split into half
         TransactionNode* mid = splitTransactionList(head);
