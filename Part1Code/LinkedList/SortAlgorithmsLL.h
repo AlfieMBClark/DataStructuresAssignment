@@ -470,6 +470,33 @@ void heapSort(TransactionNode*& head) {
 
 
 
+// Define a date-count pair structure for Question 1
+struct DateCountPair {
+    string date;
+    int count;
+    DateCountPair* next;
+    
+    DateCountPair(const string& d, int c) : date(d), count(c), next(nullptr) {}
+};
+
+// Define a category-transactions structure for Question 2
+struct CategoryTransaction {
+    TransactionNode* transaction;
+    CategoryTransaction* next;
+    
+    CategoryTransaction(TransactionNode* trans) : transaction(trans), next(nullptr) {}
+};
+
+// Simple container for payment method counts
+struct PaymentMethodCount {
+    string method;
+    int count;
+    PaymentMethodCount* next;
+    
+    PaymentMethodCount(const string& m, int c) : method(m), count(c), next(nullptr) {}
+};
+
+
 
 
 

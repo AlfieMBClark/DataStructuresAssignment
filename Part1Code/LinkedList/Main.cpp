@@ -663,6 +663,14 @@ TimingResults Hadi() {
     return hadiResults;
 }
 
+
+
+
+
+
+
+
+
 TimingResults Badr() {
     // Initialize timing results with zeros
     TimingResults badrResults = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -707,7 +715,10 @@ TimingResults Badr() {
     string currentDate = "";
     int dateCount = 0;
     int totalDates = 0;
-    vector<pair<string, int>> dateCounts; // Store date-count pairs
+    
+    // Custom linked list to replace vector<pair<string, int>>
+    DateCountPair* dateCountsHead = nullptr;
+    DateCountPair* dateCountsTail = nullptr;
 
     // First collect all dates and counts
     TransactionNode* current = transHead;
@@ -715,7 +726,17 @@ TimingResults Badr() {
         if (current->data.date != currentDate) {
             // Save previous date's count (if not the first date)
             if (!currentDate.empty()) {
-                dateCounts.push_back(make_pair(currentDate, dateCount));
+                DateCountPair* newPair = new DateCountPair(currentDate, dateCount);
+                
+                // Add to the linked list
+                if (dateCountsHead == nullptr) {
+                    dateCountsHead = newPair;
+                    dateCountsTail = newPair;
+                } else {
+                    dateCountsTail->next = newPair;
+                    dateCountsTail = newPair;
+                }
+                
                 totalDates++;
             }
             
@@ -731,21 +752,43 @@ TimingResults Badr() {
 
     // Add the last date
     if (!currentDate.empty()) {
-        dateCounts.push_back(make_pair(currentDate, dateCount));
+        DateCountPair* newPair = new DateCountPair(currentDate, dateCount);
+        
+        if (dateCountsHead == nullptr) {
+            dateCountsHead = newPair;
+        } else {
+            dateCountsTail->next = newPair;
+            dateCountsTail = newPair;
+        }
+        
         totalDates++;
     }
 
     // Now display in two columns
-    int halfSize = (dateCounts.size() + 1) / 2;
+    int halfSize = (totalDates + 1) / 2;
+    DateCountPair* leftColumn = dateCountsHead;
+    
+    // Find the middle element for the right column
+    DateCountPair* rightColumn = dateCountsHead;
+    for (int i = 0; i < halfSize && rightColumn != nullptr; i++) {
+        rightColumn = rightColumn->next;
+    }
+    
+    // Print the two columns
     for (int i = 0; i < halfSize; i++) {
-        // Left column
-        cout << left << setw(12) << dateCounts[i].first << "| " 
-             << setw(10) << dateCounts[i].second << " ||    ";
+        if (leftColumn != nullptr) {
+            cout << left << setw(12) << leftColumn->date << "| " 
+                 << setw(10) << leftColumn->count << " ||    ";
+            
+            leftColumn = leftColumn->next;
+        }
         
         // Right column (if it exists)
-        if (i + halfSize < dateCounts.size()) {
-            cout << left << setw(12) << dateCounts[i + halfSize].first << "| " 
-                 << dateCounts[i + halfSize].second;
+        if (rightColumn != nullptr) {
+            cout << left << setw(12) << rightColumn->date << "| " 
+                 << rightColumn->count;
+            
+            rightColumn = rightColumn->next;
         }
         cout << endl;
     }
@@ -759,12 +802,19 @@ TimingResults Badr() {
     
     auto durationQ1 = chrono::duration_cast<chrono::milliseconds>(endTimeQ1 - startTimeQ1).count();
     auto sortDurationQ1 = chrono::duration_cast<chrono::milliseconds>(sortTimeQ1 - startTimeQ1).count();
-    cout << "Heap Sort completed in: " << sortDurationQ1 << " ms\n";
+    // cout << "Heap Sort completed in: " << sortDurationQ1 << " ms\n";
     cout << "Total processing time: " << durationQ1 << " ms\n\n";
 
     // Save timing results for Q1
     badrResults.Q1_SortTime = sortDurationQ1;
     badrResults.Q1_Full = durationQ1;
+
+    // Cleanup dateCountsPairs linked list
+    while (dateCountsHead != nullptr) {
+        DateCountPair* temp = dateCountsHead;
+        dateCountsHead = dateCountsHead->next;
+        delete temp;
+    }
 
     // =====================================================================
     // Question 2: Analyze Electronics purchases with Credit Card
@@ -776,34 +826,89 @@ TimingResults Badr() {
     auto startTimeQ2 = Clock::now();
     auto sortTimeQ2 = startTimeQ2; // Just initialize, may not be used
     
-    // Use hash-based search to find and analyze Electronics purchases
-    // Store the results for formatted display
-    map<string, vector<TransactionNode*>> categoryMap;
+    // Use custom structure instead of map<string, vector<TransactionNode*>>
+    struct CategoryMap {
+        string category;
+        CategoryTransaction* transactions;
+        CategoryMap* next;
+        
+        CategoryMap(const string& cat) : category(cat), transactions(nullptr), next(nullptr) {}
+    };
+    
+    CategoryMap* categoryMapHead = nullptr;
     int totalProcessed = 0;
     
     // Fill the map with transactions categorized by category
     current = transHead;
     while (current != nullptr) {
-        categoryMap[current->data.category].push_back(current);
+        // Find or create category
+        CategoryMap* categoryNode = nullptr;
+        
+        // Search for existing category
+        CategoryMap* mapIter = categoryMapHead;
+        while (mapIter != nullptr) {
+            if (mapIter->category == current->data.category) {
+                categoryNode = mapIter;
+                break;
+            }
+            mapIter = mapIter->next;
+        }
+        
+        // Create new category if not found
+        if (categoryNode == nullptr) {
+            categoryNode = new CategoryMap(current->data.category);
+            categoryNode->next = categoryMapHead;
+            categoryMapHead = categoryNode;
+        }
+        
+        // Add transaction to category
+        CategoryTransaction* newTrans = new CategoryTransaction(current);
+        newTrans->next = categoryNode->transactions;
+        categoryNode->transactions = newTrans;
+        
         current = current->next;
         totalProcessed++;
     }
     
     cout << "Processed " << totalProcessed << " transactions using hash-based categorization.\n";
-    cout << "Found " << categoryMap.size() << " unique product categories.\n\n";
+    
+    // Count categories
+    int uniqueCategories = 0;
+    CategoryMap* catIter = categoryMapHead;
+    while (catIter != nullptr) {
+        uniqueCategories++;
+        catIter = catIter->next;
+    }
+    
+    cout << "Found " << uniqueCategories << " unique product categories.\n\n";
     
     // Now analyze the "Electronics" category transactions
-    if (categoryMap.find("Electronics") != categoryMap.end()) {
-        int electronicsCount = categoryMap["Electronics"].size();
+    CategoryMap* electronicsCategory = nullptr;
+    
+    // Find Electronics category
+    catIter = categoryMapHead;
+    while (catIter != nullptr) {
+        if (catIter->category == "Electronics") {
+            electronicsCategory = catIter;
+            break;
+        }
+        catIter = catIter->next;
+    }
+    
+    if (electronicsCategory != nullptr) {
+        int electronicsCount = 0;
         int creditCardCount = 0;
         double totalValue = 0.0;
         
-        // Count credit card payments and total value
-        for (TransactionNode* trans : categoryMap["Electronics"]) {
-            if (trans->data.paymentMethod == "Credit Card") {
+        // Count total Electronics transactions
+        CategoryTransaction* transIter = electronicsCategory->transactions;
+        while (transIter != nullptr) {
+            electronicsCount++;
+            if (transIter->transaction->data.paymentMethod == "Credit Card") {
                 creditCardCount++;
-                totalValue += trans->data.price;
+                totalValue += transIter->transaction->data.price;
             }
+            transIter = transIter->next;
         }
         
         // Calculate the percentage
@@ -813,9 +918,33 @@ TimingResults Badr() {
         }
         
         // Show distribution of other payment methods
-        map<string, int> paymentMethods;
-        for (TransactionNode* trans : categoryMap["Electronics"]) {
-            paymentMethods[trans->data.paymentMethod]++;
+        PaymentMethodCount* paymentMethodsHead = nullptr;
+        
+        // Count payment methods
+        transIter = electronicsCategory->transactions;
+        while (transIter != nullptr) {
+            string method = transIter->transaction->data.paymentMethod;
+            
+            // Find or create payment method counter
+            PaymentMethodCount* methodNode = nullptr;
+            PaymentMethodCount* methodIter = paymentMethodsHead;
+            
+            while (methodIter != nullptr) {
+                if (methodIter->method == method) {
+                    methodNode = methodIter;
+                    break;
+                }
+                methodIter = methodIter->next;
+            }
+            
+            if (methodNode == nullptr) {
+                methodNode = new PaymentMethodCount(method, 0);
+                methodNode->next = paymentMethodsHead;
+                paymentMethodsHead = methodNode;
+            }
+            
+            methodNode->count++;
+            transIter = transIter->next;
         }
         
         // Display in a nicely formatted table
@@ -832,13 +961,23 @@ TimingResults Badr() {
         cout << "| Payment Method   | Count  | Percent   |\n";
         cout << "+------------------+--------+-----------+\n";
 
-        for (const auto& method : paymentMethods) {
-            double methodPercentage = (static_cast<double>(method.second) / electronicsCount) * 100;
-            cout << "| " << setw(16) << left << method.first << " | " 
-                 << setw(6) << right << method.second << " | " 
+        PaymentMethodCount* methodIter = paymentMethodsHead;
+        while (methodIter != nullptr) {
+            double methodPercentage = (static_cast<double>(methodIter->count) / electronicsCount) * 100;
+            cout << "| " << setw(16) << left << methodIter->method << " | " 
+                 << setw(6) << right << methodIter->count << " | " 
                  << setw(7) << fixed << setprecision(2) << methodPercentage << "% |\n";
+            
+            methodIter = methodIter->next;
         }
         cout << "+------------------+--------+-----------+\n";
+        
+        // Cleanup payment methods
+        while (paymentMethodsHead != nullptr) {
+            PaymentMethodCount* temp = paymentMethodsHead;
+            paymentMethodsHead = paymentMethodsHead->next;
+            delete temp;
+        }
     } else {
         cout << "No Electronics Purchases found in the dataset.\n";
     }
@@ -846,6 +985,21 @@ TimingResults Badr() {
     auto endTimeQ2 = Clock::now();
     auto durationQ2 = chrono::duration_cast<chrono::milliseconds>(endTimeQ2 - startTimeQ2).count();
     cout << "\nHash Search completed in: " << durationQ2 << " ms\n\n";
+
+    // Cleanup category map
+    while (categoryMapHead != nullptr) {
+        // Cleanup transactions in this category
+        CategoryTransaction* transHead = categoryMapHead->transactions;
+        while (transHead != nullptr) {
+            CategoryTransaction* temp = transHead;
+            transHead = transHead->next;
+            delete temp;
+        }
+        
+        CategoryMap* tempCat = categoryMapHead;
+        categoryMapHead = categoryMapHead->next;
+        delete tempCat;
+    }
 
     // Save timing results for Q2
     badrResults.Q2_SortTime = 0; // No specific sort time tracked
@@ -855,6 +1009,7 @@ TimingResults Badr() {
     // =====================================================================
     // Question 3: Analyze word frequency in 1-star reviews
     // =====================================================================
+    // I'm keeping this section as is since it doesn't use vectors
     cout << "=================================================\n";    
     cout << "Question 3: Most frequent words in 1-star reviews\n";
     cout << "=================================================\n";
@@ -914,7 +1069,7 @@ TimingResults Badr() {
     
     auto endTimeQ3 = Clock::now();
     auto durationQ3 = chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count();
-    auto searchDurationQ3 = chrono::duration_cast<chrono::milliseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
+    auto searchDurationQ3 = chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
     
     cout << "\nWord frequency analysis completed in: " << durationQ3 << " ms\n";
     
@@ -948,6 +1103,7 @@ TimingResults Badr() {
 
     return badrResults; // Return the timing results
 }
+
 
 
 
