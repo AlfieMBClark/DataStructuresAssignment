@@ -532,7 +532,8 @@ void countWordFrequencies(int first, int last, ReviewNode* reviewHead, WordCount
     unique = 0;
     
     while (current != nullptr) {
-        if (index >= first && index <= last) {
+        // THIS IS THE KEY CHANGE - Only process reviews with rating == 1
+        if (index >= first && index <= last && current->data.rating == 1) { // Added the check for rating == 1
             stringstream ss(current->data.reviewText);
             string word;
             
@@ -592,6 +593,7 @@ void countWordFrequencies(int first, int last, ReviewNode* reviewHead, WordCount
     cout << "Processed " << (last - first + 1) << " reviews with 1-star ratings.\n";
     cout << "Found " << unique << " unique words after filtering stop words.\n";
 }
+
 
 // Function to create a linked list of word counts
 WordCountNode* createWordCountList(WordCount* wc, int unique) {

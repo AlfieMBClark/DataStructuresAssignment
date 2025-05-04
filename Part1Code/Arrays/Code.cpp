@@ -603,7 +603,6 @@ cout << "Q3 : " << StanResults.Q3_Full << " ms\n";
    
 }
 
-
 TimingResults Badr() {
     TimingResults BadrResults = {0, 0, 0, 0, 0, 0, 0, 0};
     // Load data into dynamically sized arrays
@@ -662,42 +661,107 @@ TimingResults Badr() {
     BadrResults.Q2_Full = chrono::duration_cast<chrono::milliseconds>(Q2FullEnd - Q2Start).count();
 
     // =====================================================================================
-    // Question 3: Word Frequency in 1-Star Reviews
+    // Question 3: Word Frequency in 1-Star Reviews - FIXED IMPLEMENTATION
     // =====================================================================================
     auto Q3Start = Clock::now(); // Start timer for Question 3
-    cout << "\n===== 1-Star Reviews Word Frequency =====\n";
+    cout << "\nQuestion 3\n1-Star Reviews Word Count\n";
 
-    // Find the 1-star reviews and count word frequencies
-    int first = -1, last = -1;
-    findOneStarReviews(first, last, reviewCount, reviews);
+    // Step 1: Find all 1-star reviews
+    int oneStarCount = 0;
+    for (int i = 0; i < reviewCount; ++i) {
+        if (strcmp(reviews[i][2], "1") == 0) {
+            oneStarCount++;
+        }
+    }
     
-    if (first == -1) {
+    if (oneStarCount == 0) {
         cout << "No 1-star reviews found.\n";
         return BadrResults;
     }
-
-    int total1Stars = last - first + 1;
-    cout << "Total 1-Star Reviews: " << total1Stars << "\n";
-
-    WordCount* wc = new WordCount[total1Stars * 50];  // Maximum words
-    int unique = 0;
-    countWordFrequencies(first, last, reviews, wc, unique);  // Count word frequencies
-
+    
+    cout << "Reviews found: " << oneStarCount << "\n";
+    
+    // Step 2: Count word frequencies
+    const int MAX_WORDS = 5000; // Assume a large maximum number of unique words
+    WordCount* wordCounts = new WordCount[MAX_WORDS];
+    int uniqueWords = 0;
+    
+    // Process each 1-star review
+    for (int i = 0; i < reviewCount; ++i) {
+        if (strcmp(reviews[i][2], "1") == 0) {
+            // Make a copy of the review text
+            char reviewText[FieldLength];
+            strcpy(reviewText, reviews[i][3]);
+            
+            // Convert to lowercase and replace punctuation with spaces
+            for (int j = 0; reviewText[j]; ++j) {
+                if (isalpha((unsigned char)reviewText[j])) {
+                    reviewText[j] = tolower((unsigned char)reviewText[j]);
+                } else {
+                    reviewText[j] = ' ';
+                }
+            }
+            
+            // Split into words and count frequency
+            char* word = strtok(reviewText, " ");
+            while (word != nullptr) {
+                // Skip empty strings
+                if (strlen(word) == 0) {
+                    word = strtok(nullptr, " ");
+                    continue;
+                }
+                
+                // Check if word already exists in our count
+                bool found = false;
+                for (int k = 0; k < uniqueWords; ++k) {
+                    if (strcmp(wordCounts[k].word, word) == 0) {
+                        wordCounts[k].count++;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If not found, add it
+                if (!found && uniqueWords < MAX_WORDS) {
+                    strcpy(wordCounts[uniqueWords].word, word);
+                    wordCounts[uniqueWords].count = 1;
+                    uniqueWords++;
+                }
+                
+                word = strtok(nullptr, " ");
+            }
+        }
+    }
+    
+    // Step 3: Sort by frequency (descending)
     auto Q3SortStart = Clock::now();
-    heapSort(wc, unique);  // Sort word frequencies using Heap Sort
+    for (int i = 0; i < uniqueWords - 1; ++i) {
+        for (int j = 0; j < uniqueWords - i - 1; ++j) {
+            if (wordCounts[j].count < wordCounts[j + 1].count) {
+                // Swap
+                WordCount temp = wordCounts[j];
+                wordCounts[j] = wordCounts[j + 1];
+                wordCounts[j + 1] = temp;
+            }
+        }
+    }
     auto Q3SortEnd = Clock::now();
-
-    displayTopWords(wc, unique, 10);  // Display top 10 words
-
+    
+    // Step 4: Display ALL words and their frequencies
+    for (int i = 0; i < uniqueWords; ++i) {
+        cout << wordCounts[i].word << ": " << wordCounts[i].count << "\n";
+    }
+    
+    delete[] wordCounts;
+    
     auto Q3End = Clock::now();  // End timer for Question 3
     cout << "Word Frequency Analysis for 1-Star Reviews completed in "
          << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
 
-
-     // Store Q3 timing
-     BadrResults.Q3_SortTime = chrono::duration_cast<chrono::nanoseconds>(Q3SortEnd - Q3SortStart).count();
-     BadrResults.Q3_SearchTime = 0; 
-     BadrResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count();
+    // Store Q3 timing
+    BadrResults.Q3_SortTime = chrono::duration_cast<chrono::nanoseconds>(Q3SortEnd - Q3SortStart).count();
+    BadrResults.Q3_SearchTime = 0; 
+    BadrResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count();
 
     // After all the questions have been processed, calculate the time taken for each question
     long long Q1Time = chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count();
@@ -718,6 +782,8 @@ TimingResults Badr() {
     cout << "Question 3 (Word Frequency in 1-Star Reviews): "
          << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
     cout << "Total Time: " << totalTime << " ms\n";
+    
+    return BadrResults;
 }
 
 TimingResults Hadi() {
