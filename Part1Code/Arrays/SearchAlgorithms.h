@@ -33,26 +33,6 @@ int binarySearch(char SortedArray[][TransactionFields][FieldLength],int  size,co
     return -1;
 }
 
-double percentageWithCategoryAndMethod(char SortedArray[][TransactionFields][FieldLength],int  size,const char* category,const char* paymentMethod) {
-    
-    int idx=binarySearch(SortedArray,size,category,2);
-    if(idx<0) return 0.0;
-    int total=0, match=0;
-    // Scan backwards
-    for(int i=idx; i>=0 && strcmp(SortedArray[i][2],category)==0; --i){
-        if(strcmp(SortedArray[i][5],paymentMethod)==0) 
-            ++match;
-            ++total;
-    }
-    // Scan forwards
-    for(int i=idx+1; i<size && strcmp(SortedArray[i][2],category)==0; ++i){
-        if(strcmp(SortedArray[i][5],paymentMethod)==0) ++match;
-        ++total;
-    }
-
-    return total ? (double)match/total*100.0 : 0.0;
-}
-
 //binary search reviews
 int binarySearchReviews(char SortedReviewArray[][ReviewFields][FieldLength],int  size,const char* target,int  column) {
     int l = 0, r = size - 1;
