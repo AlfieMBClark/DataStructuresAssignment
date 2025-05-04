@@ -8,7 +8,6 @@
 #include <sstream>
 #include <cstring>
 #include <cctype>
-#include <vector>
 #include <algorithm>
 #include <iomanip>
 
@@ -247,7 +246,15 @@ ReviewNode* jumpSearch(ReviewNode* head, int targetRating) {
 }
 
 void tallyWordsInReview(ReviewNode* reviewHead) {
-    map<string, int> wordCount;
+    struct WordEntry {
+        string word;
+        int count;
+    };
+
+    const int MaxWords = 1000;
+    WordEntry wordEntries[MaxWords];
+    int wordEntryCount = 0;
+
     ReviewNode* current = reviewHead;
 
     while (current != NULL) {
@@ -256,34 +263,44 @@ void tallyWordsInReview(ReviewNode* reviewHead) {
             string word;
 
             while (ss >> word) {
-                // Remove non-alphabetic characters
                 word.erase(remove_if(word.begin(), word.end(), [](char c) { return !isalpha(c); }), word.end());
-
-                // Convert to lowercase
                 transform(word.begin(), word.end(), word.begin(), ::tolower);
+                if (word.empty()) continue;
 
-                if (!word.empty()) {
-                    wordCount[word]++;
+                bool found = false;
+                for (int i = 0; i < wordEntryCount; ++i) {
+                    if (wordEntries[i].word == word) {
+                        wordEntries[i].count++;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found && wordEntryCount < MaxWords) {
+                    wordEntries[wordEntryCount].word = word;
+                    wordEntries[wordEntryCount].count = 1;
+                    wordEntryCount++;
                 }
             }
         }
         current = current->next;
     }
 
-    // Move map data into vector for sorting
-    vector<pair<string, int>> sortedWords(wordCount.begin(), wordCount.end());
+    for (int i = 0; i < wordEntryCount - 1; ++i) {
+        for (int j = 0; j < wordEntryCount - i - 1; ++j) {
+            if (wordEntries[j].count < wordEntries[j + 1].count ||
+                (wordEntries[j].count == wordEntries[j + 1].count && wordEntries[j].word > wordEntries[j + 1].word)) {
+                WordEntry temp = wordEntries[j];
+                wordEntries[j] = wordEntries[j + 1];
+                wordEntries[j + 1] = temp;
+            }
+        }
+    }
 
-    // Sort by frequency (descending), then alphabetically
-    sort(sortedWords.begin(), sortedWords.end(), [](const pair<string, int>& a, const pair<string, int>& b) {
-        return a.second != b.second ? a.second > b.second : a.first < b.first;
-    });
-
-    // Print sorted results
-    for (const auto& entry : sortedWords) {
-        cout << entry.first << ": " << entry.second << endl;
+    for (int i = 0; i < wordEntryCount; ++i) {
+        cout << wordEntries[i].word << ": " << wordEntries[i].count << endl;
     }
 }
-
 
 //#############################################################################
 //################################################################################
