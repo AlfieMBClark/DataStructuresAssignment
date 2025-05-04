@@ -7,6 +7,7 @@
 #include <map>
 #include <sstream>
 #include <cstring>
+#include <cctype>
 #include <vector>
 #include <algorithm>
 #include <iomanip>
@@ -284,17 +285,6 @@ void tallyWordsInReview(ReviewNode* reviewHead) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 //#############################################################################
 //################################################################################
 
@@ -500,7 +490,60 @@ void displayTopWords(WordCountNode* head, int unique, int topN) {
     cout << "Total unique words found: " << unique << "\n";
 }
 
+//Stanlie
 
+void LinearSearch(ReviewNode* head, FrequentWord*& freqHead) {
+    freqHead = nullptr;
+
+    while (head) {
+        if (head->data.rating == 1) {
+            std::string review = head->data.reviewText;
+
+            for (char& ch : review)
+                ch = std::isalpha(ch) ? std::tolower(ch) : ' ';
+
+            std::stringstream ss(review);
+            std::string token;
+
+            while (ss >> token) {
+                FrequentWord* current = freqHead;
+                bool found = false;
+
+                while (current) {
+                    if (current->word == token) {
+                        current->count++;
+                        found = true;
+                        break;
+                    }
+                    current = current->next;
+                }
+
+                if (!found) {
+                    FrequentWord* newNode = new FrequentWord(token);
+                    newNode->next = freqHead;
+                    freqHead = newNode;
+                }
+            }
+        }
+        head = head->next;
+    }
+}
+
+void LinearSearchElectronics(TransactionNode* head, int& totalElectronics, int& creditCardCount) {
+    totalElectronics = 0;
+    creditCardCount = 0;
+
+    while (head) {
+        // Use .find to allow for small variations like leading/trailing spaces
+        if (head->data.category.find("Electronics") != std::string::npos) {
+            totalElectronics++;
+            if (head->data.paymentMethod.find("Credit Card") != std::string::npos) {
+                creditCardCount++;
+            }
+        }
+        head = head->next;
+    }
+}
 
 
 
