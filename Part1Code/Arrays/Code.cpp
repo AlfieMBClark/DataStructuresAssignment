@@ -11,9 +11,33 @@
 
 using namespace std;
 using Clock = chrono::high_resolution_clock;
+// Struct fro timing
+struct TimingResults {
+    //Q1
+    long long Q1_SortTime;
+    long long Q1_Full; 
+    //Q2
+    long long Q2_SortTime; 
+    long long Q2_SearchTime; 
+    long long Q2_Full;
+    //Q3
+    long long Q3_SortTime; 
+    long long Q3_SearchTime;
+    long long Q3_Full;
+};
+
+TimingResults alfiResults;
+TimingResults hadiResults;
+TimingResults stanlieResults;
+TimingResults badrResults;
+bool alfiRun = false;
+bool hadiRun = false;
+bool stanlieRun = false;
+bool badrRun = false;
 
 
-void Alfie(){
+
+TimingResults Alfie(){
     // Load data
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
@@ -21,10 +45,12 @@ void Alfie(){
     cout << "Transactions:"<< transactionCount<< "\tReviews: "<<reviewCount<<endl;
 
      // object
-     MergeSort sort; // Ensure that the MergeSort class is defined or included
+     TimingResults results = {0, 0, 0, 0, 0, 0, 0, 0};
+     MergeSort sort; // MergeSort class
 
     // Question 1: Count transactions per day
     // Unique customer ID's
+    auto AlfieStartQ1 = Clock::now();
     char (*uniqueCustomerIDs)[FieldLength] = new char[transactionCount][FieldLength];
     int uIDCount = 0;
 
@@ -49,7 +75,7 @@ void Alfie(){
     
 
     //Merge Sort
-    auto AlfieStartQ1 = Clock::now();
+    auto AlfieStartMergeQ1 = Clock::now();
     sort.sortTransactions(transactions, 0, transactionCount - 1, 4, transactionCount);
     auto AlfieEndMergeSortQ1 = Clock::now();
 
@@ -141,7 +167,7 @@ void Alfie(){
     //  2D array for storing dates and counts
     char (*revDateCounts)[2][FieldLength] = new char[uniqueDatesCount][2][FieldLength];
 
-    //Count Trans per day in TransReview Data
+    //Count Trans per day in TransReview
     char currentRevDate[FieldLength];
     strcpy(currentRevDate, TransReviewArray[0][0]);
     int dailyRevCount = 1;
@@ -191,25 +217,37 @@ void Alfie(){
     }else{
         cout << "Not Full match\t"<< "UnMatching Dates:"<< NotmatchingDates << "\tUnMatching Counts\t" << NotmatchingCounts<<endl;
     }
-    auto AlfieEnd2Q1 = Clock::now();
+    auto AlfieEndQ1 = Clock::now();
+    
+    auto Q1Sort = chrono::duration_cast<chrono::milliseconds>(AlfieEndMergeSortQ1 - AlfieStartMergeQ1).count();
+    auto Q1Duration = chrono::duration_cast<chrono::milliseconds>(AlfieEndQ1 - AlfieStartQ1).count();
 
-    cout << "Merge Sort time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndMergeSortQ1 - AlfieStartQ1).count() << " ms\n";
-    cout << "Entire Merge Sort Implementation Q1 Algorithm Time: " << chrono::duration_cast<chrono::milliseconds>(AlfieEnd2Q1 - AlfieStartQ1).count() << " ms\n\n";
+
+    cout << "Merge Sort time: " << Q1Sort << " ms\n";
+    cout << "Entire Merge Sort Implementation Q1 Algorithm Time: "<< Q1Duration << " ms\n\n";
+
+
+    results.Q1_SortTime=Q1Sort;
+    results.Q1_Full=Q1Duration;
+
+
+
 
 
     // Question 2: Electronics and Credit Card Analysis
     cout<<"Question 2\n";
     auto AlfieStartFullQ2 = Clock::now();
     sort.sortTransactions(transactions, 0, transactionCount - 1, 4, transactionCount);
+
+    //search
     auto AlfieStartBinaryQ2 = Clock::now();
     int idx = binarySearch(transactions, transactionCount, "Electronics", 2);
-
     if (idx < 0) {
         cout << "\nDidn't find any Electronics transactions.\n";
-        return;
+        return results;
     }
-
     int firstQ2Alfie = idx, lastQ2Alfie = idx;
+    //blocks
     while (firstQ2Alfie > 0 && strcmp(transactions[firstQ2Alfie - 1][2], "Electronics") == 0) --firstQ2Alfie;
     while (lastQ2Alfie + 1 < transactionCount && strcmp(transactions[lastQ2Alfie + 1][2], "Electronics") == 0) ++lastQ2Alfie;
     auto AlfieEndBinaryQ2 = Clock::now();
@@ -238,25 +276,44 @@ void Alfie(){
     cout << "\nElectronics purchases:\n";
     cout << "Total: " << total << ", using Credit Card: " << credit << "\nPercentage = " << fixed << setprecision(2) << percent << "%\n";
 
-    cout << "Binary Search Process for all 1 star Reviews: " << chrono::duration_cast<chrono::nanoseconds>(AlfieEndBinaryQ2 - AlfieStartBinaryQ2).count() << " nano seconds\n";
-    cout << "Entire Q2 Implementation BinarySearch: " << chrono::duration_cast<chrono::milliseconds>(AlfieEndfullQ2 - AlfieStartFullQ2).count() << " ms\n\n";
 
+    auto MergeSortTimeQ2 =chrono::duration_cast<chrono::milliseconds>(AlfieStartBinaryQ2 - AlfieStartFullQ2).count();
+    auto BinarySearchQ2 =chrono::duration_cast<chrono::nanoseconds>(AlfieEndBinaryQ2 - AlfieStartBinaryQ2).count();
+    auto Q2Duration = chrono::duration_cast<chrono::milliseconds>(AlfieEndfullQ2 - AlfieStartFullQ2).count();
+    cout << "Binary Search Process for all 1 star Reviews: " << BinarySearchQ2 << " nano seconds\n";
+    cout << "Entire Q2 Implementation BinarySearch: " << Q2Duration << " ms\n\n";
+   
+    //To time struct
+    results.Q2_SortTime=MergeSortTimeQ2;
+    results.Q2_SearchTime=BinarySearchQ2;
+    results.Q2_Full=Q2Duration;
+
+
+
+
+    
 
     // Question 3: Word frequency in 1-star reviews
     cout<<"\n\nQuestion 3\n";
     auto startAlfieQ3 = Clock::now();
 
+    //sort rating
     sort.sortReviews(reviews, 0, reviewCount - 1, 2, reviewCount);
+    auto endSortQ3 = Clock::now();
+
+    //search
     int found = binarySearchReviews(reviews, reviewCount, "1", 2);
 
     if (found < 0) {
         cout << "No 1-star\n";
-        return;
+        return results;
     }
-
+    //block
     int firstQ3Alfie = found, lastQ3Alfie = found;
     while (firstQ3Alfie > 0 && strcmp(reviews[firstQ3Alfie - 1][2], "1") == 0) --firstQ3Alfie;
     while (lastQ3Alfie + 1 < reviewCount && strcmp(reviews[lastQ3Alfie + 1][2], "1") == 0) ++lastQ3Alfie;
+    auto endSearchQ3 = Clock::now();
+
 
     int total1Stars = lastQ3Alfie - firstQ3Alfie + 1;
     cout << "\n1-Star Reviews Word Count\n";
@@ -273,7 +330,7 @@ void Alfie(){
         char temp[FieldLength];
         strcpy(temp, reviews[i][3]);
 
-        //lowercase, punct - space
+        //lowercase, punct = space
         for (int j = 0; temp[j]; ++j) {
             if (isalpha((unsigned char)temp[j])) {
                 temp[j] = tolower((unsigned char)temp[j]);
@@ -306,41 +363,51 @@ void Alfie(){
         }
     }
 
-    //WordCount struct
+    //WordCount struc array
     WordCount* wc = new WordCount[foundWords];
     for (int i = 0; i < foundWords; ++i) {
         strcpy(wc[i].word, words[i]);
         wc[i].count = counts[i];
     }
 
+    //sort counts
     WordCount* wcBuffer = new WordCount[foundWords];
     sort.sortWordCounts(wc, 0, foundWords - 1, wcBuffer);
     auto endAlfieQ3 = Clock::now();
-    auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3);
 
     for (int i = 0; i < foundWords; ++i) {
         cout << wc[i].word << ": " << wc[i].count << "\n";
     }
 
-    cout << "Q3 using merge Sort and Binary Search was completed in:" << durAlfieQ3.count() << " ms\n";
+    auto SortTimeQ3Duration =chrono::duration_cast<chrono::milliseconds>(endSortQ3 - startAlfieQ3).count();
+    auto SearchTimeQ3Duration = chrono::duration_cast<chrono::milliseconds>(endSearchQ3- endSortQ3).count();
+    auto durAlfieQ3 = chrono::duration_cast<chrono::milliseconds>(endAlfieQ3 - startAlfieQ3).count();
+    cout << "Q3 using merge Sort and Binary Search was completed in:" << durAlfieQ3 << " ms\n";
+
+    results.Q3_Full=durAlfieQ3;
+    results.Q3_SortTime=SortTimeQ3Duration;
+    results.Q3_SearchTime=SearchTimeQ3Duration;
+    
+    return results;
 
 }
 
-void Stanlie() {
+TimingResults Stanlie() {
 
+    TimingResults StanResults = {0, 0, 0, 0, 0, 0, 0, 0}; //timing struct
     loadTransactions("cleaned_transactions.csv");
     loadReviews     ("cleaned_reviews.csv");
 
     char (*categoryTarget)[FieldLength] = new char[1][FieldLength];
     char (*paymentTarget)[FieldLength] = new char[1][FieldLength];
 
+    auto StanlieStartQ2 = Clock::now();
     strcpy(categoryTarget[0], "Electronics");
     strcpy(paymentTarget[0], "Credit Card");
-
+    
     int electronicsTotal = 0;
     int creditCardCount = 0;
 
-    auto StanlieStartQ2 = Clock::now();
     for (int i = 0; i < transactionCount; ++i) {
         // Use linearSearch with dynamically allocated arrays
         if (linearSearch(categoryTarget, 1, transactions[i][2]) >= 0) {
@@ -351,7 +418,7 @@ void Stanlie() {
             }
         }
     }
-    auto StanlieEndQ2 = Clock::now();
+    auto StanlieEndSearchQ2 = Clock::now();
 
     if (electronicsTotal == 0) {
         cout << "\nNo Electronics transactions found.\n";
@@ -362,8 +429,14 @@ void Stanlie() {
         cout << "Paid with Credit Card: " << creditCardCount << "\n";
         cout << "Percentage: " << fixed << setprecision(2) << percentage << "%\n";
     }
+    auto StanlieEndQ2 = Clock::now();
 
-    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::nanoseconds>(StanlieEndQ2 - StanlieStartQ2).count()<<"ns\n";
+    cout <<"Linear Search Time: "<<chrono::duration_cast<chrono::nanoseconds>(StanlieEndSearchQ2 - StanlieStartQ2).count()<<"ns\n";
+    
+    // Store Q2 timing
+    StanResults.Q2_SortTime = 0; // No sorting in Stanlie's Q2
+    StanResults.Q2_SearchTime = chrono::duration_cast<chrono::nanoseconds>(StanlieEndSearchQ2 - StanlieStartQ2).count();
+    StanResults.Q2_Full = chrono::duration_cast<chrono::nanoseconds>(StanlieEndQ2 - StanlieStartQ2).count();
     // Clean up dynamic memory
     delete[] categoryTarget;
     delete[] paymentTarget;
@@ -425,8 +498,11 @@ void Stanlie() {
         wordFreq[i].count = wordCounts[i];
     }
 
+    auto StanlieSortQ3 = Clock::now();
     // Insertion sort (descending)
     insertionSort(wordFreq, uniqueWordCount);
+    
+    auto StanlieEndSortQ3 = Clock::now();
 
     // Output
     cout << "\nTop Words in 1-Star Reviews:\n";
@@ -438,7 +514,13 @@ void Stanlie() {
     auto StanlieEnd1Q3 = Clock::now();
     cout <<"Question 3 timer: "<<chrono::duration_cast<chrono::milliseconds>(StanlieEnd1Q3 - StanlieStartQ3).count()<<"ms\n";
     
-    return;
+
+    // Store Q3 timing
+    StanResults.Q3_SortTime = chrono::duration_cast<chrono::nanoseconds>(StanlieEndSortQ3 - StanlieSortQ3).count();
+    StanResults.Q3_SearchTime = chrono::duration_cast<chrono::nanoseconds>(StanlieEndQ3 - StanlieStartQ3).count();
+    StanResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(StanlieEnd1Q3 - StanlieStartQ3).count();
+
+    return StanResults;
     // Cleanup
     for (int i = 0; i < uniqueWordCount; ++i)
     {
@@ -451,7 +533,8 @@ void Stanlie() {
 }
 
 
-void Badr() {
+TimingResults Badr() {
+    TimingResults BadrResults = {0, 0, 0, 0, 0, 0, 0, 0};
     // Load data into dynamically sized arrays
     loadTransactions("cleaned_transactions.csv");
     loadReviews("cleaned_reviews.csv");
@@ -481,10 +564,16 @@ void Badr() {
     }
     cout << currentDate << ":\t" << count << "\n";  // Output last date count
     cout << "Total Transactions: " << transactionCount << "\n";
+    auto Q1FullEnd = Clock::now();
 
     cout << "Heap Sort and Counting Transactions completed in "
          << chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count() << " ms\n";
 
+
+    // Store Q1 timing
+    BadrResults.Q1_SortTime = chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count();
+    BadrResults.Q1_Full = chrono::duration_cast<chrono::milliseconds>(Q1FullEnd - Q1Start).count();
+    
     // =====================================================================================
     // Question 2: Hash Search for Electronics purchases using Credit Card
     // =====================================================================================
@@ -494,6 +583,12 @@ void Badr() {
 
     cout << "Hash Search for Electronics using Credit Card completed in "
          << chrono::duration_cast<chrono::milliseconds>(Q2End - Q2Start).count() << " ms\n";
+    auto Q2FullEnd = Clock::now();
+
+    // Store Q2 timing
+    BadrResults.Q2_SortTime = 0; // No additional sorting in Q2
+    BadrResults.Q2_SearchTime = chrono::duration_cast<chrono::nanoseconds>(Q2End - Q2Start).count();
+    BadrResults.Q2_Full = chrono::duration_cast<chrono::milliseconds>(Q2FullEnd - Q2Start).count();
 
     // =====================================================================================
     // Question 3: Word Frequency in 1-Star Reviews
@@ -507,7 +602,7 @@ void Badr() {
     
     if (first == -1) {
         cout << "No 1-star reviews found.\n";
-        return;
+        return BadrResults;
     }
 
     int total1Stars = last - first + 1;
@@ -517,7 +612,9 @@ void Badr() {
     int unique = 0;
     countWordFrequencies(first, last, reviews, wc, unique);  // Count word frequencies
 
+    auto Q3SortStart = Clock::now();
     heapSort(wc, unique);  // Sort word frequencies using Heap Sort
+    auto Q3SortEnd = Clock::now();
 
     displayTopWords(wc, unique, 10);  // Display top 10 words
 
@@ -525,6 +622,11 @@ void Badr() {
     cout << "Word Frequency Analysis for 1-Star Reviews completed in "
          << chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count() << " ms\n";
 
+
+     // Store Q3 timing
+     BadrResults.Q3_SortTime = chrono::duration_cast<chrono::nanoseconds>(Q3SortEnd - Q3SortStart).count();
+     BadrResults.Q3_SearchTime = 0; 
+     BadrResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(Q3End - Q3Start).count();
 
     // After all the questions have been processed, calculate the time taken for each question
     long long Q1Time = chrono::duration_cast<chrono::milliseconds>(Q1End - Q1Start).count();
@@ -547,8 +649,8 @@ void Badr() {
     cout << "Total Time: " << totalTime << " ms\n";
 }
 
-void Hadi() {
-
+TimingResults Hadi() {
+    TimingResults HadiResults = {0, 0, 0, 0, 0, 0, 0, 0};
     //Question 1: Sorting transactions by date and counting them
 
     // Load data into dynamically sized arrays
@@ -577,28 +679,40 @@ void Hadi() {
     }
     cout << currentDate << ":\t" << count << "\n";  // Output last date count
     cout << "Total Transactions: " << transactionCount << "\n";
-
+    auto FullQ1End = Clock::now();
     cout << "Bubble Sort completed in: "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ1End - bubblSortQ1Start).count() << " ms\n";
     
+
+    // Store Q1 timing
+    HadiResults.Q1_SortTime = chrono::duration_cast<chrono::milliseconds>(bubbleSortQ1End - bubblSortQ1Start).count();
+    HadiResults.Q1_Full = chrono::duration_cast<chrono::milliseconds>(FullQ1End - bubblSortQ1Start).count();
+
 
     // Question 2: Jump Search for Electronics purchases using Credit Card
 
     auto bubblSortQ2Start = Clock::now();
     bubbleSort(transactions, transactionCount, 2);  // Re-sort transactions by category
-    findElectronicsAndCreditCardPurchases(transactions, transactionCount);
     auto bubbleSortQ2End = Clock::now();
+    findElectronicsAndCreditCardPurchases(transactions, transactionCount);
+    auto FullQ2End = Clock::now();
 
     cout << "Jump Search for Electronics using Credit Card completed in "
-         << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count() << " ms\n";
+         << chrono::duration_cast<chrono::milliseconds>(FullQ2End - bubblSortQ2Start).count() << " ms\n";
 
+
+    // Store Q2 timing
+    HadiResults.Q2_SortTime = chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count();
+    HadiResults.Q2_SearchTime = chrono::duration_cast<chrono::milliseconds>(FullQ2End - bubbleSortQ2End).count(); 
+    HadiResults.Q2_Full = chrono::duration_cast<chrono::milliseconds>(FullQ2End - bubblSortQ2Start).count();
 
     // Question 3: Word Frequency in 1-Star Reviews
 
     auto bubbleSortQ3Start = Clock::now(); // Start timer for Question 3
     reviewsBubbleSort(reviews, reviewCount, 2); // Sort reviews by rating
+    auto bubbleSortQ3End = Clock::now();
     analyzeOneStarReviews(reviews, reviewCount);
-    auto bubbleSortQ3End = Clock::now();  // End timer for Question 3
+    auto FullQ3End = Clock::now();  // End timer for Question 3
 
     cout << "Word Frequency Analysis for 1-Star Reviews using bubble sort and jump search completed in "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count() << " ms\n";
@@ -613,8 +727,95 @@ void Hadi() {
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ2End - bubblSortQ2Start).count() << " ms\n";
     cout << "Finding all 1-star reviews and extracting the individual words: "
          << chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count() << " ms\n";
+
+
+    // Store Q3 timing
+    HadiResults.Q3_SortTime = chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count();
+    HadiResults.Q3_SearchTime = chrono::duration_cast<chrono::milliseconds>(FullQ3End - bubbleSortQ3End).count();
+    HadiResults.Q3_Full = chrono::duration_cast<chrono::milliseconds>(bubbleSortQ3End - bubbleSortQ3Start).count();
+
+    return HadiResults;
 }
 
+
+void PrintResults() {
+    if (!alfiRun && !hadiRun && !stanlieRun && !badrRun) {
+        cout << "\nNo timing data available.\n";
+        return;
+    }
+    
+    cout << "\n====  TIMING  ====\n";
+    
+    if (alfiRun) {
+        cout << "\nALFIE (Merge Sort + Binary Search):\n";
+        cout << "Q1 Total: " << alfiResults.Q1_Full << " ms\n";
+        cout << "Q1 Merge Sort: " << alfiResults.Q1_SortTime << " ms\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << alfiResults.Q2_Full << " ms\n";
+        cout << "Q2 Merge Sort: " << alfiResults.Q2_SortTime << " ms\n";
+        cout << "Q2 Binary Search: " << alfiResults.Q2_SearchTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << alfiResults.Q3_Full << " ms\n";
+        cout << "Q3 Merge Sort: " << alfiResults.Q3_SortTime << " ms\n";
+        cout << "Q3 Binary Search: " << alfiResults.Q3_SearchTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << alfiResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
+    
+    if (hadiRun) {
+        cout << "\nHADI (Bubble Sort + Jump Search):\n";
+        cout << "Q1 Total: " << hadiResults.Q1_Full << " ms\n";
+        cout << "Q1 Bubble Sort: " << hadiResults.Q1_SortTime << " ms\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << hadiResults.Q2_Full << " ms\n";
+        cout << "Q2 Bubble Sort: " << hadiResults.Q2_SortTime << " ms\n";
+        cout << "Q2 Jump Search: "<<hadiResults.Q2_SortTime<<"ms\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << hadiResults.Q3_Full << " ms\n";
+        cout << "Q3 Bubble Sort: " << hadiResults.Q3_SortTime << "ms\n";
+        cout << "Q3 Jump Search: " << hadiResults.Q3_SearchTime << " ms\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << hadiResults.Q1_Full + hadiResults.Q2_Full + hadiResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
+    if (stanlieRun) {
+        cout << "\nStanlie:\n";
+        cout << "Q1 Total: " << stanlieResults.Q1_Full << " ms\n";
+        cout << "Q1 Insertion Sort: "<< stanlieResults.Q1_SortTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << stanlieResults.Q2_Full << " ns\n";
+        cout << "Q2 No Sort used.\n";
+        cout << "Q2 Linear Search: "<< stanlieResults.Q2_SearchTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << stanlieResults.Q3_Full << " ms\n";
+        cout << "Q3 Insertion Sort: "<< stanlieResults.Q3_SortTime<<"ns\n";
+        cout << "Q3 Linear Search: "<< stanlieResults.Q3_SearchTime<<"ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << stanlieResults.Q1_Full + alfiResults.Q2_Full + alfiResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
+        
+    if (badrRun) {
+        cout << "\nBadr:\n";
+        cout << "Q1 Total: " << badrResults.Q1_Full << " ms\n";
+        cout << "Q1 Heap Sort: " << badrResults.Q1_SortTime << " ms\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << badrResults.Q2_Full << " ms\n";
+        cout << "Q2 No Sort Used.\n";
+        cout << "Q2 Hashing Search: " << badrResults.Q2_SearchTime<< "ns\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << badrResults.Q3_Full << " ms\n";
+        cout << "Q3 No Sort Required\n";
+        cout << "Q3 Hashing Search: " << badrResults.Q3_SearchTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << badrResults.Q1_Full + badrResults.Q2_Full + badrResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
+    
+    
+    cout << "=========================\n";
+}
 
 
 int main(){
@@ -629,29 +830,37 @@ int main(){
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
         cout << "2. Insertion Sort + Linear Search (Stanlie Lin - TP073945)\n";
         cout << "3. Heap Sort + Hashing Search (Badr Abduldaim - TP074644)\n";
-        cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad TP077939) 4\n";
-        cout << "5. Exit\n";
+        cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad TP077939)\n";
+        cout << "5. Print Results\n";
+        cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1:
                 cout << "\nMerge Sort & Binary Search\n";
-                Alfie();
+                alfiResults = Alfie();
+                alfiRun = true;
                 break;
             case 2:
                 cout << "\nInsertion Sort + Linear Search\n";
-                Stanlie();
+                stanlieResults = Stanlie();
+                stanlieRun = true;
                 break;
             case 3:
                 cout << "\nHeap Sort & Hashing Search\n";
-                Badr();
+                badrResults = Badr();
+                badrRun = true;
                 break;
             case 4:
                 cout << "\nBubble Sort + Jump Search\n";
-                Hadi();
+                hadiResults = Hadi();
+                hadiRun = true;
                 break;
             case 5:
+                PrintResults();
+                break;
+            case 6:
                 cout << "\nExiting...\n";
                 return 0;
             default:
@@ -659,5 +868,4 @@ int main(){
         }
 
     } while (choice != 0);
-
 }

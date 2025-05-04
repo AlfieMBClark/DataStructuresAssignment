@@ -26,7 +26,7 @@ class MergeSort {
         // Sort transactions
         void sortTransactions(TransactionRow* array, int left, int right, int colIndex, int totalRows) {
             if (transTmp == nullptr) {
-                transTmp = new TransactionRow[totalRows]; // Allocate space
+                transTmp = new TransactionRow[totalRows]; // Allocate
             }
             int rowSize = sizeof(TransactionRow);
             basicMergeSort(array, transTmp, rowSize, left, right, colIndex, FieldLength);
