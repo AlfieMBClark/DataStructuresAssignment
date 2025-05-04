@@ -1,3 +1,0 @@
-g++ Main.cpp LoadData.cpp -o runLinkedList
-
-./runLinkedList

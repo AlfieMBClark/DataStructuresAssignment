@@ -12,8 +12,8 @@ using namespace std;
 
 //array dimensions
 static const int TransactionFields = 6;   
-static const int ReviewFields      = 4;  
-static const int FieldLength       = 255; 
+static const int ReviewFields = 4;  
+static const int FieldLength = 255; 
 
 char (*transactions)[TransactionFields][FieldLength] = nullptr;
 int transactionCount = 0;

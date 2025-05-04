@@ -1,3 +1,0 @@
-g++ Code.cpp DataCleaning.cpp SortAlgorithms.cpp SearchAlgorithms.cpp LoadData.cpp -o runApp
-
-./runApp
