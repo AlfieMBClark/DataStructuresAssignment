@@ -288,44 +288,157 @@ void tallyWordsInReview(ReviewNode* reviewHead) {
 //#############################################################################
 //################################################################################
 
-// Add these function declarations at the top of the file
+// function declarations at the top of the file
 void hashSearchCategoryPayment(TransactionNode* head, int transCount);
 void findOneStarReviews(int& first, int& last, int revCount, ReviewNode* reviewHead);
 void countWordFrequencies(int first, int last, ReviewNode* reviewHead, WordCount* wc, int& unique);
 WordCountNode* createWordCountList(WordCount* wc, int unique);
 void displayTopWords(WordCountNode* head, int unique, int topN);
 
-// Add these implementations at the end of the file
+
+
+
+//implementations at the end of the file
+// Define a node for storing Transaction pointers in a linked list
+struct TransactionListNode {
+    TransactionNode* transaction;
+    TransactionListNode* next;
+    
+    TransactionListNode(TransactionNode* trans) : transaction(trans), next(nullptr) {}
+};
+
+// Define a category entry to replace map entries
+struct CategoryEntry {
+    string category;
+    TransactionListNode* transactions;
+    int count;
+    CategoryEntry* next;
+    
+    CategoryEntry(const string& cat) : category(cat), transactions(nullptr), count(0), next(nullptr) {}
+    
+    // Add a transaction to this category
+    void addTransaction(TransactionNode* trans) {
+        TransactionListNode* newNode = new TransactionListNode(trans);
+        newNode->next = transactions;
+        transactions = newNode;
+        count++;
+    }
+    
+    // Clean up the transaction list
+    ~CategoryEntry() {
+        while (transactions) {
+            TransactionListNode* temp = transactions;
+            transactions = transactions->next;
+            delete temp;
+        }
+    }
+};
+
+// Define a payment method counter node
+struct PaymentMethodNode {
+    string method;
+    int count;
+    PaymentMethodNode* next;
+    
+    PaymentMethodNode(const string& m) : method(m), count(1), next(nullptr) {}
+};
+
+// Function to implement hash-based search without vectors
 void hashSearchCategoryPayment(TransactionNode* head, int transCount) {
-    // Create a hash map to store transactions by category
-    map<string, vector<TransactionNode*>> categoryMap;
+    // Create a custom hash table using linked lists instead of map<string, vector>
+    CategoryEntry* categoryTable = nullptr;
     
     // Track total transactions processed
     int totalProcessed = 0;
+    int uniqueCategories = 0;
     
-    // Fill the map with transactions categorized by category
+    // Fill our custom structure with transactions categorized by category
     TransactionNode* current = head;
     while (current != nullptr) {
-        categoryMap[current->data.category].push_back(current);
+        // Find if category already exists
+        CategoryEntry* categoryNode = nullptr;
+        CategoryEntry* tempCat = categoryTable;
+        
+        while (tempCat != nullptr) {
+            if (tempCat->category == current->data.category) {
+                categoryNode = tempCat;
+                break;
+            }
+            tempCat = tempCat->next;
+        }
+        
+        // If category doesn't exist, create it
+        if (categoryNode == nullptr) {
+            categoryNode = new CategoryEntry(current->data.category);
+            categoryNode->next = categoryTable;
+            categoryTable = categoryNode;
+            uniqueCategories++;
+        }
+        
+        // Add transaction to the category
+        categoryNode->addTransaction(current);
+        
         current = current->next;
         totalProcessed++;
     }
     
     cout << "Processed " << totalProcessed << " transactions using hash-based categorization.\n";
-    cout << "Found " << categoryMap.size() << " unique product categories.\n\n";
+    cout << "Found " << uniqueCategories << " unique product categories.\n\n";
+    
+    // Find "Electronics" category
+    CategoryEntry* electronicsCategory = nullptr;
+    CategoryEntry* tempCat = categoryTable;
+    
+    while (tempCat != nullptr) {
+        if (tempCat->category == "Electronics") {
+            electronicsCategory = tempCat;
+            break;
+        }
+        tempCat = tempCat->next;
+    }
     
     // Now analyze the "Electronics" category transactions
-    if (categoryMap.find("Electronics") != categoryMap.end()) {
-        int electronicsCount = categoryMap["Electronics"].size();
+    if (electronicsCategory != nullptr) {
+        int electronicsCount = electronicsCategory->count;
         int creditCardCount = 0;
         double totalValue = 0.0;
         
         // Count credit card payments and total value
-        for (TransactionNode* trans : categoryMap["Electronics"]) {
-            if (trans->data.paymentMethod == "Credit Card") {
+        TransactionListNode* trans = electronicsCategory->transactions;
+        
+        // Create payment method counter
+        PaymentMethodNode* paymentMethods = nullptr;
+        
+        while (trans != nullptr) {
+            // Check if it's a credit card transaction
+            if (trans->transaction->data.paymentMethod == "Credit Card") {
                 creditCardCount++;
-                totalValue += trans->data.price;
+                totalValue += trans->transaction->data.price;
             }
+            
+            // Find or add payment method in our counter
+            PaymentMethodNode* pmNode = nullptr;
+            PaymentMethodNode* pmTemp = paymentMethods;
+            
+            while (pmTemp != nullptr) {
+                if (pmTemp->method == trans->transaction->data.paymentMethod) {
+                    pmNode = pmTemp;
+                    break;
+                }
+                pmTemp = pmTemp->next;
+            }
+            
+            if (pmNode != nullptr) {
+                // Payment method found, increment counter
+                pmNode->count++;
+            } else {
+                // New payment method, add to list
+                pmNode = new PaymentMethodNode(trans->transaction->data.paymentMethod);
+                pmNode->next = paymentMethods;
+                paymentMethods = pmNode;
+            }
+            
+            trans = trans->next;
         }
         
         cout << "Electronics Category Analysis:\n";
@@ -343,20 +456,32 @@ void hashSearchCategoryPayment(TransactionNode* head, int transCount) {
                  << fixed << setprecision(2) << totalValue << "\n";
         }
         
-        // Show distribution of other payment methods
-        map<string, int> paymentMethods;
-        for (TransactionNode* trans : categoryMap["Electronics"]) {
-            paymentMethods[trans->data.paymentMethod]++;
+        cout << "\nPayment Method Distribution for Electronics:\n";
+        PaymentMethodNode* method = paymentMethods;
+        
+        while (method != nullptr) {
+            double methodPercentage = (static_cast<double>(method->count) / electronicsCount) * 100;
+            cout << method->method << ": " << method->count << " (" 
+                 << fixed << setprecision(2) << methodPercentage << "%)\n";
+            
+            method = method->next;
         }
         
-        cout << "\nPayment Method Distribution for Electronics:\n";
-        for (const auto& method : paymentMethods) {
-            double methodPercentage = (static_cast<double>(method.second) / electronicsCount) * 100;
-            cout << method.first << ": " << method.second << " (" 
-                 << fixed << setprecision(2) << methodPercentage << "%)\n";
+        // Clean up payment methods
+        while (paymentMethods != nullptr) {
+            PaymentMethodNode* temp = paymentMethods;
+            paymentMethods = paymentMethods->next;
+            delete temp;
         }
     } else {
         cout << "No Electronics Purchases found in the dataset.\n";
+    }
+    
+    // Clean up category table
+    while (categoryTable != nullptr) {
+        CategoryEntry* temp = categoryTable;
+        categoryTable = categoryTable->next;
+        delete temp; // This calls the destructor which cleans up transaction list
     }
 }
 

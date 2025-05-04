@@ -11,7 +11,6 @@
 #include <math.h>
 #include <map>
 #include <sstream>
-#include <vector>
 #include <algorithm>
 
 using namespace std;
@@ -298,47 +297,126 @@ int reviewsJumpSearch(char arr[][ReviewFields][FieldLength], int n, const string
     return -1;
 }
 
+// Word count structure for the second function
+struct WordFrequency {
+    char word[FieldLength];
+    int count;
+    WordFrequency* next;
+    
+    WordFrequency(const char* w) {
+        strncpy(word, w, FieldLength - 1);
+        word[FieldLength - 1] = '\0';
+        count = 1;
+        next = nullptr;
+    }
+};
+
+// Word frequency pair for sorting
+struct WordFrequencyPair {
+    char word[FieldLength];
+    int count;
+};
+
 void analyzeOneStarReviews(char reviews[][ReviewFields][FieldLength], int reviewCount) {
     const string targetRating = "1";
-
+    
     // Step 1: Jump search to find first 1-star review
     int startIndex = reviewsJumpSearch(reviews, reviewCount, targetRating, 2); // 2 = rating column
     if (startIndex == -1) {
         cout << "No 1-star reviews found.\n";
         return;
     }
-
-    map<string, int> wordCount;
-
+    
+    // Custom linked list to replace map
+    WordFrequency* wordList = nullptr;
+    int uniqueWords = 0;
+    int totalWords = 0;
+    
     // Step 2: Loop through all 1-star reviews
     for (int i = startIndex; i < reviewCount; ++i) {
         if (strcmp(reviews[i][2], targetRating.c_str()) != 0) break;  // Stop when rating changes
-
+        
         // Step 3: Extract words from review text (assume column 3)
-        string reviewText = reviews[i][3];
-        stringstream ss(reviewText);
-        string word;
-
-        while (ss >> word) {
-            // Optional: clean punctuation
-            word.erase(remove_if(word.begin(), word.end(), ::ispunct), word.end());
-            transform(word.begin(), word.end(), word.begin(), ::tolower);  // normalize
-            if (!word.empty())
-                wordCount[word]++;
+        char reviewText[FieldLength];
+        strcpy(reviewText, reviews[i][3]);
+        
+        // Clean and tokenize the text
+        for (int j = 0; reviewText[j]; ++j) {
+            reviewText[j] = isalpha((unsigned char)reviewText[j]) ? 
+                            tolower((unsigned char)reviewText[j]) : ' ';
+        }
+        
+        char* word = strtok(reviewText, " ");
+        while (word != nullptr) {
+            if (strlen(word) > 0) {
+                totalWords++;
+                
+                // Find word in list or add it
+                bool found = false;
+                WordFrequency* current = wordList;
+                
+                while (current != nullptr) {
+                    if (strcmp(current->word, word) == 0) {
+                        current->count++;
+                        found = true;
+                        break;
+                    }
+                    current = current->next;
+                }
+                
+                if (!found) {
+                    WordFrequency* newWord = new WordFrequency(word);
+                    newWord->next = wordList;
+                    wordList = newWord;
+                    uniqueWords++;
+                }
+            }
+            
+            word = strtok(nullptr, " ");
         }
     }
-
-    // Step 4: Sort words by frequency
-    vector<pair<string, int>> sortedWords(wordCount.begin(), wordCount.end());
-    sort(sortedWords.begin(), sortedWords.end(), [](auto& a, auto& b) {
-        return b.second < a.second; // descending
-    });
-
+    
+    // Convert to array for sorting
+    WordFrequencyPair* sortedWords = new WordFrequencyPair[uniqueWords];
+    int index = 0;
+    WordFrequency* current = wordList;
+    
+    while (current != nullptr) {
+        strcpy(sortedWords[index].word, current->word);
+        sortedWords[index].count = current->count;
+        index++;
+        current = current->next;
+    }
+    
+    // Sort the array by frequency (bubble sort for simplicity)
+    for (int i = 0; i < uniqueWords - 1; i++) {
+        for (int j = 0; j < uniqueWords - i - 1; j++) {
+            if (sortedWords[j].count < sortedWords[j + 1].count) {
+                // Swap
+                WordFrequencyPair temp = sortedWords[j];
+                sortedWords[j] = sortedWords[j + 1];
+                sortedWords[j + 1] = temp;
+            }
+        }
+    }
+    
     // Step 5: Display top results
     cout << "\n===== Word Frequency in 1-Star Reviews =====\n";
-    for (auto& entry : sortedWords) {
-        cout << entry.first << ": " << entry.second << "\n";
+    for (int i = 0; i < uniqueWords; i++) {
+        cout << sortedWords[i].word << ": " << sortedWords[i].count << "\n";
     }
+    
+    // Cleanup
+    delete[] sortedWords;
+    
+    while (wordList != nullptr) {
+        WordFrequency* temp = wordList;
+        wordList = wordList->next;
+        delete temp;
+    }
+    
+    cout << "\nTotal unique words found: " << uniqueWords << "\n";
+    cout << "Total word occurrences: " << totalWords << "\n";
 }
 
 //-----------------------------------------------------------------------------------------------------

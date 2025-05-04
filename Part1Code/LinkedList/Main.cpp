@@ -956,7 +956,6 @@ TimingResults Badr() {
     auto startTimeQ2 = Clock::now();
     auto sortTimeQ2 = startTimeQ2; // Just initialize, may not be used
     
-    // Use custom structure instead of map<string, vector<TransactionNode*>>
     struct CategoryMap {
         string category;
         CategoryTransaction* transactions;
@@ -1139,7 +1138,7 @@ TimingResults Badr() {
     // =====================================================================
     // Question 3: Analyze word frequency in 1-star reviews
     // =====================================================================
-    // I'm keeping this section as is since it doesn't use vectors
+
     cout << "=================================================\n";    
     cout << "Question 3: Most frequent words in 1-star reviews\n";
     cout << "=================================================\n";
