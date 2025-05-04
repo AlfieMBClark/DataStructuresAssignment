@@ -35,7 +35,7 @@ TimingResults badrResults;
 bool alfiRun = false;
 bool hadiRun = false;
 bool stanlieRun = false;
-bool baderRun = false;
+bool badrRun = false;
 
 
 TimingResults Alfie(){
@@ -663,14 +663,298 @@ TimingResults Hadi() {
     return hadiResults;
 }
 
+TimingResults Badr() {
+    // Initialize timing results with zeros
+    TimingResults badrResults = {0, 0, 0, 0, 0, 0, 0, 0};
+    
+    cout << "\n===== Heap Sort & Hash Search Implementation =====\n";
+    
+    // Load data
+    Loader loader("cleaned_transactions.csv", "cleaned_reviews.csv");
+    if (!loader.loadAll()) {
+        cerr << "Failed to load data files. Exiting function.\n";
+        return badrResults; // Return initialized struct instead of empty return
+    }
 
+    TransactionNode* transHead = loader.getTransHead();
+    ReviewNode* reviewHead = loader.getRevHead();
+    int transCount = loader.getTransCount();
+    int revCount = loader.getRevCount();
+    
+    cout << "Successfully loaded " << transCount << " transactions and " 
+         << revCount << " reviews.\n\n";
+
+    // =====================================================================
+    // Question 1: Sort transactions by date using Heap Sort
+    // =====================================================================
+    cout << "========================================================\n";
+    cout << "Question 1: Sorting transactions by date using Heap Sort\n";
+    cout << "========================================================\n";
+    
+    auto startTimeQ1 = Clock::now();
+    
+    // Use heap sort for transactions based on date
+    heapSort(transHead);
+    
+    auto sortTimeQ1 = Clock::now();
+    
+    // Count and display transactions by date
+    cout << "\nTransactions by Date:\n";
+    cout << "-------------------------------------------------------\n";
+    cout << "Date       | Count       ||    Date       | Count\n";
+    cout << "-------------------------------------------------------\n";
+
+    string currentDate = "";
+    int dateCount = 0;
+    int totalDates = 0;
+    vector<pair<string, int>> dateCounts; // Store date-count pairs
+
+    // First collect all dates and counts
+    TransactionNode* current = transHead;
+    while (current != nullptr) {
+        if (current->data.date != currentDate) {
+            // Save previous date's count (if not the first date)
+            if (!currentDate.empty()) {
+                dateCounts.push_back(make_pair(currentDate, dateCount));
+                totalDates++;
+            }
+            
+            // Reset for new date
+            currentDate = current->data.date;
+            dateCount = 1;
+        } else {
+            dateCount++;
+        }
+        
+        current = current->next;
+    }
+
+    // Add the last date
+    if (!currentDate.empty()) {
+        dateCounts.push_back(make_pair(currentDate, dateCount));
+        totalDates++;
+    }
+
+    // Now display in two columns
+    int halfSize = (dateCounts.size() + 1) / 2;
+    for (int i = 0; i < halfSize; i++) {
+        // Left column
+        cout << left << setw(12) << dateCounts[i].first << "| " 
+             << setw(10) << dateCounts[i].second << " ||    ";
+        
+        // Right column (if it exists)
+        if (i + halfSize < dateCounts.size()) {
+            cout << left << setw(12) << dateCounts[i + halfSize].first << "| " 
+                 << dateCounts[i + halfSize].second;
+        }
+        cout << endl;
+    }
+
+    cout << "--------------------------------------------------------------------\n";
+    
+    auto endTimeQ1 = Clock::now();
+    
+    cout << "Total unique dates: " << totalDates << "\n";
+    cout << "Total transactions: " << transCount << "\n";
+    
+    auto durationQ1 = chrono::duration_cast<chrono::milliseconds>(endTimeQ1 - startTimeQ1).count();
+    auto sortDurationQ1 = chrono::duration_cast<chrono::milliseconds>(sortTimeQ1 - startTimeQ1).count();
+    cout << "Heap Sort completed in: " << sortDurationQ1 << " ms\n";
+    cout << "Total processing time: " << durationQ1 << " ms\n\n";
+
+    // Save timing results for Q1
+    badrResults.Q1_SortTime = sortDurationQ1;
+    badrResults.Q1_Full = durationQ1;
+
+    // =====================================================================
+    // Question 2: Analyze Electronics purchases with Credit Card
+    // =====================================================================
+    cout << "===========================================================\n";
+    cout << "Question 2: Electronics purchases with Credit Card analysis\n";
+    cout << "===========================================================\n";
+    
+    auto startTimeQ2 = Clock::now();
+    auto sortTimeQ2 = startTimeQ2; // Just initialize, may not be used
+    
+    // Use hash-based search to find and analyze Electronics purchases
+    // Store the results for formatted display
+    map<string, vector<TransactionNode*>> categoryMap;
+    int totalProcessed = 0;
+    
+    // Fill the map with transactions categorized by category
+    current = transHead;
+    while (current != nullptr) {
+        categoryMap[current->data.category].push_back(current);
+        current = current->next;
+        totalProcessed++;
+    }
+    
+    cout << "Processed " << totalProcessed << " transactions using hash-based categorization.\n";
+    cout << "Found " << categoryMap.size() << " unique product categories.\n\n";
+    
+    // Now analyze the "Electronics" category transactions
+    if (categoryMap.find("Electronics") != categoryMap.end()) {
+        int electronicsCount = categoryMap["Electronics"].size();
+        int creditCardCount = 0;
+        double totalValue = 0.0;
+        
+        // Count credit card payments and total value
+        for (TransactionNode* trans : categoryMap["Electronics"]) {
+            if (trans->data.paymentMethod == "Credit Card") {
+                creditCardCount++;
+                totalValue += trans->data.price;
+            }
+        }
+        
+        // Calculate the percentage
+        double percentage = 0.0;
+        if (electronicsCount > 0) {
+            percentage = (static_cast<double>(creditCardCount) / electronicsCount) * 100;
+        }
+        
+        // Show distribution of other payment methods
+        map<string, int> paymentMethods;
+        for (TransactionNode* trans : categoryMap["Electronics"]) {
+            paymentMethods[trans->data.paymentMethod]++;
+        }
+        
+        // Display in a nicely formatted table
+        cout << "+---------------------------------------+\n";
+        cout << "|      Electronics Category Analysis    |\n";
+        cout << "+---------------------------------------+\n";
+        cout << "| Total Electronics Purchases: " << setw(8) << electronicsCount << " |\n";
+        cout << "| Purchases via Credit Card:   " << setw(8) << creditCardCount << " |\n";
+        cout << "| Percentage via Credit Card:  " << setw(7) << fixed << setprecision(2) << percentage << "% |\n";
+        cout << "| Total Credit Card Value:     $" << setw(9) << fixed << setprecision(2) << totalValue << " |\n";
+        cout << "+---------------------------------------+\n";
+        cout << "\nPayment Method Distribution:\n";
+        cout << "+------------------+--------+-----------+\n";
+        cout << "| Payment Method   | Count  | Percent   |\n";
+        cout << "+------------------+--------+-----------+\n";
+
+        for (const auto& method : paymentMethods) {
+            double methodPercentage = (static_cast<double>(method.second) / electronicsCount) * 100;
+            cout << "| " << setw(16) << left << method.first << " | " 
+                 << setw(6) << right << method.second << " | " 
+                 << setw(7) << fixed << setprecision(2) << methodPercentage << "% |\n";
+        }
+        cout << "+------------------+--------+-----------+\n";
+    } else {
+        cout << "No Electronics Purchases found in the dataset.\n";
+    }
+    
+    auto endTimeQ2 = Clock::now();
+    auto durationQ2 = chrono::duration_cast<chrono::milliseconds>(endTimeQ2 - startTimeQ2).count();
+    cout << "\nHash Search completed in: " << durationQ2 << " ms\n\n";
+
+    // Save timing results for Q2
+    badrResults.Q2_SortTime = 0; // No specific sort time tracked
+    badrResults.Q2_SearchTime = 0; // No specific search time tracked 
+    badrResults.Q2_Full = durationQ2;
+
+    // =====================================================================
+    // Question 3: Analyze word frequency in 1-star reviews
+    // =====================================================================
+    cout << "=================================================\n";    
+    cout << "Question 3: Most frequent words in 1-star reviews\n";
+    cout << "=================================================\n";
+    
+    auto startTimeQ3 = Clock::now();
+    auto searchStartTimeQ3 = startTimeQ3; // Just initialize, may not be used
+    
+    // Find indices of 1-star reviews
+    int firstIdx = -1, lastIdx = -1;
+    findOneStarReviews(firstIdx, lastIdx, revCount, reviewHead);
+    
+    if (firstIdx == -1 || lastIdx == -1) {
+        cout << "No 1-star reviews found in the dataset.\n";
+        return badrResults; // Return with timing data collected so far
+    }
+    
+    int oneStarCount = lastIdx - firstIdx + 1;
+    cout << "Found " << oneStarCount << " 1-star reviews.\n";
+    
+    // Allocate space for word counting (assume average of 20 unique words per review)
+    WordCount* wordCounts = new WordCount[oneStarCount * 20];
+    int uniqueWords = 0;
+    
+    // Count word frequencies
+    countWordFrequencies(firstIdx, lastIdx, reviewHead, wordCounts, uniqueWords);
+    
+    // Convert array to linked list for sorting
+    WordCountNode* wordCountHead = createWordCountList(wordCounts, uniqueWords);
+    
+    // Sort word counts (use merge sort for this since we have it implemented)
+    MergeSortLL sortHelper;
+    wordCountHead = sortHelper.sortWordCounts(wordCountHead);
+    
+    auto searchEndTimeQ3 = Clock::now();
+    
+    // Display the top 15 most frequent words with improved formatting
+    cout << "\nTop 15 most frequent words in 1-star reviews:\n";
+    cout << "+=======+=======================+==========+\n";
+    cout << "| Rank  | Word                 | Frequency |\n";
+    cout << "+=======+=======================+==========+\n";
+    
+    WordCountNode* wcNode = wordCountHead;
+    int rank = 1;
+    
+    while (wcNode != nullptr && rank <= 15) {
+        // Format output with table styling
+        cout << "| " << setw(5) << rank << " | "
+             << setw(21) << left << wcNode->data.word << " | "
+             << setw(8) << right << wcNode->data.count << " |\n";
+        
+        wcNode = wcNode->next;
+        rank++;
+    }
+    
+    cout << "+=======+=======================+==========+\n";
+    cout << "Total unique words found: " << uniqueWords << "\n";
+    
+    auto endTimeQ3 = Clock::now();
+    auto durationQ3 = chrono::duration_cast<chrono::milliseconds>(endTimeQ3 - startTimeQ3).count();
+    auto searchDurationQ3 = chrono::duration_cast<chrono::nanoseconds>(searchEndTimeQ3 - searchStartTimeQ3).count();
+    
+    cout << "\nWord frequency analysis completed in: " << durationQ3 << " ms\n";
+    
+    // Clean up allocated memory
+    delete[] wordCounts;
+    
+    // Free the linked list
+    while (wordCountHead) {
+        WordCountNode* temp = wordCountHead;
+        wordCountHead = wordCountHead->next;
+        delete temp;
+    }
+
+    // Save timing results for Q3
+    badrResults.Q3_SortTime = 0; // No specific sort time tracked
+    badrResults.Q3_SearchTime = searchDurationQ3;
+    badrResults.Q3_Full = durationQ3;
+
+    // =====================================================================
+    // Performance Summary
+    // =====================================================================
+    cout << "\n+===============================================+\n";
+    cout << "|             Performance Summary              |\n";
+    cout << "+===============================================+\n";
+    cout << "| Q1 (Heap Sort):          " << setw(15) << durationQ1 << " ms |\n";
+    cout << "| Q2 (Hash Search):        " << setw(15) << durationQ2 << " ms |\n";
+    cout << "| Q3 (Word Frequency):     " << setw(15) << durationQ3 << " ms |\n";
+    cout << "+-----------------------------------------------+\n";
+    cout << "| Total execution time:    " << setw(15) << (durationQ1 + durationQ2 + durationQ3) << " ms |\n";
+    cout << "+===============================================+\n";
+
+    return badrResults; // Return the timing results
+}
 
 
 
 
 
 void PrintResults() {
-    if (!alfiRun && !hadiRun) {
+    if (!alfiRun && !hadiRun && !badrRun) {
         cout << "\nNo timing data available.\n";
         return;
     }
@@ -728,22 +1012,22 @@ void PrintResults() {
     //     cout << "===========================\n";
     // }
         
-    // if (baderRun) {
-    //     cout << "\nBadr:\n";
-    //     cout << "Q1 Total: " << badrResults.Q1_Full << " ms\n";
-    //     cout << "Q1 Bubble Sort: " << badrResults.Q1_SortTime << " ns\n";
-    //     cout << "--------------------------\n";
-    //     cout << "Q2 Total: " << badrResults.Q2_Full << " ms\n";
-    //     cout << "Q2 Bubble Sort: " << badrResults.Q2_SortTime << " ns\n";
-    //     cout << "Q2 No Search Required\n";
-    //     cout << "--------------------------\n";
-    //     cout << "Q3 Total: " << badrResults.Q3_Full << " ms\n";
-    //     cout << "Q3 No Sort Required\n";
-    //     cout << "Q3 Jump Search: " << badrResults.Q3_SearchTime << " ns\n";
-    //     cout << "--------------------------\n";
-    //     cout << "TOTAL: " << badrResults.Q1_Full + badrResults.Q2_Full + badrResults.Q3_Full << " ms\n";
-    //     cout << "===========================\n";
-    // }
+    if (badrRun) {
+        cout << "\nBadr:\n";
+        cout << "Q1 Total: " << badrResults.Q1_Full << " ms\n";
+        cout << "Q1 Bubble Sort: " << badrResults.Q1_SortTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "Q2 Total: " << badrResults.Q2_Full << " ms\n";
+        cout << "Q2 Bubble Sort: " << badrResults.Q2_SortTime << " ns\n";
+        cout << "Q2 No Search Required\n";
+        cout << "--------------------------\n";
+        cout << "Q3 Total: " << badrResults.Q3_Full << " ms\n";
+        cout << "Q3 No Sort Required\n";
+        cout << "Q3 Jump Search: " << badrResults.Q3_SearchTime << " ns\n";
+        cout << "--------------------------\n";
+        cout << "TOTAL: " << badrResults.Q1_Full + badrResults.Q2_Full + badrResults.Q3_Full << " ms\n";
+        cout << "===========================\n";
+    }
     
     
     cout << "==========================\n";
@@ -757,7 +1041,7 @@ int main(){
         cout << "\n \tMENU\t\n";
         cout << "1. Merge Sort + Binary Search (Alfiansyah Clark - TP075566)\n";
         cout << "2. Place 2\n";
-        cout << "3. Place 3\n";
+        cout << "3. Heap Sort + Hashing Search (Badr Abduldaim - TP074644)\n";
         cout << "4. Bubble Sort + Jump Search (Abdulhadi Muhammad - TP077939)\n";
         cout << "5. Print Results\n";
         cout << "6. Exit\n";
@@ -776,9 +1060,9 @@ int main(){
                 // stanlieRun = true;
                 break;
             case 3:
-                cout << "\nBadrs sort + Search\n";
-                // badrResults = badr();
-                // badrRun = true;
+                cout << "\nHeap Sort & Hashing Search\n";
+                badrResults = Badr();
+                badrRun = true;
                 break;
             case 4:
                 cout << "\nBubble Sort + Jump Search: 4\n";

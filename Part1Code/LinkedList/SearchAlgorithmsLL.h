@@ -9,6 +9,7 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 TransactionNode* binarySearchTransactions(TransactionNode* head, const char* target, int field) {
     if (head == nullptr) {
@@ -281,4 +282,237 @@ void tallyWordsInReview(ReviewNode* reviewHead) {
         cout << entry.first << ": " << entry.second << endl;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//#############################################################################
+//################################################################################
+
+// Add these function declarations at the top of the file
+void hashSearchCategoryPayment(TransactionNode* head, int transCount);
+void findOneStarReviews(int& first, int& last, int revCount, ReviewNode* reviewHead);
+void countWordFrequencies(int first, int last, ReviewNode* reviewHead, WordCount* wc, int& unique);
+WordCountNode* createWordCountList(WordCount* wc, int unique);
+void displayTopWords(WordCountNode* head, int unique, int topN);
+
+// Add these implementations at the end of the file
+void hashSearchCategoryPayment(TransactionNode* head, int transCount) {
+    // Create a hash map to store transactions by category
+    map<string, vector<TransactionNode*>> categoryMap;
+    
+    // Track total transactions processed
+    int totalProcessed = 0;
+    
+    // Fill the map with transactions categorized by category
+    TransactionNode* current = head;
+    while (current != nullptr) {
+        categoryMap[current->data.category].push_back(current);
+        current = current->next;
+        totalProcessed++;
+    }
+    
+    cout << "Processed " << totalProcessed << " transactions using hash-based categorization.\n";
+    cout << "Found " << categoryMap.size() << " unique product categories.\n\n";
+    
+    // Now analyze the "Electronics" category transactions
+    if (categoryMap.find("Electronics") != categoryMap.end()) {
+        int electronicsCount = categoryMap["Electronics"].size();
+        int creditCardCount = 0;
+        double totalValue = 0.0;
+        
+        // Count credit card payments and total value
+        for (TransactionNode* trans : categoryMap["Electronics"]) {
+            if (trans->data.paymentMethod == "Credit Card") {
+                creditCardCount++;
+                totalValue += trans->data.price;
+            }
+        }
+        
+        cout << "Electronics Category Analysis:\n";
+        cout << "-----------------------------\n";
+        cout << "Total Electronics Purchases: " << electronicsCount << "\n";
+        cout << "Electronics Purchases via Credit Card: " << creditCardCount << "\n";
+        
+        // Calculate the percentage
+        double percentage = 0.0;
+        if (electronicsCount > 0) {
+            percentage = (static_cast<double>(creditCardCount) / electronicsCount) * 100;
+            cout << "Percentage of Electronics Purchases via Credit Card: " 
+                 << fixed << setprecision(2) << percentage << "%\n";
+            cout << "Total value of Electronics purchases via Credit Card: $" 
+                 << fixed << setprecision(2) << totalValue << "\n";
+        }
+        
+        // Show distribution of other payment methods
+        map<string, int> paymentMethods;
+        for (TransactionNode* trans : categoryMap["Electronics"]) {
+            paymentMethods[trans->data.paymentMethod]++;
+        }
+        
+        cout << "\nPayment Method Distribution for Electronics:\n";
+        for (const auto& method : paymentMethods) {
+            double methodPercentage = (static_cast<double>(method.second) / electronicsCount) * 100;
+            cout << method.first << ": " << method.second << " (" 
+                 << fixed << setprecision(2) << methodPercentage << "%)\n";
+        }
+    } else {
+        cout << "No Electronics Purchases found in the dataset.\n";
+    }
+}
+
+// Function to find the range of 1-star reviews
+void findOneStarReviews(int& first, int& last, int revCount, ReviewNode* reviewHead) {
+    first = -1;
+    last = -1;
+    int index = 0;
+    ReviewNode* current = reviewHead;
+    
+    while (current != nullptr) {
+        if (current->data.rating == 1) {
+            if (first == -1) first = index;
+            last = index;
+        }
+        current = current->next;
+        index++;
+    }
+}
+
+// Function to count word frequencies in 1-star reviews
+void countWordFrequencies(int first, int last, ReviewNode* reviewHead, WordCount* wc, int& unique) {
+    // Common stop words to filter out
+    const char* stopWords[] = {"the", "a", "an", "and", "or", "but", "is", "are", "was", "were", 
+                             "has", "have", "had", "be", "been", "being", "in", "on", "at", "to", 
+                             "for", "with", "by", "about", "of", "that", "this", "these", "those"};
+    const int stopWordsCount = sizeof(stopWords) / sizeof(stopWords[0]);
+    
+    int index = 0;
+    ReviewNode* current = reviewHead;
+    unique = 0;
+    
+    while (current != nullptr) {
+        if (index >= first && index <= last) {
+            stringstream ss(current->data.reviewText);
+            string word;
+            
+            while (ss >> word) {
+                // Remove non-alphabetic characters
+                string cleanWord = "";
+                for (char c : word) {
+                    if (isalpha(c)) {
+                        cleanWord += tolower(c);
+                    }
+                }
+                
+                // Skip empty words or words that are too short
+                if (cleanWord.length() <= 1) {
+                    continue;
+                }
+                
+                // Skip common stop words
+                bool isStopWord = false;
+                for (int i = 0; i < stopWordsCount; i++) {
+                    if (cleanWord == stopWords[i]) {
+                        isStopWord = true;
+                        break;
+                    }
+                }
+                
+                if (isStopWord) {
+                    continue;
+                }
+                
+                // Check if word is already counted
+                bool found = false;
+                for (int i = 0; i < unique; i++) {
+                    if (strcmp(wc[i].word, cleanWord.c_str()) == 0) {
+                        wc[i].count++;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Add new word if not found
+                if (!found && unique < 1000) { // Limit to prevent overflow
+                    if (cleanWord.length() < 255) {  // Ensure word fits in our buffer
+                        strncpy(wc[unique].word, cleanWord.c_str(), 254);
+                        wc[unique].word[254] = '\0';  // Ensure null termination
+                        wc[unique].count = 1;
+                        unique++;
+                    }
+                }
+            }
+        }
+        
+        current = current->next;
+        index++;
+    }
+    
+    cout << "Processed " << (last - first + 1) << " reviews with 1-star ratings.\n";
+    cout << "Found " << unique << " unique words after filtering stop words.\n";
+}
+
+// Function to create a linked list of word counts
+WordCountNode* createWordCountList(WordCount* wc, int unique) {
+    WordCountNode* head = nullptr;
+    for (int i = 0; i < unique; i++) {
+        WordCountNode* newNode = new WordCountNode(wc[i]);
+        newNode->next = head;
+        head = newNode;
+    }
+    return head;
+}
+
+// Function to display top frequent words
+void displayTopWords(WordCountNode* head, int unique, int topN) {
+    if (head == nullptr || topN <= 0) {
+        cout << "No words to display.\n";
+        return;
+    }
+    
+    cout << "\n----------------------------------------\n";
+    cout << "Rank | Word                | Frequency \n";
+    cout << "----------------------------------------\n";
+    
+    WordCountNode* current = head;
+    int rank = 1;
+    
+    while (current != nullptr && rank <= topN) {
+        // Format output for better readability
+        cout << setw(4) << rank << " | "
+             << setw(20) << left << current->data.word << " | "
+             << setw(9) << right << current->data.count << "\n";
+        
+        current = current->next;
+        rank++;
+    }
+    
+    cout << "----------------------------------------\n";
+    cout << "Total unique words found: " << unique << "\n";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif 

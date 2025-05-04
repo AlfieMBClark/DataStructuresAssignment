@@ -391,4 +391,97 @@ void bubbleSortTransactionsByCategory(TransactionNode*& head) {
         lptr = ptr; // Mark the last sorted node
     } while (swapped);
 }
+
+
+
+
+//#######################################################################
+//######################################################################
+
+// Helper function to heapify the tree
+void heapify(TransactionNode* arr[], int n, int i) {
+    int largest = i;  // Initialize largest as root
+    int left = 2 * i + 1;  // Left child
+    int right = 2 * i + 2;  // Right child
+
+    // If left child is larger than root
+    if (left < n && arr[left]->data.date > arr[largest]->data.date)
+        largest = left;
+
+    // If right child is larger than root
+    if (right < n && arr[right]->data.date > arr[largest]->data.date)
+        largest = right;
+
+    // If largest is not root
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
+    }
+}
+
+// Function to perform heap sort
+void heapSort(TransactionNode*& head) {
+    // Count total nodes in the list
+    int n = 0;
+    TransactionNode* temp = head;
+    while (temp) {
+        n++;
+        temp = temp->next;
+    }
+
+    // If the list is empty or has only one element, no sorting needed
+    if (n <= 1) return;
+
+    // Convert linked list to array for heap sort
+    TransactionNode** arr = new TransactionNode*[n];
+    temp = head;
+    for (int i = 0; i < n; i++) {
+        arr[i] = temp;
+        temp = temp->next;
+    }
+
+    // Build a max heap
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+    }
+
+    // Extract elements from the heap and rebuild it
+    for (int i = n - 1; i > 0; i--) {
+        // Move the current root to the end
+        swap(arr[0], arr[i]);
+        
+        // Call heapify on the reduced heap
+        heapify(arr, i, 0);
+    }
+
+    // Rebuild the sorted list from the heapified array
+    for (int i = 0; i < n - 1; i++) {
+        arr[i]->next = arr[i + 1];
+    }
+    arr[n - 1]->next = nullptr;  // Last node should point to nullptr
+
+    head = arr[0];  // The new head of the sorted list
+    
+    // Clean up the array
+    delete[] arr;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
