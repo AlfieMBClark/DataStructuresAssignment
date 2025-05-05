@@ -768,7 +768,7 @@ TimingResults Hadi() {
     auto searchQ3End = Clock::now(); //End
     
     if (oneStarReview != NULL) {
-        cout << "1-Star Review Found: " << oneStarReview->data.reviewText << endl;
+        cout << "1-Star Review Found! "<< endl; // << oneStarReview->data.reviewText << endl;
     } else {
         cout << "No 1-Star Review Found!" << endl;
     }
