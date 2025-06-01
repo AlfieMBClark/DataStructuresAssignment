@@ -3,29 +3,166 @@
 #include "RegistrationManager.h"
 #include "MatchScheduler.h"
 #include "CSVHandler.h"
+#include "Task4.h"  
 #include <iostream>
 #include <exception>
 
 using namespace std;
 
-// ===============================
-// MAIN TOURNAMENT SYSTEM CLASS
-// ===============================
+// =======================
+// TOURNAMENT SYSTEM CLASS
+// =======================
 
 class TournamentSystem {
 private:
     RegistrationManager* regManager;
     MatchScheduler* matchScheduler;
+    GameResultLogger* resultLogger;  // TASK 4 COMPONENT
 
 public:
     TournamentSystem() {
-        regManager = new RegistrationManager(40); // Capacity for 8 teams × 5 players
+        regManager = new RegistrationManager(40);
         matchScheduler = new MatchScheduler();
+        resultLogger = new GameResultLogger();  // Initialize Task 4
     }
     
     ~TournamentSystem() {
         delete regManager;
         delete matchScheduler;
+        delete resultLogger;  // Clean up for my Task4
+    }
+    
+    // Simulate match results with detailed logging (TASK 4 FUNCTIONALITY)
+    void simulateAndLogMatches(Queue<Team>* allTeams) {
+        cout << "\n=== SIMULATING MATCHES WITH DETAILED RESULT LOGGING ===\n";
+        
+        Queue<Match>* allMatches = matchScheduler->getAllMatches();
+        
+        if (allMatches->isEmpty()) {
+            cout << "No matches to simulate!\n";
+            return;
+        }
+        
+        // Create temporary queue to preserve original
+        Queue<Match> tempMatches;
+        int matchNum = 1;
+        
+        while (!allMatches->isEmpty()) {
+            Match match = allMatches->dequeue();
+            
+            // Simulate detailed match results
+            int score1 = 15 + (rand() % 16);  // Random score between 15-30
+            int score2 = 10 + (rand() % 16);  // Random score between 10-25
+            
+            // Determine winner based on team strength 
+            Team team1, team2;
+            bool found1 = false, found2 = false;
+            
+            DoublyNode<Team>* current = allTeams->getHead();
+            while (current != nullptr) {
+                if (current->data.teamID == match.team1ID) {
+                    team1 = current->data;
+                    found1 = true;
+                }
+                if (current->data.teamID == match.team2ID) {
+                    team2 = current->data;
+                    found2 = true;
+                }
+                current = current->next;
+            }
+            
+            if (found1 && found2) {
+                // Winner is team with lower average ranking (better team)
+                if (team1.getAverageRanking() < team2.getAverageRanking()) {
+                    match.winnerID = team1.teamID;
+                    score1 += 5;  // Winner bonus
+                } else {
+                    match.winnerID = team2.teamID;
+                    score2 += 5;  // Winner bonus
+                }
+                
+                match.status = "completed";
+                
+                // Generate realistic match details for Task 4
+                string date = "2025-01-" + to_string(15 + matchNum);
+                string duration = to_string(25 + (rand() % 20)) + " minutes";
+                
+                // Select random MVP from winning team
+                string mvpPlayerID = "P" + to_string((rand() % 5) + 1 + 
+                    ((match.winnerID == "T1") ? 0 : 
+                     (match.winnerID == "T2") ? 5 : 
+                     (match.winnerID == "T3") ? 10 : 
+                     (match.winnerID == "T4") ? 15 : 
+                     (match.winnerID == "T5") ? 20 : 
+                     (match.winnerID == "T6") ? 25 : 
+                     (match.winnerID == "T7") ? 30 : 35));
+                
+                // Use TASK 4 to log the detailed result
+                resultLogger->logMatchResult(match, score1, score2, date, duration, mvpPlayerID, 
+                                           regManager->getCheckedInPlayers(), allTeams);
+                
+                cout << "Match " << matchNum << " simulated and logged!\n";
+                matchNum++;
+            }
+            
+            tempMatches.enqueue(match);
+        }
+        
+        // Restore matches queue
+        while (!tempMatches.isEmpty()) {
+            allMatches->enqueue(tempMatches.dequeue());
+        }
+    }
+    
+    // TASK 4 MENU FUNCTIONS
+    void showTask4Menu() {
+        int choice;
+        do {
+            cout << "\n========= TASK 4: GAME RESULT LOGGING & PERFORMANCE HISTORY =========\n";
+            cout << "1. View Recent Match Results (Stack - LIFO)\n";
+            cout << "2. View Complete Match History (Queue - FIFO)\n";
+            cout << "3. Display Player Performance Statistics\n";
+            cout << "4. Display Team Performance Statistics\n";
+            cout << "5. Export Results to CSV\n";
+            cout << "6. View Statistics Summary\n";
+            cout << "7. Back to Main Menu\n";
+            cout << "=====================================================================\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+            
+            switch (choice) {
+                case 1:
+                    resultLogger->displayRecentResults();
+                    break;
+                case 2:
+                    resultLogger->displayMatchHistory();
+                    break;
+                case 3:
+                    resultLogger->displayPlayerStats();
+                    break;
+                case 4:
+                    resultLogger->displayTeamStats();
+                    break;
+                case 5:
+                    resultLogger->exportResultsToCSV();
+                    break;
+                case 6:
+                    resultLogger->displayStatisticsSummary();
+                    break;
+                case 7:
+                    cout << "Returning to main menu...\n";
+                    break;
+                default:
+                    cout << "Invalid choice! Please try again.\n";
+            }
+            
+            if (choice != 7) {
+                cout << "\nPress Enter to continue...";
+                cin.ignore();
+                cin.get();
+            }
+            
+        } while (choice != 7);
     }
     
     // Create teams from players grouped by teamID
@@ -35,7 +172,7 @@ public:
         Queue<Team>* teamQueue = new Queue<Team>();
         
         // Create array to hold players for each team
-        Player teamPlayers[8][MAX_TEAM_SIZE];  // Support up to 8 teams
+        Player teamPlayers[8][MAX_TEAM_SIZE];
         int teamPlayerCounts[8] = {0};
         string teamNames[8] = {"", "", "", "", "", "", "", ""};
         
@@ -44,7 +181,6 @@ public:
         while (current != nullptr) {
             Player player = current->data;
             
-            // Extract team number from teamID (e.g., "T1" -> 0, "T2" -> 1, etc.)
             if (!player.teamID.empty() && player.teamID.length() >= 2) {
                 int teamIndex = -1;
                 if (player.teamID == "T1") teamIndex = 0;
@@ -60,7 +196,6 @@ public:
                     teamPlayers[teamIndex][teamPlayerCounts[teamIndex]] = player;
                     teamPlayerCounts[teamIndex]++;
                     
-                    // Set team name based on university
                     if (teamNames[teamIndex].empty()) {
                         if (player.university == "APU") teamNames[teamIndex] = "APU Dragons";
                         else if (player.university == "UM") teamNames[teamIndex] = "UM Tigers";
@@ -77,7 +212,7 @@ public:
             current = current->next;
         }
         
-        // Create complete teams (only teams with exactly 5 players)
+        // Create complete teams
         for (int i = 0; i < 8; i++) {
             if (teamPlayerCounts[i] == MAX_TEAM_SIZE) {
                 Team team("T" + to_string(i + 1), teamNames[i]);
@@ -90,8 +225,6 @@ public:
                 cout << "(Avg Rank: " << team.getAverageRanking() << ")\n";
                 
                 teamQueue->enqueue(team);
-            } else if (teamPlayerCounts[i] > 0) {
-                cout << "Incomplete team " << teamNames[i] << " (" << teamPlayerCounts[i] << "/5 players) - not included in tournament\n";
             }
         }
         
@@ -99,61 +232,12 @@ public:
         return teamQueue;
     }
     
-    // Display team ranking analysis
-    void displayTeamRankingAnalysis(Queue<Team>* teams) {
-        cout << "\n=== TEAM RANKING ANALYSIS ===\n";
-        
-        // Find best and worst average rankings
-        double bestAvg = 999.0, worstAvg = 0.0;
-        string bestTeam = "", worstTeam = "";
-        
-        DoublyNode<Team>* current = teams->getHead();
-        while (current != nullptr) {
-            Team team = current->data;
-            if (team.getAverageRanking() < bestAvg) {
-                bestAvg = team.getAverageRanking();
-                bestTeam = team.teamName;
-            }
-            if (team.getAverageRanking() > worstAvg) {
-                worstAvg = team.getAverageRanking();
-                worstTeam = team.teamName;
-            }
-            current = current->next;
-        }
-        
-        cout << "Best Team (Lowest Avg Ranking): " << bestTeam << " (" << bestAvg << ")\n";
-        cout << "Weakest Team (Highest Avg Ranking): " << worstTeam << " (" << worstAvg << ")\n";
-        
-        // Display all teams with rankings
-        cout << "\nAll Teams by Average Ranking:\n";
-        cout << "Rank | Team Name        | Avg Ranking | University\n";
-        cout << "-----|------------------|-------------|----------\n";
-        
-        current = teams->getHead();
-        int rank = 1;
-        while (current != nullptr) {
-            Team team = current->data;
-            cout << " " << rank << "   | " << team.teamName;
-            // Padding for team name
-            for (int j = team.teamName.length(); j < 16; j++) cout << " ";
-            cout << " | " << team.getAverageRanking() << "        | ";
-            
-            // Get university from first player
-            if (team.playerCount > 0) {
-                cout << team.players[0].university;
-            }
-            cout << "\n";
-            
-            current = current->next;
-            rank++;
-        }
-    }
-    
+    // Main tournament execution
     void runTournament() {
         cout << "=== ASIA PACIFIC UNIVERSITY ESPORTS CHAMPIONSHIP ===\n";
-        cout << "=== USING GRAPH-BASED TOURNAMENT BRACKET SYSTEM ===\n\n";
+        cout << "=== FEATURING ADVANCED RESULT LOGGING SYSTEM (TASK 4) ===\n\n";
     
-        // Create players with pre-assigned team IDs
+        // Create sample players with pre-assigned team IDs
         Player players[] = {
             // Team 1 - APU Dragons (T1)
             Player("P001", "Alice Wong", 12, "early-bird", "APU", "T1"),
@@ -181,87 +265,55 @@ public:
             Player("P017", "Quinn Lee", 28, "regular", "MMU", "T4"),
             Player("P018", "Rachel Teo", 32, "wildcard", "MMU", "T4"),
             Player("P019", "Sam Wong", 26, "early-bird", "MMU", "T4"),
-            Player("P020", "Tina Lim", 29, "regular", "MMU", "T4"),
-            
-            // Team 5 - UTAR Panthers (T5)
-            Player("P021", "Uma Patel", 17, "early-bird", "UTAR", "T5"),
-            Player("P022", "Victor Ng", 19, "regular", "UTAR", "T5"),
-            Player("P023", "Wendy Koh", 13, "wildcard", "UTAR", "T5"),
-            Player("P024", "Xavier Tan", 21, "early-bird", "UTAR", "T5"),
-            Player("P025", "Yvonne Lee", 15, "regular", "UTAR", "T5"),
-            
-            // Team 6 - INTI Sharks (T6)
-            Player("P026", "Zara Ahmed", 3, "early-bird", "INTI", "T6"),
-            Player("P027", "Adam Chong", 4, "regular", "INTI", "T6"),
-            Player("P028", "Bella Tan", 2, "wildcard", "INTI", "T6"),
-            Player("P029", "Chris Lim", 1, "early-bird", "INTI", "T6"),
-            Player("P030", "Diana Wong", 5, "regular", "INTI", "T6"),
-            
-            // Team 7 - HELP Hawks (T7)
-            Player("P031", "Ethan Ong", 24, "early-bird", "HELP", "T7"),
-            Player("P032", "Fiona Lau", 27, "regular", "HELP", "T7"),
-            Player("P033", "George Kim", 23, "wildcard", "HELP", "T7"),
-            Player("P034", "Hannah Chen", 26, "early-bird", "HELP", "T7"),
-            Player("P035", "Ian Yap", 25, "regular", "HELP", "T7"),
-            
-            // Team 8 - TAYLOR Titans (T8)
-            Player("P036", "Julia Teo", 35, "early-bird", "TAYLOR", "T8"),
-            Player("P037", "Kevin Ng", 33, "regular", "TAYLOR", "T8"),
-            Player("P038", "Luna Koh", 31, "wildcard", "TAYLOR", "T8"),
-            Player("P039", "Mike Tan", 34, "early-bird", "TAYLOR", "T8"),
-            Player("P040", "Nina Lee", 36, "regular", "TAYLOR", "T8")
+            Player("P020", "Tina Lim", 29, "regular", "MMU", "T4")
         };
         
-        // Register all players
-        cout << "=== PLAYER REGISTRATION ===\n";
-        for (int i = 0; i < 40; i++) {
+        // Register players 
+        cout << "=== PLAYER REGISTRATION (TASK 2) ===\n";
+        for (int i = 0; i < 20; i++) {
             regManager->registerPlayer(players[i]);
         }
         
-        // Process check-ins
         regManager->processCheckIn();
         regManager->displayStatus();
         
-        // Get checked-in players
+        // Create teams from players
         Queue<Player>* checkedInPlayers = regManager->getCheckedInPlayers();
-        
-        // Create teams from players grouped by teamID
         Queue<Team>* teamQueue = createTeamsFromPlayers(checkedInPlayers);
         
         if (teamQueue->size() >= 2) {
-            // Generate qualifier matches (team vs team)
+            // Generate matches 
+            cout << "\n=== MATCH SCHEDULING (TASK 1) ===\n";
             matchScheduler->generateQualifierMatches(teamQueue);
-
-            // Simulate team matches
+            
             Queue<Team>* winners = matchScheduler->simulateMatches(teamQueue);
-
-            // Generate knockout bracket for winning teams
+            
             if (winners->size() >= 2) {
                 matchScheduler->generateKnockoutBracket(winners);
-            } else {
-                cout << "\nNot enough winning teams for knockout bracket.\n";
             }
-
-            // Display bracket structure and traversal
-            matchScheduler->displayBracketTraversal();
-            matchScheduler->displayBracketStatus();
-
-            // Test withdrawal
-            cout << "\n=== TESTING PLAYER WITHDRAWAL ===\n";
-            regManager->handleWithdrawal("P004");
-
-            // Display team ranking analysis
-            displayTeamRankingAnalysis(teamQueue);
-
+            
+            // TASK 4 - SIMULATE AND LOG DETAILED RESULTS
+            cout << "\n=== ADVANCED RESULT LOGGING (YOUR TASK 4) ===\n";
+            simulateAndLogMatches(teamQueue);
+            
+            // Display the results
+            cout << "\n=== TASK 4 DEMONSTRATION ===\n";
+            resultLogger->displayRecentResults(3);
+            resultLogger->displayPlayerStats();
+            resultLogger->displayTeamStats();
+            resultLogger->displayStatisticsSummary();
+            
             delete winners;
-        } else {
-            cout << "\nNot enough teams formed for tournament!\n";
         }
-
-        // Save to CSV using the complete CSVHandler
-        cout << "\n=== SAVING TO CSV FILES ===\n";
+        
+        // Show Task 4 interactive menu
+        showTask4Menu();
+        
+        // Export all data
+        cout << "\n=== EXPORTING ALL DATA ===\n";
         CSVHandler::exportAllData(checkedInPlayers, matchScheduler->getAllMatches(), teamQueue);
-
+        resultLogger->exportResultsToCSV();
+        
         delete teamQueue;
     }
 };
@@ -274,6 +326,12 @@ int main() {
     try {
         cout << "=================================================================\n";
         cout << "    ASIA PACIFIC UNIVERSITY ESPORTS CHAMPIONSHIP SYSTEM\n";
+        cout << "    FEATURING ALL 4 TASKS WITH ADVANCED DATA STRUCTURES\n";
+        cout << "=================================================================\n";
+        cout << "Task 1: Match Scheduling & Player Progression (Friend 1)\n";
+        cout << "Task 2: Tournament Registration & Player Queueing (Friend 2)\n";
+        cout << "Task 3: Live Stream & Spectator Queue Management (Not implemented)\n";
+        cout << "Task 4: Game Result Logging & Performance History (YOUR TASK)\n";
         cout << "=================================================================\n";
         
         TournamentSystem tournament;
@@ -282,13 +340,12 @@ int main() {
         cout << "\n=================================================================\n";
         cout << "               TOURNAMENT SYSTEM COMPLETED\n";
         cout << "=================================================================\n";
-        cout << "=================================================================\n";
-        cout << "📊 TOURNAMENT STATISTICS:\n";
-        cout << "   • 40 Players across 8 Universities\n";
-        cout << "   • 8 Teams (5 players each)\n";
-        cout << "   • Multiple tournament rounds (Qualifiers → Knockouts)\n";
-        cout << "   • Graph-based bracket with " << MAX_NODES << " node capacity\n";
-        cout << "   • Priority-based registration with 3 tiers\n";
+        cout << "📊 YOUR TASK 4 CONTRIBUTIONS:\n";
+        cout << "   • Stack-based Recent Results (LIFO access)\n";
+        cout << "   • Queue-based Match History (FIFO chronological)\n";
+        cout << "   • Player Performance Tracking\n";
+        cout << "   • Team Statistics Analysis\n";
+        cout << "   • CSV Export for Tournament Analysis\n";
         cout << "=================================================================\n";
         
     } catch (const exception& e) {
@@ -297,7 +354,6 @@ int main() {
         return 1;
     }
     
-    cout << "\n SYSTEM SHUTDOWN SUCCESSFUL\n";
-    cout << "Thank you for using the Tournament Management System!\n";
+    cout << "\nThank you for using the Tournament Management System!\n";
     return 0;
 }
