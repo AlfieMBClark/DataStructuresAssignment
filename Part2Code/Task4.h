@@ -10,9 +10,9 @@
 
 using namespace std;
 
-// ===============================
+// ==================================================
 // TASK 4: GAME RESULT LOGGING & PERFORMANCE HISTORY
-// ===============================
+// ==================================================
 
 // Enhanced Match Result with detailed statistics
 struct MatchResultDetails {
