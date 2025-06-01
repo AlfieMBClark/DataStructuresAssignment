@@ -340,7 +340,7 @@ int main() {
         cout << "\n=================================================================\n";
         cout << "               TOURNAMENT SYSTEM COMPLETED\n";
         cout << "=================================================================\n";
-        cout << "📊 YOUR TASK 4 CONTRIBUTIONS:\n";
+        cout << "   TASK 4 CONTRIBUTIONS:\n";
         cout << "   • Stack-based Recent Results (LIFO access)\n";
         cout << "   • Queue-based Match History (FIFO chronological)\n";
         cout << "   • Player Performance Tracking\n";
