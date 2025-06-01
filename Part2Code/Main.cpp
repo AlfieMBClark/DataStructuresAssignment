@@ -32,9 +32,9 @@ public:
         delete resultLogger;  
     }
     
-    // Simulate match results
+    // Updated: Simulate match results with new score-based system
     void simulateAndLogMatches(Queue<Team>* allTeams) {
-        cout << "\n=== SIMULATING MATCHES WITH DETAILED RESULT LOGGING ===\n";
+        cout << "\n=== SIMULATING MATCHES WITH SCORE-BASED SYSTEM & DETAILED LOGGING ===\n";
         
         Queue<Match>* allMatches = matchScheduler->getAllMatches();
         
@@ -50,11 +50,27 @@ public:
         while (!allMatches->isEmpty()) {
             Match match = allMatches->dequeue();
             
-            // Simulate detailed match results
-            int score1 = 15 + (rand() % 16);  // Random score between 15-30
-            int score2 = 10 + (rand() % 16);  // Random score between 10-25
+            // Use the existing scores from MatchScheduler (already generated)
+            int score1 = match.team1Score;
+            int score2 = match.team2Score;
             
-            // Determine winner based on team strength 
+            // If scores weren't set yet, generate them using the new system
+            if (score1 == 0 && score2 == 0) {
+                // Generate scores: one team gets 13, other gets 0-12
+                int randomFactor = (matchNum * 11 + match.graphIndex * 7) % 100;
+                
+                if (randomFactor % 2 == 0) {
+                    score1 = 13;
+                    score2 = randomFactor % 13; // 0-12
+                } else {
+                    score1 = randomFactor % 13; // 0-12
+                    score2 = 13;
+                }
+                
+                match.setScores(score1, score2);
+            }
+            
+            // Find teams for detailed logging
             Team team1, team2;
             bool found1 = false, found2 = false;
             
@@ -72,23 +88,21 @@ public:
             }
             
             if (found1 && found2) {
-                // Winner is team with lower average ranking (better team)
-                if (team1.getAverageRanking() < team2.getAverageRanking()) {
+                // Determine winner based on scores (team with 13 wins)
+                if (score1 > score2) {
                     match.winnerID = team1.teamID;
-                    score1 += 5;  // Winner bonus
                 } else {
                     match.winnerID = team2.teamID;
-                    score2 += 5;  // Winner bonus
                 }
                 
                 match.status = "completed";
                 
                 // Generate realistic match details for Task 4
                 string date = "2025-01-" + to_string(15 + matchNum);
-                string duration = to_string(25 + (rand() % 20)) + " minutes";
+                string duration = to_string(25 + (matchNum % 20)) + " minutes";
                 
                 // Select random MVP from winning team
-                string mvpPlayerID = "P" + to_string((rand() % 5) + 1 + 
+                string mvpPlayerID = "P" + to_string((matchNum % 5) + 1 + 
                     ((match.winnerID == "T1") ? 0 : 
                      (match.winnerID == "T2") ? 5 : 
                      (match.winnerID == "T3") ? 10 : 
@@ -97,11 +111,13 @@ public:
                      (match.winnerID == "T6") ? 25 : 
                      (match.winnerID == "T7") ? 30 : 35));
                 
-                // Use TASK 4 to log the detailed result
+                // Use TASK 4 to log the detailed result with scores
                 resultLogger->logMatchResult(match, score1, score2, date, duration, mvpPlayerID, 
                                            regManager->getCheckedInPlayers(), allTeams);
                 
-                cout << "Match " << matchNum << " simulated and logged!\n";
+                cout << "Match " << matchNum << " simulated and logged with scores!\n";
+                cout << "  Result: " << team1.teamName << " " << score1 << " - " << score2 << " " << team2.teamName << "\n";
+                cout << "  Winner: " << ((match.winnerID == team1.teamID) ? team1.teamName : team2.teamName) << "\n\n";
                 matchNum++;
             }
             
@@ -235,7 +251,7 @@ public:
     // Main tournament execution
     void runTournament() {
         cout << "=== ASIA PACIFIC UNIVERSITY ESPORTS CHAMPIONSHIP ===\n";
-        cout << "=== FEATURING ADVANCED RESULT LOGGING SYSTEM (TASK 4) ===\n\n";
+        cout << "=== FEATURING SCORE-BASED MATCHES & ADVANCED RESULT LOGGING ===\n\n";
     
         // Create sample players with pre-assigned team IDs
         Player players[] = {
@@ -265,12 +281,41 @@ public:
             Player("P017", "Quinn Lee", 28, "regular", "MMU", "T4"),
             Player("P018", "Rachel Teo", 32, "wildcard", "MMU", "T4"),
             Player("P019", "Sam Wong", 26, "early-bird", "MMU", "T4"),
-            Player("P020", "Tina Lim", 29, "regular", "MMU", "T4")
+            Player("P020", "Tina Lim", 29, "regular", "MMU", "T4"),
+            
+            // Additional teams for full 8-team tournament
+            // Team 5 - UTAR Panthers (T5)
+            Player("P021", "Uma Patel", 17, "early-bird", "UTAR", "T5"),
+            Player("P022", "Victor Ng", 19, "regular", "UTAR", "T5"),
+            Player("P023", "Wendy Koh", 13, "wildcard", "UTAR", "T5"),
+            Player("P024", "Xavier Tan", 21, "early-bird", "UTAR", "T5"),
+            Player("P025", "Yvonne Lee", 15, "regular", "UTAR", "T5"),
+            
+            // Team 6 - INTI Sharks (T6)
+            Player("P026", "Zara Ahmed", 3, "early-bird", "INTI", "T6"),
+            Player("P027", "Adam Chong", 4, "regular", "INTI", "T6"),
+            Player("P028", "Bella Tan", 2, "wildcard", "INTI", "T6"),
+            Player("P029", "Chris Lim", 1, "early-bird", "INTI", "T6"),
+            Player("P030", "Diana Wong", 5, "regular", "INTI", "T6"),
+            
+            // Team 7 - HELP Hawks (T7)
+            Player("P031", "Ethan Ong", 24, "early-bird", "HELP", "T7"),
+            Player("P032", "Fiona Lau", 27, "regular", "HELP", "T7"),
+            Player("P033", "George Kim", 23, "wildcard", "HELP", "T7"),
+            Player("P034", "Hannah Chen", 26, "early-bird", "HELP", "T7"),
+            Player("P035", "Ian Yap", 25, "regular", "HELP", "T7"),
+            
+            // Team 8 - TAYLOR Titans (T8)
+            Player("P036", "Julia Teo", 35, "early-bird", "TAYLOR", "T8"),
+            Player("P037", "Kevin Ng", 33, "regular", "TAYLOR", "T8"),
+            Player("P038", "Luna Koh", 31, "wildcard", "TAYLOR", "T8"),
+            Player("P039", "Mike Tan", 34, "early-bird", "TAYLOR", "T8"),
+            Player("P040", "Nina Lee", 36, "regular", "TAYLOR", "T8")
         };
         
         // Register players 
         cout << "=== PLAYER REGISTRATION (TASK 2) ===\n";
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             regManager->registerPlayer(players[i]);
         }
         
@@ -282,22 +327,27 @@ public:
         Queue<Team>* teamQueue = createTeamsFromPlayers(checkedInPlayers);
         
         if (teamQueue->size() >= 2) {
-            // Generate matches (using friend's Task 1 system)
-            cout << "\n=== MATCH SCHEDULING (TASK 1) ===\n";
+            // Generate matches using new score-based system (Task 1)
+            cout << "\n=== MATCH SCHEDULING WITH SCORE-BASED SYSTEM (TASK 1) ===\n";
             matchScheduler->generateQualifierMatches(teamQueue);
             
+            // Simulate matches with new score system
             Queue<Team>* winners = matchScheduler->simulateMatches(teamQueue);
             
             if (winners->size() >= 2) {
                 matchScheduler->generateKnockoutBracket(winners);
             }
             
-            // TASK 4 - SIMULATE AND LOG DETAILED RESULTS
-            cout << "\n=== ADVANCED RESULT LOGGING ===\n";
+            // Display bracket traversal
+            matchScheduler->displayBracketTraversal();
+            matchScheduler->displayBracketStatus();
+            
+            // TASK 4 - SIMULATE AND LOG DETAILED RESULTS WITH SCORES
+            cout << "\n=== ADVANCED RESULT LOGGING WITH SCORES ===\n";
             simulateAndLogMatches(teamQueue);
             
             // Display the results using Task 4 system
-            cout << "\n=== TASK 4 DEMONSTRATION ===\n";
+            cout << "\n=== TASK 4 DEMONSTRATION WITH SCORE DATA ===\n";
             resultLogger->displayRecentResults(3);
             resultLogger->displayPlayerStats();
             resultLogger->displayTeamStats();
@@ -309,9 +359,10 @@ public:
         // Show Task 4 interactive menu
         showTask4Menu();
         
-        // Export all data
-        cout << "\n=== EXPORTING ALL DATA ===\n";
+        // Export all data with scores
+        cout << "\n=== EXPORTING ALL DATA WITH SCORES ===\n";
         CSVHandler::exportAllData(checkedInPlayers, matchScheduler->getAllMatches(), teamQueue);
+        CSVHandler::writeMatchSummaryCSV("match_summary.csv", matchScheduler->getAllMatches());
         resultLogger->exportResultsToCSV();
         
         delete teamQueue;
@@ -326,13 +377,19 @@ int main() {
     try {
         cout << "=================================================================\n";
         cout << "    ASIA PACIFIC UNIVERSITY ESPORTS CHAMPIONSHIP SYSTEM\n";
-        cout << "    FEATURING ALL 4 TASKS WITH ADVANCED DATA STRUCTURES\n";
+        cout << "    FEATURING SCORE-BASED MATCHES & ADVANCED DATA STRUCTURES\n";
         cout << "=================================================================\n";
-        cout << "Task 1: Match Scheduling & Player Progression (Alfie)\n";
-        cout << "Task 2: Tournament Registration & Player Queueing (Hadi)\n";
-        cout << "Task 3: Live Stream & Spectator Queue Management (Stanlie)\n";
-        cout << "Task 4: Game Result Logging & Performance History (Badr)\n";
+        cout << "Task 1: Match Scheduling & Player Progression (Score-Based)\n";
+        cout << "Task 2: Tournament Registration & Player Queueing\n";
+        cout << "Task 3: Live Stream & Spectator Queue Management\n";
+        cout << "Task 4: Game Result Logging & Performance History\n";
         cout << "=================================================================\n";
+        cout << "NEW FEATURES:\n";
+        cout << "• Score-Based Match System (13 vs 0-12)\n";
+        cout << "• Realistic Game Results with Actual Scores\n";
+        cout << "• Enhanced CSV Export with Match Scores\n";
+        cout << "• Integrated Performance Tracking\n";
+        cout << "=================================================================\n\n";
         
         TournamentSystem tournament;
         tournament.runTournament();
@@ -340,12 +397,14 @@ int main() {
         cout << "\n=================================================================\n";
         cout << "               TOURNAMENT SYSTEM COMPLETED\n";
         cout << "=================================================================\n";
-        cout << "   TASK 4 CONTRIBUTIONS:\n";
+        cout << "   ENHANCED FEATURES:\n";
+        cout << "   • Score-Based Match Results (13 to win)\n";
         cout << "   • Stack-based Recent Results (LIFO access)\n";
         cout << "   • Queue-based Match History (FIFO chronological)\n";
-        cout << "   • Player Performance Tracking\n";
-        cout << "   • Team Statistics Analysis\n";
-        cout << "   • CSV Export for Tournament Analysis\n";
+        cout << "   • Player Performance Tracking with Win/Loss Records\n";
+        cout << "   • Team Statistics Analysis with Scores\n";
+        cout << "   • Enhanced CSV Export with Match Scores\n";
+        cout << "   • Realistic Tournament Simulation\n";
         cout << "=================================================================\n";
         
     } catch (const exception& e) {
@@ -354,6 +413,6 @@ int main() {
         return 1;
     }
     
-    cout << "\nThank you for using the Tournament Management System!\n";
+    cout << "\nThank you for using the Enhanced Tournament Management System!\n";
     return 0;
 }

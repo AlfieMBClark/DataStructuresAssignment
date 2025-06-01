@@ -46,7 +46,7 @@ struct MatchResultDetails {
     }
 };
 
-// Player Performance Statistics
+// Player Performance Statistics with Match History
 struct PlayerPerformanceStats {
     string playerID;
     string playerName;
@@ -58,13 +58,21 @@ struct PlayerPerformanceStats {
     int mvpCount;
     double winRate;
     double averageScore;
+    string matchHistory[50]; // Store match IDs for correlation
+    int matchHistoryCount;
     
     PlayerPerformanceStats() : matchesPlayed(0), matchesWon(0), matchesLost(0), 
-                              totalScore(0), mvpCount(0), winRate(0.0), averageScore(0.0) {}
+                              totalScore(0), mvpCount(0), winRate(0.0), averageScore(0.0), matchHistoryCount(0) {}
     
     PlayerPerformanceStats(string id, string name, string team)
         : playerID(id), playerName(name), teamID(team), matchesPlayed(0), matchesWon(0), 
-          matchesLost(0), totalScore(0), mvpCount(0), winRate(0.0), averageScore(0.0) {}
+          matchesLost(0), totalScore(0), mvpCount(0), winRate(0.0), averageScore(0.0), matchHistoryCount(0) {}
+    
+    void addMatchToHistory(const string& matchID) {
+        if (matchHistoryCount < 50) {
+            matchHistory[matchHistoryCount++] = matchID;
+        }
+    }
     
     void updateStats() {
         if (matchesPlayed > 0) {
@@ -73,11 +81,21 @@ struct PlayerPerformanceStats {
         }
     }
     
+    string getMatchHistoryString() {
+        string result = "";
+        for (int i = 0; i < matchHistoryCount; i++) {
+            if (i > 0) result += ";";
+            result += matchHistory[i];
+        }
+        return result;
+    }
+    
     string toString() {
         return playerID + "," + playerName + "," + teamID + "," + 
                to_string(matchesPlayed) + "," + to_string(matchesWon) + "," + 
                to_string(matchesLost) + "," + to_string(totalScore) + "," +
-               to_string(mvpCount) + "," + to_string(winRate) + "," + to_string(averageScore);
+               to_string(mvpCount) + "," + to_string(winRate) + "," + to_string(averageScore) + "," +
+               "\"" + getMatchHistoryString() + "\"";
     }
 };
 
@@ -91,13 +109,21 @@ struct TeamPerformanceStats {
     int totalScore;
     double winRate;
     double averageScore;
+    string matchHistory[50]; // Store match IDs for correlation
+    int matchHistoryCount;
     
     TeamPerformanceStats() : matchesPlayed(0), matchesWon(0), matchesLost(0), 
-                            totalScore(0), winRate(0.0), averageScore(0.0) {}
+                            totalScore(0), winRate(0.0), averageScore(0.0), matchHistoryCount(0) {}
     
     TeamPerformanceStats(string id, string name)
         : teamID(id), teamName(name), matchesPlayed(0), matchesWon(0), 
-          matchesLost(0), totalScore(0), winRate(0.0), averageScore(0.0) {}
+          matchesLost(0), totalScore(0), winRate(0.0), averageScore(0.0), matchHistoryCount(0) {}
+    
+    void addMatchToHistory(const string& matchID) {
+        if (matchHistoryCount < 50) {
+            matchHistory[matchHistoryCount++] = matchID;
+        }
+    }
     
     void updateStats() {
         if (matchesPlayed > 0) {
@@ -155,7 +181,7 @@ public:
         return -1;
     }
     
-    // Create or update player statistics
+    // Create or update player statistics with match correlation
     void updatePlayerStatistics(const MatchResultDetails& result, Queue<Player>* allPlayers) {
         // Get team rosters for this match
         DoublyNode<Player>* current = allPlayers->getHead();
@@ -172,6 +198,9 @@ public:
                     playerStats[playerCount] = PlayerPerformanceStats(player.playerID, player.name, player.teamID);
                     index = playerCount++;
                 }
+                
+                // Add match to player's history
+                playerStats[index].addMatchToHistory(result.matchID);
                 
                 // Update match count
                 playerStats[index].matchesPlayed++;
@@ -208,7 +237,7 @@ public:
         }
     }
     
-    // Update team statistics
+    // Update team statistics with match correlation
     void updateTeamStatistics(const MatchResultDetails& result, Queue<Team>* allTeams) {
         // Update team1 stats
         int team1Index = findTeamStats(result.team1ID);
@@ -226,6 +255,7 @@ public:
         }
         
         if (team1Index != -1) {
+            teamStats[team1Index].addMatchToHistory(result.matchID);
             teamStats[team1Index].matchesPlayed++;
             teamStats[team1Index].totalScore += result.team1Score;
             if (result.team1ID == result.winnerID) {
@@ -252,6 +282,7 @@ public:
         }
         
         if (team2Index != -1) {
+            teamStats[team2Index].addMatchToHistory(result.matchID);
             teamStats[team2Index].matchesPlayed++;
             teamStats[team2Index].totalScore += result.team2Score;
             if (result.team2ID == result.winnerID) {
@@ -439,7 +470,7 @@ public:
         cout << "==================================\n";
     }
     
-    // Export results to CSV
+    // Export results to CSV with match correlation
     void exportResultsToCSV() {
         // Export match results
         ofstream file("match_results.csv");
@@ -462,17 +493,17 @@ public:
             cout << "Match results exported to match_results.csv\n";
         }
         
-        // Export player stats
+        // Export player stats with match correlation
         ofstream playerFile("player_performance.csv");
         if (playerFile.is_open()) {
-            playerFile << "PlayerID,PlayerName,TeamID,MatchesPlayed,MatchesWon,MatchesLost,TotalScore,MVPCount,WinRate,AverageScore\n";
+            playerFile << "PlayerID,PlayerName,TeamID,MatchesPlayed,MatchesWon,MatchesLost,TotalScore,MVPCount,WinRate,AverageScore,MatchHistory\n";
             
             for (int i = 0; i < playerCount; i++) {
                 playerFile << playerStats[i].toString() << "\n";
             }
             
             playerFile.close();
-            cout << "Player performance exported to player_performance.csv\n";
+            cout << "Player performance with match correlation exported to player_performance.csv\n";
         }
     }
     

@@ -1,10 +1,10 @@
 #ifndef MATCH_SCHEDULER_H
 #define MATCH_SCHEDULER_H
 
-
 #include "DataStructs.h"
 #include "Entities.h"
 #include "TournamentGraph.h"
+#include "CSVHandler.h"
 #include <iostream>
 #include <algorithm>
 
@@ -22,9 +22,10 @@ private:
     TournamentTraversal* traversal;
     int matchCounter;
     int graphIndex;
+    bool csvInitialized;
 
 public:
-    MatchScheduler() : matchCounter(1), graphIndex(0) {
+    MatchScheduler() : matchCounter(1), graphIndex(0), csvInitialized(false) {
         pendingMatches = new Queue<Match>();
         knockoutBracket = new Stack<Match>();
         bracketGraph = new TournamentGraph();
@@ -38,6 +39,14 @@ public:
         delete traversal;
     }
     
+    // Initialize CSV file for match results
+    void initializeMatchCSV() {
+        if (!csvInitialized) {
+            CSVHandler::initializeMatchesCSV();
+            csvInitialized = true;
+        }
+    }
+    
     // Generate qualifier matches for teams
     void generateQualifierMatches(Queue<Team>* teams) {
         cout << "\n=== GENERATING TEAM QUALIFIER MATCHES ===\n";
@@ -46,6 +55,9 @@ public:
             cout << "No teams available for matches!\n";
             return;
         }
+        
+        // Initialize CSV file for match saving
+        initializeMatchCSV();
         
         // Create a temporary copy to preserve original queue
         Queue<Team> tempTeams;
@@ -84,11 +96,89 @@ public:
             teams->enqueue(byeTeam);
             cout << "Team " << byeTeam.teamName << " receives a bye to next round.\n";
         }
+        
+        cout << "Generated " << (matchCounter - 1) << " qualifier matches.\n";
     }
     
-    // Simulate matches with proper team lookup
+    // Generate random scores using 13 vs 0-12 system
+    void generateMatchScores(Match& match, int& score1, int& score2) {
+        // Pseudo-random generation using match properties
+        int randomSeed = (matchCounter * 7 + graphIndex * 3 + match.matchID.length() * 11) % 100;
+        
+        if (randomSeed % 2 == 0) {
+            // Team 1 wins with 13
+            score1 = 13;
+            score2 = randomSeed % 13; // 0-12
+        } else {
+            // Team 2 wins with 13
+            score1 = randomSeed % 13; // 0-12
+            score2 = 13;
+        }
+    }
+    
+    // Find team by ID in team queue
+    bool findTeam(Queue<Team>* allTeams, const string& teamID, Team& foundTeam) {
+        DoublyNode<Team>* current = allTeams->getHead();
+        while (current != nullptr) {
+            if (current->data.teamID == teamID) {
+                foundTeam = current->data;
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+    
+    // Simulate individual match with score-based system
+    bool simulateMatch(Match& match, Queue<Team>* allTeams, Team& winner, Team& loser) {
+        Team team1, team2;
+        
+        // Find both teams
+        if (!findTeam(allTeams, match.team1ID, team1) || 
+            !findTeam(allTeams, match.team2ID, team2)) {
+            cout << "Warning: Could not find teams for match " << match.matchID << "\n";
+            return false;
+        }
+        
+        // Generate scores using 13 vs 0-12 system
+        int score1, score2;
+        generateMatchScores(match, score1, score2);
+        
+        // Store scores in match
+        match.setScores(score1, score2);
+        
+        // Determine winner and loser
+        if (score1 > score2) {
+            winner = team1;
+            loser = team2;
+        } else {
+            winner = team2;
+            loser = team1;
+        }
+        
+        // Update match status
+        match.winnerID = winner.teamID;
+        match.status = "completed";
+        
+        // Update team statuses
+        winner.status = "qualified";
+        loser.status = "eliminated";
+        
+        // Display match result
+        cout << "Match " << match.matchID << " completed:\n";
+        cout << "  " << team1.teamName << " " << score1 << " - " << score2 << " " << team2.teamName << "\n";
+        cout << "  Winner: " << winner.teamName << " (Score: " << (score1 > score2 ? score1 : score2) << ")\n";
+        cout << "  Eliminated: " << loser.teamName << " (Score: " << (score1 > score2 ? score2 : score1) << ")\n";
+        
+        // Save match result immediately to CSV
+        CSVHandler::saveMatchResult(match);
+        
+        return true;
+    }
+    
+    // Simulate all pending matches with score-based system and immediate CSV saving
     Queue<Team>* simulateMatches(Queue<Team>* allTeams) {
-        cout << "\n=== SIMULATING TEAM MATCHES ===\n";
+        cout << "\n=== SIMULATING TEAM MATCHES WITH SCORE SYSTEM & IMMEDIATE SAVING ===\n";
         Queue<Team>* winners = new Queue<Team>();
 
         if (pendingMatches->isEmpty()) {
@@ -96,56 +186,24 @@ public:
             return winners;
         }
 
-        // Create lookup map for teams
-        Queue<Team> lookup;
-        DoublyNode<Team>* current = allTeams->getHead();
-        while (current != nullptr) {
-            lookup.enqueue(current->data);
-            current = current->next;
-        }
+        // Ensure CSV is initialized
+        initializeMatchCSV();
 
         Queue<Match> matchesToProcess;
+        int matchesSimulated = 0;
+        
+        // Process all pending matches
         while (!pendingMatches->isEmpty()) {
             Match match = pendingMatches->dequeue();
             match.status = "in-progress";
 
-            Team team1, team2;
-            bool found1 = false, found2 = false;
-
-            // Find teams in lookup
-            DoublyNode<Team>* lookupCurrent = lookup.getHead();
-            while (lookupCurrent != nullptr) {
-                if (lookupCurrent->data.teamID == match.team1ID) {
-                    team1 = lookupCurrent->data;
-                    found1 = true;
-                }
-                if (lookupCurrent->data.teamID == match.team2ID) {
-                    team2 = lookupCurrent->data;
-                    found2 = true;
-                }
-                lookupCurrent = lookupCurrent->next;
-            }
-
-            if (found1 && found2) {
-                double avg1 = team1.getAverageRanking();
-                double avg2 = team2.getAverageRanking();
-
-                Team winner = (avg1 < avg2) ? team1 : team2;
-                Team loser  = (avg1 < avg2) ? team2 : team1;
-
-                match.winnerID = winner.teamID;
-                match.status = "completed";
-
-                winner.status = "qualified";
-                loser.status = "eliminated";
-
+            Team winner, loser;
+            
+            // Simulate the match
+            if (simulateMatch(match, allTeams, winner, loser)) {
                 winners->enqueue(winner);
-
-                cout << "Match " << match.matchID << " completed:\n";
-                cout << "  Winner: " << winner.teamName << " (Avg Rank: " << avg1 << ")\n";
-                cout << "  Eliminated: " << loser.teamName << " (Avg Rank: " << avg2 << ")\n";
-            } else {
-                cout << "Warning: Could not find teams for match " << match.matchID << "\n";
+                matchesSimulated++;
+                cout << "\n";
             }
 
             matchesToProcess.enqueue(match);
@@ -155,31 +213,41 @@ public:
         while (!matchesToProcess.isEmpty()) {
             pendingMatches->enqueue(matchesToProcess.dequeue());
         }
+        
+        cout << "Simulation complete: " << matchesSimulated << " matches played, " 
+             << winners->size() << " teams advanced.\n";
 
         return winners;
     }
     
-    // Generate knockout bracket
-    void generateKnockoutBracket(Queue<Team>* qualifiedTeams) {
-        cout << "\n=== GENERATING TEAM KNOCKOUT BRACKET ===\n";
+    // Generate knockout bracket matches
+    void generateKnockoutMatches(Queue<Team>* qualifiedTeams, const string& stage = "knockout") {
+        cout << "\n=== GENERATING " << stage << " BRACKET MATCHES ===\n";
 
         if (qualifiedTeams->isEmpty()) {
-            cout << "No qualified teams for knockout bracket!\n";
+            cout << "No qualified teams for " << stage << " bracket!\n";
+            return;
+        }
+        
+        if (qualifiedTeams->size() < 2) {
+            cout << "Not enough teams for " << stage << " matches (need at least 2).\n";
             return;
         }
 
-        int prevMatchIndex = -1;
+        int prevMatchIndex = graphIndex > 0 ? graphIndex - 1 : -1;
+        int matchesGenerated = 0;
 
         while (qualifiedTeams->size() >= 2) {
             Team t1 = qualifiedTeams->dequeue();
             Team t2 = qualifiedTeams->dequeue();
 
             string matchID = "K" + to_string(matchCounter++);
-            Match match(matchID, t1.teamID, t2.teamID, "knockout", "knockout-round");
+            Match match(matchID, t1.teamID, t2.teamID, stage, stage + "-round");
             match.graphIndex = graphIndex;
 
             bracketGraph->setMatchName(graphIndex, matchID);
 
+            // Connect to previous matches in graph
             if (prevMatchIndex != -1) {
                 bracketGraph->addMatchConnection(prevMatchIndex, graphIndex, "leads-to");
             }
@@ -193,11 +261,66 @@ public:
 
             prevMatchIndex = graphIndex;
             graphIndex++;
+            matchesGenerated++;
         }
         
-        cout << "Knockout bracket generated with " << knockoutBracket->size() << " matches.\n";
+        // Handle remaining team (gets bye to next round)
+        if (!qualifiedTeams->isEmpty()) {
+            Team byeTeam = qualifiedTeams->dequeue();
+            cout << "Team " << byeTeam.teamName << " receives a bye to the next round.\n";
+            qualifiedTeams->enqueue(byeTeam); // Put back for next round
+        }
+        
+        cout << "Generated " << matchesGenerated << " " << stage << " matches.\n";
     }
     
+    // Simulate knockout matches specifically
+    Queue<Team>* simulateKnockoutMatches(Queue<Team>* allTeams) {
+        cout << "\n=== SIMULATING KNOCKOUT MATCHES ===\n";
+        Queue<Team>* winners = new Queue<Team>();
+        
+        if (knockoutBracket->isEmpty()) {
+            cout << "No knockout matches to simulate!\n";
+            return winners;
+        }
+        
+        Stack<Match> tempStack;
+        int matchesSimulated = 0;
+        
+        // Process knockout matches (LIFO - most recent first)
+        while (!knockoutBracket->isEmpty()) {
+            Match match = knockoutBracket->pop();
+            match.status = "in-progress";
+            
+            Team winner, loser;
+            
+            // Simulate the knockout match
+            if (simulateMatch(match, allTeams, winner, loser)) {
+                winners->enqueue(winner);
+                matchesSimulated++;
+                cout << "\n";
+            }
+            
+            tempStack.push(match);
+        }
+        
+        // Restore knockout bracket
+        while (!tempStack.isEmpty()) {
+            knockoutBracket->push(tempStack.pop());
+        }
+        
+        cout << "Knockout simulation complete: " << matchesSimulated << " matches played, " 
+             << winners->size() << " teams advanced.\n";
+        
+        return winners;
+    }
+    
+    // Main method to generate knockout bracket
+    void generateKnockoutBracket(Queue<Team>* qualifiedTeams) {
+        generateKnockoutMatches(qualifiedTeams, "knockout");
+    }
+    
+    // Display tournament bracket structure and traversal
     void displayBracketTraversal() {
         if (bracketGraph->numMatches > 0) {
             cout << "\n=== TOURNAMENT BRACKET TRAVERSAL ===\n";
@@ -211,15 +334,87 @@ public:
         }
     }
     
+    // Get all matches (pending + completed)
     Queue<Match>* getAllMatches() {
         return pendingMatches;
     }
     
+    // Get knockout bracket matches
+    Stack<Match>* getKnockoutBracket() {
+        return knockoutBracket;
+    }
+    
+    // Display comprehensive bracket status
     void displayBracketStatus() {
-        cout << "\n=== BRACKET STATUS ===\n";
+        cout << "\n=== COMPREHENSIVE BRACKET STATUS ===\n";
         cout << "Pending matches: " << pendingMatches->size() << "\n";
         cout << "Knockout bracket size: " << knockoutBracket->size() << "\n";
         cout << "Graph matches: " << bracketGraph->numMatches << "\n";
+        cout << "Next match counter: " << matchCounter << "\n";
+        cout << "Current graph index: " << graphIndex << "\n";
+        cout << "CSV initialized: " << (csvInitialized ? "Yes" : "No") << "\n";
+        
+        // Count completed matches
+        int completedMatches = 0;
+        DoublyNode<Match>* current = pendingMatches->getHead();
+        while (current != nullptr) {
+            if (current->data.status == "completed") {
+                completedMatches++;
+            }
+            current = current->next;
+        }
+        cout << "Completed matches: " << completedMatches << "\n";
+        cout << "=======================================\n";
+    }
+    
+    // Reset tournament for new tournament
+    void resetTournament() {
+        // Clear all data structures
+        while (!pendingMatches->isEmpty()) {
+            pendingMatches->dequeue();
+        }
+        while (!knockoutBracket->isEmpty()) {
+            knockoutBracket->pop();
+        }
+        
+        // Reset counters
+        matchCounter = 1;
+        graphIndex = 0;
+        csvInitialized = false;
+        
+        // Reset graph
+        delete bracketGraph;
+        delete traversal;
+        bracketGraph = new TournamentGraph();
+        traversal = new TournamentTraversal(bracketGraph);
+        
+        cout << "Tournament scheduler reset successfully.\n";
+    }
+    
+    // Get tournament statistics
+    void displayTournamentStats() {
+        cout << "\n=== TOURNAMENT STATISTICS ===\n";
+        
+        // Analyze pending matches
+        int qualifierMatches = 0, knockoutMatches = 0, completedMatches = 0;
+        DoublyNode<Match>* current = pendingMatches->getHead();
+        
+        while (current != nullptr) {
+            if (current->data.stage == "qualifier") qualifierMatches++;
+            else if (current->data.stage == "knockout") knockoutMatches++;
+            
+            if (current->data.status == "completed") completedMatches++;
+            current = current->next;
+        }
+        
+        cout << "Qualifier matches: " << qualifierMatches << "\n";
+        cout << "Knockout matches: " << knockoutMatches << "\n";
+        cout << "Total matches generated: " << (matchCounter - 1) << "\n";
+        cout << "Matches completed: " << completedMatches << "\n";
+        cout << "Matches pending: " << (qualifierMatches + knockoutMatches - completedMatches) << "\n";
+        cout << "Tournament progression: " << 
+                (completedMatches * 100.0 / (qualifierMatches + knockoutMatches)) << "%\n";
+        cout << "===============================\n";
     }
 };
 
