@@ -11,10 +11,6 @@ const int MAX_NODES = 100;
 const int MAX_PLAYERS = 64;
 const int MAX_TEAM_SIZE = 5;
 
-// ===============================
-// DOUBLY LINKED LIST NODE
-// ===============================
-
 template<typename T>
 struct DoublyNode {
     T data;
@@ -24,10 +20,7 @@ struct DoublyNode {
     DoublyNode(T value) : data(value), next(nullptr), prev(nullptr) {}
 };
 
-// ===============================
-// QUEUE IMPLEMENTATION
-// ===============================
-
+// ===== FIXED QUEUE WITH COPY SUPPORT =====
 template<typename T>
 class Queue {
 private:
@@ -36,10 +29,31 @@ private:
     int count;
 
 public:
-    Queue() {
-        queueFront = nullptr;
-        queueRear = nullptr;
-        count = 0;
+    Queue() : queueFront(nullptr), queueRear(nullptr), count(0) {}
+    
+    // Copy constructor (REQUIRED FOR ASSIGNMENT COMPLIANCE)
+    Queue(const Queue& other) : queueFront(nullptr), queueRear(nullptr), count(0) {
+        DoublyNode<T>* current = other.queueFront;
+        while (current != nullptr) {
+            enqueue(current->data);
+            current = current->next;
+        }
+    }
+    
+    // Assignment operator (REQUIRED FOR ASSIGNMENT COMPLIANCE)
+    Queue& operator=(const Queue& other) {
+        if (this != &other) {
+            while (!isEmpty()) {
+                dequeue();
+            }
+            
+            DoublyNode<T>* current = other.queueFront;
+            while (current != nullptr) {
+                enqueue(current->data);
+                current = current->next;
+            }
+        }
+        return *this;
     }
     
     ~Queue() {
@@ -84,37 +98,20 @@ public:
         return tempInfo;
     }
     
-    bool isEmpty() {
-        return (queueFront == nullptr);
-    }
-    
-    int size() {
-        return count;
-    }
-    
-    T front() {
-        if (isEmpty()) {
-            throw runtime_error("Queue is empty");
-        }
+    bool isEmpty() const { return (queueFront == nullptr); }
+    int size() const { return count; }
+    T front() const {
+        if (isEmpty()) throw runtime_error("Queue is empty");
         return queueFront->data;
     }
-    
-    T rear() {
-        if (isEmpty()) {
-            throw runtime_error("Queue is empty");
-        }
+    T rear() const {
+        if (isEmpty()) throw runtime_error("Queue is empty");
         return queueRear->data;
     }
-    
-    DoublyNode<T>* getHead() {
-        return queueFront;
-    }
+    DoublyNode<T>* getHead() const { return queueFront; }
 };
 
-// ===============================
-// STACK IMPLEMENTATION
-// ===============================
-
+// ===== FIXED STACK WITH COPY SUPPORT =====
 template<typename T>
 class Stack {
 private:
@@ -122,9 +119,41 @@ private:
     int count;
 
 public:
-    Stack() { 
-        this->head = nullptr; 
-        this->count = 0;
+    Stack() : head(nullptr), count(0) {}
+    
+    // Copy constructor (REQUIRED)
+    Stack(const Stack& other) : head(nullptr), count(0) {
+        Stack<T> temp;
+        DoublyNode<T>* current = other.head;
+        while (current != nullptr) {
+            temp.push(current->data);
+            current = current->next;
+        }
+        
+        while (!temp.isEmpty()) {
+            push(temp.pop());
+        }
+    }
+    
+    // Assignment operator (REQUIRED)
+    Stack& operator=(const Stack& other) {
+        if (this != &other) {
+            while (!isEmpty()) {
+                pop();
+            }
+            
+            Stack<T> temp;
+            DoublyNode<T>* current = other.head;
+            while (current != nullptr) {
+                temp.push(current->data);
+                current = current->next;
+            }
+            
+            while (!temp.isEmpty()) {
+                push(temp.pop());
+            }
+        }
+        return *this;
     }
     
     ~Stack() {
@@ -133,16 +162,10 @@ public:
         }
     }
     
-    bool isEmpty() {
-        return head == nullptr;
-    }
+    bool isEmpty() const { return head == nullptr; }
     
     void push(T new_data) {
         DoublyNode<T>* new_node = new DoublyNode<T>(new_data);
-        if (!new_node) {
-            cout << "\nStack Overflow";
-            return;
-        }
         new_node->next = head;
         if (head != nullptr) {
             head->prev = new_node;
@@ -152,38 +175,29 @@ public:
     }
     
     T pop() {
-        if (this->isEmpty()) {
+        if (isEmpty()) {
             throw runtime_error("Stack Underflow");
-        } else {
-            DoublyNode<T>* temp = head;
-            T data = head->data;
-            head = head->next;
-            if (head != nullptr) {
-                head->prev = nullptr;
-            }
-            delete temp;
-            count--;
-            return data;
         }
+        DoublyNode<T>* temp = head;
+        T data = head->data;
+        head = head->next;
+        if (head != nullptr) {
+            head->prev = nullptr;
+        }
+        delete temp;
+        count--;
+        return data;
     }
     
-    T peek() {
-        if (!isEmpty())
-            return head->data;
-        else {
-            throw runtime_error("Stack is empty");
-        }
+    T peek() const {
+        if (!isEmpty()) return head->data;
+        throw runtime_error("Stack is empty");
     }
     
-    int size() {
-        return count;
-    }
+    int size() const { return count; }
 };
 
-// ===============================
-// PRIORITY QUEUE IMPLEMENTATION
-// ===============================
-
+// ===== PRIORITY QUEUE REMAINS THE SAME =====
 template<typename T>
 class PriorityQueue {
 private:
@@ -191,7 +205,6 @@ private:
         T data;
         int priority;
         Node* next;
-        
         Node(const T& d, int p) : data(d), priority(p), next(nullptr) {}
     };
     
@@ -243,20 +256,15 @@ public:
         return result;
     }
     
-    T peek() {
+    T peek() const {
         if (!head) {
             throw runtime_error("Priority Queue is empty!");
         }
         return head->data;
     }
     
-    bool isEmpty() { 
-        return head == nullptr; 
-    }
-    
-    int size() {
-        return count;
-    }
+    bool isEmpty() const { return head == nullptr; }
+    int size() const { return count; }
 };
 
-#endif // DATASTRUCTURES_H
+#endif 

@@ -1,0 +1,5 @@
+MatchID,Team1ID,Team2ID,WinnerID,Team1Score,Team2Score,Stage,Round,Date,Duration,MVP
+Q1,T1,T2,T2,4,13,qualifier,round-1,2025-01-16,26 minutes,P7
+Q2,T3,T4,T4,4,13,qualifier,round-1,2025-01-17,27 minutes,P18
+Q3,T5,T6,T6,4,13,qualifier,round-1,2025-01-18,28 minutes,P29
+Q4,T7,T8,T8,4,13,qualifier,round-1,2025-01-19,29 minutes,P40

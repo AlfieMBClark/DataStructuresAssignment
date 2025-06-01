@@ -3,3 +3,12 @@ Q1,T1,T2,qualifier,completed,T2,round-1,4,13
 Q2,T3,T4,qualifier,completed,T4,round-1,4,13
 Q3,T5,T6,qualifier,completed,T6,round-1,4,13
 Q4,T7,T8,qualifier,completed,T8,round-1,4,13
+K6,T6,T8,knockout,completed,T8,knockout-round,11,13
+K5,T2,T4,knockout,completed,T4,knockout-round,11,13
+K7,T8,T4,knockout,completed,T4,knockout-round,8,13
+K6,T6,T8,knockout,completed,T8,knockout-round,8,13
+K5,T2,T4,knockout,completed,T4,knockout-round,8,13
+K8,T4,T8,knockout,completed,T8,knockout-round,9,13
+K7,T8,T4,knockout,completed,T4,knockout-round,9,13
+K6,T6,T8,knockout,completed,T8,knockout-round,9,13
+K5,T2,T4,knockout,completed,T4,knockout-round,9,13
