@@ -293,7 +293,7 @@ public:
             }
             
             // TASK 4 - SIMULATE AND LOG DETAILED RESULTS
-            cout << "\n=== ADVANCED RESULT LOGGING (YOUR TASK 4) ===\n";
+            cout << "\n=== ADVANCED RESULT LOGGING ===\n";
             simulateAndLogMatches(teamQueue);
             
             // Display the results using Task 4 system
