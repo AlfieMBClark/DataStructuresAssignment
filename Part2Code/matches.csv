@@ -1,5 +1,5 @@
 MatchID,Team1ID,Team2ID,Stage,Status,WinnerID,Round,Team1Score,Team2Score
-Q1,T1,T2,qualifier,completed,T2,round-1,4,13
-Q2,T3,T4,qualifier,completed,T4,round-1,4,13
-Q3,T5,T6,qualifier,completed,T6,round-1,4,13
-Q4,T7,T8,qualifier,completed,T8,round-1,4,13
+Q1,T1,T2,qualifier,completed,T2,round-1,8,13
+Q2,T3,T4,qualifier,completed,T4,round-1,3,13
+Q3,T5,T6,qualifier,completed,T6,round-1,1,13
+Q4,T7,T8,qualifier,completed,T8,round-1,9,13
