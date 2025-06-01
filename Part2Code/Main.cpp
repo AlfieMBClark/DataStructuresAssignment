@@ -469,12 +469,12 @@ public:
         
         cout << " All data exported successfully!\n";
         cout << "Files created:\n";
-        cout << "  • players.csv\n";
-        cout << "  • matches.csv\n";
-        cout << "  • teams.csv\n";
-        cout << "  • match_summary.csv\n";
-        cout << "  • match_results.csv\n";
-        cout << "  • player_performance.csv\n";
+        cout << "  players.csv\n";
+        cout << "  matches.csv\n";
+        cout << "  teams.csv\n";
+        cout << "  match_summary.csv\n";
+        cout << "  match_results.csv\n";
+        cout << "  player_performance.csv\n";
     }
     
     // Create teams from players grouped by teamID
@@ -603,7 +603,7 @@ public:
             cout << "Status: " << (tournamentInitialized ? "✅ Initialized" : " Not Initialized") << "\n";
             cout << "Teams: " << (teamQueue ? to_string(teamQueue->size()) : "0") << "\n";
             cout << "================================================================\n";
-            cout << "0. Initialize Tournament (Run this first!)\n";
+            cout << "0. Initialize Tournament\n";
             cout << "1. TASK 1: Match Scheduling & Player Progression\n";
             cout << "2. TASK 2: Tournament Registration & Player Queueing\n";
             cout << "3. TASK 3: Live Stream & Spectator Queue Management\n";
@@ -745,7 +745,7 @@ public:
         if (currentRound != qualifierWinners) delete currentRound;
         delete qualifierWinners;
         
-        cout << "\n✅ TOURNAMENT COMPLETED SUCCESSFULLY! ✅\n";
+        cout << "\n TOURNAMENT COMPLETED SUCCESSFULLY! \n";
     }
 };
 
@@ -761,7 +761,7 @@ int main() {
         tournament.showMainMenu();
         
     } catch (const exception& e) {
-        cout << "\n❌ ERROR OCCURRED ❌\n";
+        cout << "\n ERROR OCCURRED \n";
         cout << "Error: " << e.what() << endl;
         return 1;
     }
