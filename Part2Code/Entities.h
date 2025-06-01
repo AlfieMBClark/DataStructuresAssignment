@@ -1,3 +1,4 @@
+// ===== FIXED ENTITIES.H =====
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
@@ -36,7 +37,8 @@ public:
     
     string toString() {
         return playerID + "," + name + "," + to_string(ranking) + "," + 
-               registrationType + "," + (checkedIn ? "true" : "false") + "," + university + "," + status;
+               registrationType + "," + (checkedIn ? "true" : "false") + "," + 
+               university + "," + teamID + "," + status;
     }
 };
 
@@ -99,7 +101,7 @@ public:
 };
 
 // ===============================
-// MATCH CLASS
+// MATCH CLASS 
 // ===============================
 
 class Match {
@@ -112,17 +114,27 @@ public:
     string winnerID;
     string round;
     int graphIndex;
+    int team1Score;  // Added missing score fields
+    int team2Score;  // Added missing score fields
 
-    Match() : graphIndex(-1) {}
+    Match() : graphIndex(-1), team1Score(0), team2Score(0) {}
 
     Match(string id, string t1, string t2, string stg, string rnd = "round-1")
         : matchID(id), team1ID(t1), team2ID(t2), stage(stg), status("pending"), 
-          round(rnd), graphIndex(-1) {}
+          round(rnd), graphIndex(-1), team1Score(0), team2Score(0) {}
+
+    // Added missing setScores method
+    void setScores(int score1, int score2) {
+        team1Score = score1;
+        team2Score = score2;
+    }
 
     string toString() {
         return matchID + "," + team1ID + "," + team2ID + "," + stage + "," + 
-               status + "," + winnerID + "," + round;
+               status + "," + winnerID + "," + round + "," + 
+               to_string(team1Score) + "," + to_string(team2Score);
     }
 };
 
 #endif // ENTITIES_H
+
