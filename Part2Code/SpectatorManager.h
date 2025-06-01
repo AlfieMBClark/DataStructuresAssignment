@@ -26,38 +26,106 @@ public:
     }
     // Method 1: Simulate viewer activity for demo purposes
 void simulateViewerActivity() {
-    cout << "\n=== Simulating Viewer Activity ===" << endl;
-    
-    // Create a temporary vector to hold and update slots
-    vector<StreamingSlot> tempSlots;
-    
-    // Extract all slots from circular queue
-    while (!streamingSlots.isEmpty()) {
-        tempSlots.push_back(streamingSlots.dequeue());
-    }
-    
-    // Update viewer counts for active slots
-    for (auto& slot : tempSlots) {
-        if (slot.getIsActive()) {
-            // Simulate realistic viewer counts based on platform
-            int viewerCount = 0;
-            if (slot.getPlatform() == "YouTube") {
-                viewerCount = 2000 + (rand() % 1000); // 2000-3000 viewers
-            } else if (slot.getPlatform() == "Twitch") {
-                viewerCount = 1500 + (rand() % 800);  // 1500-2300 viewers
-            } else if (slot.getPlatform() == "Facebook") {
-                viewerCount = 800 + (rand() % 600);   // 800-1400 viewers
-            }
-            
-            slot.setCurrentViewers(viewerCount);
-            cout << "Updated " << slot.getPlatform() << " stream: " 
-                 << viewerCount << " viewers" << endl;
+        cout << "\n=== Simulating Viewer Activity ===" << endl;
+
+        // === 1) STREAMING ACTIVITY UPDATE ===
+        // We'll pull every slot out of the circular queue, update its viewer count if it's active,
+        // then push it back in the same order.
+        vector<StreamingSlot> tempSlots;
+        while (!streamingSlots.isEmpty()) {
+            tempSlots.push_back(streamingSlots.dequeue());
         }
-        
-        // Put slot back in circular queue
-        streamingSlots.enqueue(slot);
+
+        for (auto &slot : tempSlots) {
+            if (slot.getIsActive()) {
+                int viewerCount = 0;
+                if (slot.getPlatform() == "YouTube") {
+                    viewerCount = 2000 + (rand() % 1000);  // 2000–2999 viewers
+                } else if (slot.getPlatform() == "Twitch") {
+                    viewerCount = 1500 + (rand() % 800);   // 1500–2299 viewers
+                } else if (slot.getPlatform() == "Facebook") {
+                    viewerCount =  800 + (rand() % 600);   //  800–1399 viewers
+                }
+                slot.setCurrentViewers(viewerCount);
+                cout << "Updated " << slot.getPlatform()
+                     << " stream: " << viewerCount << " viewers" << endl;
+            }
+            // Re‐enqueue back into the circular queue
+            streamingSlots.enqueue(slot);
+        }
+
+        // === 2) SPECTATOR DEPARTURE SIMULATION ===
+        cout << "\n--- Spectator Movement ---" << endl;
+
+        // Decide how many spectators leave randomly (up to 3 each time)
+        if (currentOccupancy > 0) {
+            int departures = rand() % 4; 
+            if (departures > currentOccupancy) {
+                departures = currentOccupancy;
+            }
+
+            // Free up that many seats
+            if (departures > 0) {
+                currentOccupancy -= departures;
+                // Return those seat labels to availableSeats
+                for (int i = 0; i < departures; i++) {
+                    // (In a real system, you’d track exactly which seats freed;
+                    // here we’ll just push back “dummy” labels to keep size in sync.)
+                    // If you want to keep track of exact seat numbers, you'd need a map
+                    // from seatNumber->Spectator and pull from there. For this demo,
+                    // we assume availableSeats was a stack of unused seat IDs,
+                    // so “departures” new seats appear at the top.
+                    availableSeats.push_back("FreedSeat"); 
+                      // ← Replace "FreedSeat" logic with actual seat tracking if needed
+                }
+
+                cout << departures << " spectator(s) left the venue." << endl;
+                cout << "Seats freed up: " << departures << endl;
+            } else {
+                cout << "No spectators left during this simulation." << endl;
+            }
+
+            // As soon as seats free up, automatically seat any waiting spectators:
+            if (departures > 0 && (!spectatorQueue.isEmpty() || !overflowQueue.isEmpty())) {
+                cout << "\n--- Auto‐processing waiting spectators ---" << endl;
+                int processed = 0;
+
+                // First, seat from the priority queue (VIPs, Influencers, etc.)
+                while (!spectatorQueue.isEmpty() && currentOccupancy < totalCapacity) {
+                    Spectator vip = spectatorQueue.dequeue();
+                    // Assign a newly freed seat:
+                    string assignedSeat = availableSeats.back();
+                    availableSeats.pop_back();
+                    vip.setSeatNumber(assignedSeat);
+                    vip.setCheckedIn(true);
+                    currentOccupancy++;
+                    processed++;
+                    cout << "VIP/Influencer " << vip.getName() 
+                         << " got a seat (" << assignedSeat << ")!" << endl;
+                }
+
+                // Then, seat from the overflow queue (General spectators in FIFO order)
+                while (!overflowQueue.isEmpty() && currentOccupancy < totalCapacity) {
+                    Spectator s = overflowQueue.dequeue();
+                    string assignedSeat = availableSeats.back();
+                    availableSeats.pop_back();
+                    s.setSeatNumber(assignedSeat);
+                    s.setCheckedIn(true);
+                    currentOccupancy++;
+                    processed++;
+                    cout << "Overflow spectator " << s.getName() 
+                         << " got a seat (" << assignedSeat << ")!" << endl;
+                }
+
+                if (processed > 0) {
+                    cout << "Total spectators seated from waiting lists: " 
+                         << processed << endl;
+                }
+            }
+        }
+
+        cout << "\nViewer activity simulation complete!" << endl;
     }
-}
 
 // Method 2: Add viewers to specific platform
 void addViewersToStream(const string& platform, int numViewers) {

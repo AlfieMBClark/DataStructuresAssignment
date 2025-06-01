@@ -530,7 +530,7 @@ void executeTask3() {
     cout << "   TASK 3: LIVE STREAM & SPECTATOR QUEUE MANAGEMENT\n";
     cout << "========================================\n";
 
-    SpectatorManager manager(500);  // Set Capacity
+    SpectatorManager manager(10);  // Set Capacity
     
     // Initialize with some sample data for better demo
     loadSampleSpectators(manager);
@@ -655,22 +655,29 @@ void loadSampleSpectators(SpectatorManager& manager) {
     cout << "\n=== Loading Sample Spectators for Demo ===\n";
     
     // Create sample spectators
-    Spectator vip1("VIP001", "Alice VIP", "alice@email.com", "VIP");
-    Spectator vip2("VIP002", "Eve VIP", "eve@email.com", "VIP");
-    Spectator inf1("INF001", "Cara Influencer", "cara@email.com", "Influencer");
-    Spectator inf2("INF002", "Frank Influencer", "frank@email.com", "Influencer");
-    Spectator gen1("GEN001", "Bob General", "bob@email.com", "General");
-    Spectator gen2("GEN002", "Dave Streamer", "dave@email.com", "General");
-    Spectator gen3("GEN003", "Grace General", "grace@email.com", "General");
+    Spectator vip1("VIP001", "Alice", "alice@email.com", "VIP");
+    Spectator vip3("VIP003", "Leclerc", "alice@email.com", "VIP");
+    Spectator vip2("VIP002", "Eve", "eve@email.com", "VIP");
+    Spectator inf1("INF001", "Cara", "cara@email.com", "Influencer");
+    Spectator inf2("INF002", "Frank", "frank@email.com", "Influencer");
+    Spectator gen1("GEN001", "Bob", "bob@email.com", "General");
+    Spectator gen2("GEN002", "Dave", "dave@email.com", "General");
+    Spectator gen3("GEN003", "Grace", "grace@email.com", "General");
+    Spectator gen4("GEN004", "Lewis", "lewis@email.com", "General");
+    Spectator gen5("GEN005", "Max", "max@email.com", "General");
     
     // Register them
     manager.registerSpectator(vip1);
     manager.registerSpectator(gen1);  // Mix order to show priority works
     manager.registerSpectator(inf1);
     manager.registerSpectator(vip2);
+    manager.registerSpectator(vip3);
     manager.registerSpectator(gen2);
     manager.registerSpectator(inf2);
     manager.registerSpectator(gen3);
+    manager.registerSpectator(gen4);
+    manager.registerSpectator(gen5);
+
     
     cout << "Sample spectators loaded successfully!\n";
 }
