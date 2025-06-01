@@ -17,22 +17,22 @@ class TournamentSystem {
 private:
     RegistrationManager* regManager;
     MatchScheduler* matchScheduler;
-    GameResultLogger* resultLogger;  // TASK 4 COMPONENT
+    GameResultLogger* resultLogger;  // YOUR TASK 4 COMPONENT
 
 public:
     TournamentSystem() {
         regManager = new RegistrationManager(40);
         matchScheduler = new MatchScheduler();
-        resultLogger = new GameResultLogger();  // Initialize Task 4
+        resultLogger = new GameResultLogger();  // Initialize your Task 4
     }
     
     ~TournamentSystem() {
         delete regManager;
         delete matchScheduler;
-        delete resultLogger;  // Clean up for my Task4
+        delete resultLogger;  // Clean up your Task 4
     }
     
-    // Simulate match results with detailed logging (TASK 4 FUNCTIONALITY)
+    // Simulate match results with detailed logging (YOUR TASK 4 FUNCTIONALITY)
     void simulateAndLogMatches(Queue<Team>* allTeams) {
         cout << "\n=== SIMULATING MATCHES WITH DETAILED RESULT LOGGING ===\n";
         
@@ -54,7 +54,7 @@ public:
             int score1 = 15 + (rand() % 16);  // Random score between 15-30
             int score2 = 10 + (rand() % 16);  // Random score between 10-25
             
-            // Determine winner based on team strength 
+            // Determine winner based on team strength (existing logic)
             Team team1, team2;
             bool found1 = false, found2 = false;
             
@@ -97,7 +97,7 @@ public:
                      (match.winnerID == "T6") ? 25 : 
                      (match.winnerID == "T7") ? 30 : 35));
                 
-                // Use TASK 4 to log the detailed result
+                // Use YOUR TASK 4 to log the detailed result
                 resultLogger->logMatchResult(match, score1, score2, date, duration, mvpPlayerID, 
                                            regManager->getCheckedInPlayers(), allTeams);
                 
@@ -165,7 +165,7 @@ public:
         } while (choice != 7);
     }
     
-    // Create teams from players grouped by teamID
+    // Create teams from players grouped by teamID (existing function)
     Queue<Team>* createTeamsFromPlayers(Queue<Player>* players) {
         cout << "\n=== CREATING TEAMS FROM PLAYERS (GROUPED BY TEAM ID) ===\n";
         
@@ -268,7 +268,7 @@ public:
             Player("P020", "Tina Lim", 29, "regular", "MMU", "T4")
         };
         
-        // Register players 
+        // Register players (using friend's Task 2 system)
         cout << "=== PLAYER REGISTRATION (TASK 2) ===\n";
         for (int i = 0; i < 20; i++) {
             regManager->registerPlayer(players[i]);
@@ -282,7 +282,7 @@ public:
         Queue<Team>* teamQueue = createTeamsFromPlayers(checkedInPlayers);
         
         if (teamQueue->size() >= 2) {
-            // Generate matches 
+            // Generate matches (using friend's Task 1 system)
             cout << "\n=== MATCH SCHEDULING (TASK 1) ===\n";
             matchScheduler->generateQualifierMatches(teamQueue);
             
@@ -296,7 +296,7 @@ public:
             cout << "\n=== ADVANCED RESULT LOGGING (YOUR TASK 4) ===\n";
             simulateAndLogMatches(teamQueue);
             
-            // Display the results
+            // Display the results using your Task 4 system
             cout << "\n=== TASK 4 DEMONSTRATION ===\n";
             resultLogger->displayRecentResults(3);
             resultLogger->displayPlayerStats();
