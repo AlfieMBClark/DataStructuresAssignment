@@ -328,10 +328,10 @@ int main() {
         cout << "    ASIA PACIFIC UNIVERSITY ESPORTS CHAMPIONSHIP SYSTEM\n";
         cout << "    FEATURING ALL 4 TASKS WITH ADVANCED DATA STRUCTURES\n";
         cout << "=================================================================\n";
-        cout << "Task 1: Match Scheduling & Player Progression (Friend 1)\n";
-        cout << "Task 2: Tournament Registration & Player Queueing (Friend 2)\n";
-        cout << "Task 3: Live Stream & Spectator Queue Management (Not implemented)\n";
-        cout << "Task 4: Game Result Logging & Performance History (YOUR TASK)\n";
+        cout << "Task 1: Match Scheduling & Player Progression (Alfie)\n";
+        cout << "Task 2: Tournament Registration & Player Queueing (Hadi)\n";
+        cout << "Task 3: Live Stream & Spectator Queue Management (Stanlie)\n";
+        cout << "Task 4: Game Result Logging & Performance History (Badr)\n";
         cout << "=================================================================\n";
         
         TournamentSystem tournament;
