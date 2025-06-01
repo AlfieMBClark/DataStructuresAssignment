@@ -5,6 +5,7 @@
 #include "DataStructs.h"
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -133,6 +134,269 @@ public:
         return matchID + "," + team1ID + "," + team2ID + "," + stage + "," + 
                status + "," + winnerID + "," + round + "," + 
                to_string(team1Score) + "," + to_string(team2Score);
+    }
+};
+
+// ===============================
+// SPECTATOR CLASS
+// ===============================
+
+class Spectator {
+private:
+    string spectatorID;
+    string name;
+    string email;
+    string spectatorType;  // "VIP", "Influencer", "General"
+    int    priority;       // Higher number → higher priority
+    string seatNumber;
+    bool   checkedIn;
+    string university;
+    string ticketType;
+
+public:
+    // Default constructor
+    Spectator()
+      : spectatorID(""),
+        name(""),
+        email(""),
+        spectatorType("General"),
+        priority(1),
+        seatNumber(""),
+        checkedIn(false),
+        university(""),
+        ticketType("standard")
+    {}
+
+    // Parameterized constructor
+    Spectator(const string& id,
+              const string& spectatorName,
+              const string& mail,
+              const string& type,
+              const string& uni = "")
+      : spectatorID(id),
+        name(spectatorName),
+        email(mail),
+        spectatorType(type),
+        priority(1),          // will be overwritten by setPriorityByType()
+        seatNumber(""),
+        checkedIn(false),
+        university(uni),
+        ticketType("standard")
+    {
+        setPriorityByType();
+    }
+
+    // ——— GETTERS ———
+    int    getPriority()      const { return priority;       }
+    string getName()          const { return name;           }
+    string getEmail()         const { return email;          }
+    string getSpectatorType() const { return spectatorType;  }
+    string getSeatNumber()    const { return seatNumber;     }
+    bool   isCheckedIn()      const { return checkedIn;      }
+    string getSpectatorID()   const { return spectatorID;    }
+    string getUniversity()    const { return university;     }
+    string getTicketType()    const { return ticketType;     }
+
+    // ——— SETTERS ———
+    void setSeatNumber(const string& seat) { seatNumber   = seat;      }
+    void setCheckedIn(bool status)         { checkedIn    = status;    }
+    void setTicketType(const string& t)    { ticketType   = t;         }
+    void setUniversity(const string& u)    { university   = u;         }
+
+    // Fill 'priority' based on spectatorType
+    void setPriorityByType() {
+        if      (spectatorType == "VIP")        priority = 3;
+        else if (spectatorType == "Influencer") priority = 2;
+        else                                    priority = 1; // General
+    }
+
+    // Convert all fields into a CSV line (useful if you later write to a .csv file)
+    string toString() const {
+        return spectatorID    + "," +
+               name           + "," +
+               email          + "," +
+               spectatorType  + "," +
+               to_string(priority)  + "," +
+               (seatNumber.empty() ? "none" : seatNumber) + "," +
+               (checkedIn ? "true" : "false") + "," +
+               (university.empty() ? "none" : university) + "," +
+               ticketType;
+    }
+
+    // Print a human‐readable summary to stdout
+    void displaySpectator() const {
+        cout << "ID: " << spectatorID
+             << " | Name: " << name
+             << " | Type: " << spectatorType
+             << " | Priority: " << priority;
+        if (!seatNumber.empty()) {
+            cout << " | Seat: " << seatNumber;
+        }
+        cout << " | Checked In: " << (checkedIn ? "Yes" : "No");
+        if (!university.empty()) {
+            cout << " | Univ: " << university;
+        }
+        cout << " | Ticket: " << ticketType << "\n";
+    }
+};
+
+// ===============================
+// STREAMING SLOT CLASS
+// ===============================
+
+class StreamingSlot {
+private:
+    string slotID;
+    string streamerName;
+    string platform;        // e.g. "Twitch", "YouTube", "Facebook"
+    int    viewerCapacity;
+    int    currentViewers;
+    bool   isActive;
+    string streamKey;
+    string status;
+    string assignedMatch;
+
+public:
+    // Default constructor
+    StreamingSlot()
+      : slotID(""),
+        streamerName(""),
+        platform(""),
+        viewerCapacity(1000),
+        currentViewers(0),
+        isActive(false),
+        streamKey(""),
+        status("inactive"),
+        assignedMatch("")
+    {}
+
+    // Parameterized constructor
+    StreamingSlot(const string& id,
+                  const string& streamer,
+                  const string& plat,
+                  int capacity)
+      : slotID(id),
+        streamerName(streamer),
+        platform(plat),
+        viewerCapacity(capacity),
+        currentViewers(0),
+        isActive(false),
+        streamKey(""),
+        status("inactive"),
+        assignedMatch("")
+    {}
+
+    // ——— GETTERS ———
+    string getSlotID()       const { return slotID; }
+    string getStreamerName() const { return streamerName; }
+    string getPlatform()     const { return platform; }
+    int    getViewerCapacity() const { return viewerCapacity; }
+    int    getCurrentViewers() const { return currentViewers; }
+    bool   getIsActive()     const { return isActive; }
+    string getStreamKey()    const { return streamKey; }
+    string getStatus()       const { return status; }
+    string getAssignedMatch() const { return assignedMatch; }
+
+    // ——— SETTERS ———
+    void setActive(bool activeStatus) {
+        isActive = activeStatus;
+        status = activeStatus ? "active" : "inactive";
+    }
+
+    void setCurrentViewers(int viewers) {
+        if (viewers <= viewerCapacity) {
+            currentViewers = viewers;
+        }
+    }
+
+    void setStreamKey(const string& key) {
+        streamKey = key;
+    }
+
+    void assignMatch(const string& matchID) {
+        assignedMatch = matchID;
+        if (!matchID.empty()) {
+            setActive(true);
+        }
+    }
+
+    // ——— BEHAVIORAL METHODS ———
+    bool canAcceptViewers() const {
+        return isActive && (currentViewers < viewerCapacity);
+    }
+
+    int getAvailableCapacity() const {
+        return viewerCapacity - currentViewers;
+    }
+
+    // Return a comma‐separated line if you ever need to save to CSV
+    string toString() const {
+        return slotID + "," +
+               streamerName + "," +
+               platform + "," +
+               to_string(viewerCapacity) + "," +
+               to_string(currentViewers) + "," +
+               (isActive ? "true" : "false") + "," +
+               streamKey + "," +
+               status + "," +
+               assignedMatch;
+    }
+
+    // Print a human‐readable summary
+    void displaySlot() const {
+        cout << "Slot ID: " << slotID
+             << " | Streamer: " << streamerName
+             << " | Platform: " << platform
+             << " | Viewers: " << currentViewers << "/" << viewerCapacity
+             << " | Active: " << (isActive ? "Yes" : "No");
+        if (!assignedMatch.empty()) {
+            cout << " | Match: " << assignedMatch;
+        }
+        cout << endl;
+    }
+};
+
+
+// ===============================
+// VIEWING SESSION CLASS
+// ===============================
+
+class ViewingSession {
+public:
+    string sessionID;
+    string spectatorID;
+    string streamingSlotID;
+    string startTime;
+    string endTime;
+    string sessionType;     // "live", "replay", "highlight"
+    bool isActive;
+    int duration;          // in minutes
+    
+    ViewingSession() : isActive(false), duration(0), sessionType("live") {}
+    
+    ViewingSession(string sessID, string specID, string slotID, string type = "live")
+        : sessionID(sessID), spectatorID(specID), streamingSlotID(slotID),
+          sessionType(type), isActive(true), duration(0), startTime(""), endTime("") {}
+    
+    void startSession(string time) {
+        startTime = time;
+        isActive = true;
+    }
+    
+    void endSession(string time) {
+        endTime = time;
+        isActive = false;
+        // Calculate duration if needed
+    }
+    
+    bool getIsActive() const {
+        return isActive;
+    }
+    
+    string toString() const {
+        return sessionID + "," + spectatorID + "," + streamingSlotID + "," +
+               startTime + "," + endTime + "," + sessionType + "," +
+               (isActive ? "true" : "false") + "," + to_string(duration);
     }
 };
 

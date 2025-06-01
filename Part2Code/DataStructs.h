@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -267,4 +268,319 @@ public:
     int size() const { return count; }
 };
 
+// ===== PRIORITY QUEUE NODE =====
+template<typename T>
+class PriorityQueueNode {
+public:
+    T data;
+    int priority;
+    PriorityQueueNode* next;
+
+    PriorityQueueNode() : priority(0), next(nullptr) {}
+    
+    PriorityQueueNode(T item, int prio) : data(item), priority(prio), next(nullptr) {}
+};
+
+// ===== PRIORITY QUEUE =====
+template<typename T>
+class PriorityQueueHeap {
+private:
+    PriorityQueueNode<T>* front;
+    int size;
+
+public:
+    PriorityQueueHeap() : front(nullptr), size(0) {}
+
+    ~PriorityQueueHeap() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+
+    void enqueue(T item, int priority) {
+        PriorityQueueNode<T>* newNode = new PriorityQueueNode<T>(item, priority);
+        
+        if (front == nullptr || priority > front->priority) {
+            newNode->next = front;
+            front = newNode;
+        } else {
+            PriorityQueueNode<T>* current = front;
+            while (current->next != nullptr && current->next->priority >= priority) {
+                current = current->next;
+            }
+            newNode->next = current->next;
+            current->next = newNode;
+        }
+        size++;
+    }
+
+    T dequeue() {
+        if (isEmpty()) {
+            throw runtime_error("Priority Queue is empty - cannot dequeue");
+        }
+        
+        PriorityQueueNode<T>* temp = front;
+        T data = front->data;
+        front = front->next;
+        delete temp;
+        size--;
+        return data;
+    }
+
+    T peek() const {
+        if (isEmpty()) {
+            throw runtime_error("Priority Queue is empty - cannot peek");
+        }
+        return front->data;
+    }
+
+    bool isEmpty() const {
+        return front == nullptr;
+    }
+
+    int getSize() const {
+        return size;
+    }
+
+    void display() const {
+        if (isEmpty()) {
+            cout << "Priority Queue is empty" << endl;
+            return;
+        }
+        
+        PriorityQueueNode<T>* current = front;
+        cout << "Priority Queue Contents (High to Low Priority):" << endl;
+        int position = 1;
+        while (current != nullptr) {
+            cout << position << ". Priority " << current->priority << ": ";
+            current->data.displaySpectator();
+            current = current->next;
+            position++;
+        }
+    }
+
+    void clear() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+};
+
+// ===== CIRCULAR QUEUE =====
+template<typename T>
+class CircularQueue {
+private:
+    T* queue;
+    int front;
+    int rear;
+    int capacity;
+    int size;
+
+public:
+    CircularQueue(int cap) : capacity(cap), front(-1), rear(-1), size(0) {
+        queue = new T[capacity];
+    }
+
+    ~CircularQueue() {
+        delete[] queue;
+    }
+
+    bool isEmpty() const {
+        return size == 0;
+    }
+
+    bool isFull() const {
+        return size == capacity;
+    }
+
+    // Add element to rear
+    void enqueue(T item) {
+        if (isFull()) {
+            throw runtime_error("Circular Queue is full - cannot enqueue");
+        }
+        
+        if (isEmpty()) {
+            front = rear = 0;
+        } else {
+            rear = (rear + 1) % capacity;
+        }
+        
+        queue[rear] = item;
+        size++;
+    }
+
+    // Remove and return element from front
+    T dequeue() {
+        if (isEmpty()) {
+            throw runtime_error("Circular Queue is empty - cannot dequeue");
+        }
+        
+        T item = queue[front];
+        if (size == 1) {
+            front = rear = -1;
+        } else {
+            front = (front + 1) % capacity;
+        }
+        size--;
+        return item;
+    }
+
+    // View front element without removing
+    T peek() const {
+        if (isEmpty()) {
+            throw runtime_error("Circular Queue is empty - cannot peek");
+        }
+        return queue[front];
+    }
+
+    int getSize() const {
+        return size;
+    }
+
+    int getCapacity() const {
+        return capacity;
+    }
+
+    // Display all elements in queue order
+    void display() const {
+        if (isEmpty()) {
+            cout << "Circular Queue is empty" << endl;
+            return;
+        }
+        
+        cout << "Circular Queue Contents:" << endl;
+        int current = front;
+        for (int i = 0; i < size; i++) {
+            cout << (i + 1) << ". ";
+            queue[current].displaySlot();
+            current = (current + 1) % capacity;
+        }
+    }
+
+    // Get element at specific position (for rotation management)
+    T getAt(int index) const {
+        if (isEmpty() || index < 0 || index >= size) {
+            throw runtime_error("Invalid index in circular queue");
+        }
+        
+        int position = (front + index) % capacity;
+        return queue[position];
+    }
+
+    // Rotate to next element (dequeue and enqueue)
+    void rotate() {
+        if (!isEmpty()) {
+            T item = dequeue();
+            enqueue(item);
+        }
+    }
+
+    // Clear all elements
+    void clear() {
+        front = rear = -1;
+        size = 0;
+    }
+};
+
+// ===== SPECTATOR QUEUE NODE =====
+template<typename T>
+class SpectatorQueueNode {
+public:
+    T data;
+    SpectatorQueueNode* next;
+
+    SpectatorQueueNode() : next(nullptr) {}
+    SpectatorQueueNode(T item) : data(item), next(nullptr) {}
+};
+
+// ===== SPECTATOR OVERFLOW QUEUE =====
+template<typename T>
+class SpectatorQueue {
+private:
+    SpectatorQueueNode<T>* front;
+    SpectatorQueueNode<T>* rear;
+    int size;
+
+public:
+    SpectatorQueue() : front(nullptr), rear(nullptr), size(0) {}
+
+    ~SpectatorQueue() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+
+    // Add element to rear (FIFO)
+    void enqueue(T item) {
+        SpectatorQueueNode<T>* newNode = new SpectatorQueueNode<T>(item);
+        
+        if (isEmpty()) {
+            front = rear = newNode;
+        } else {
+            rear->next = newNode;
+            rear = newNode;
+        }
+        size++;
+    }
+
+    // Remove and return element from front
+    T dequeue() {
+        if (isEmpty()) {
+            throw runtime_error("Spectator Queue is empty - cannot dequeue");
+        }
+        
+        SpectatorQueueNode<T>* temp = front;
+        T data = front->data;
+        front = front->next;
+        
+        if (front == nullptr) {
+            rear = nullptr;
+        }
+        
+        delete temp;
+        size--;
+        return data;
+    }
+
+    // View front element without removing
+    T peek() const {
+        if (isEmpty()) {
+            throw runtime_error("Spectator Queue is empty - cannot peek");
+        }
+        return front->data;
+    }
+
+    bool isEmpty() const {
+        return front == nullptr;
+    }
+
+    int getSize() const {
+        return size;
+    }
+
+    // Display all elements in FIFO order
+    void display() const {
+        if (isEmpty()) {
+            cout << "Spectator Overflow Queue is empty" << endl;
+            return;
+        }
+        
+        SpectatorQueueNode<T>* current = front;
+        cout << "Spectator Overflow Queue Contents:" << endl;
+        int position = 1;
+        while (current != nullptr) {
+            cout << position << ". ";
+            current->data.displaySpectator();
+            current = current->next;
+            position++;
+        }
+    }
+
+    // Clear all elements
+    void clear() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+};
 #endif 

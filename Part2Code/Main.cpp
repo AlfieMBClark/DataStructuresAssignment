@@ -6,6 +6,7 @@
 #include "DataStructs.h"
 #include "Entities.h"
 #include "RegistrationManager.h"
+#include "SpectatorManager.h"
 #include "MatchScheduler.h"
 #include "CSVHandler.h"
 #include "Task4.h"  
@@ -55,6 +56,60 @@ public:
         teamQueue = nullptr;
     }
     
+
+
+    void demonstrateTask3() {
+    // 1) Create a SpectatorManager for a small venue (capacity 10)
+    SpectatorManager manager(10);
+
+    // 2) Construct a few Spectator objects
+    //    (constructor signature: Spectator(id, name, email, type, [university]))
+    Spectator vip1("S001", "Alice VIP",     "alice@vip.com",     "VIP");
+    Spectator gen1("S002", "Bob General",   "bob@gen.com",       "General");
+    Spectator inf1("S003", "Cara Influencer","cara@infl.com",    "Influencer");
+    Spectator gen2("S004", "Dave Streamer", "dave@strm.com",     "General"); 
+      // Note: “Streamer” here is treated as General. If you want to queue
+      // streamers differently, adjust SpectatorType or manager logic accordingly.
+    Spectator vip2("S005", "Eve VIP",       "eve@vip.com",       "VIP");
+    Spectator inf2("S006", "Frank Influencer","frank@infl.com",  "Influencer");
+    Spectator gen3("S007", "Grace General", "grace@gen.com",     "General");
+
+    // 3) Register them with the manager (internally uses a priority queue)
+    manager.registerSpectator(vip1);
+    manager.registerSpectator(gen1);
+    manager.registerSpectator(inf1);
+    manager.registerSpectator(gen2);
+    manager.registerSpectator(vip2);
+    manager.registerSpectator(inf2);
+    manager.registerSpectator(gen3);
+
+    // 4) Process check-in until no more can be seated or queue empties
+    cout << "\n--- Processing Check-Ins ---\n";
+    while (manager.checkInSpectator()) {
+        // Each call seats the highest-priority spectator until full or empty
+    }
+
+    // 5) Rotate two streaming slots (activate them in turn)
+    cout << "\n--- Rotating Streaming Slots ---\n";
+    manager.rotateStreamingSlot();
+    manager.rotateStreamingSlot();
+
+    // 6) If any spectators ended up in overflow (because venue was full),
+    //    processOverflow() will seat them as soon as seats free. In this demo,
+    //    no seats become free, but we call it to illustrate usage:
+    cout << "\n--- Processing Overflow (if any) ---\n";
+    manager.processOverflow();
+
+    // 7) Finally, print out the entire manager status:
+    //    • how many seats are filled / remaining
+    //    • how many spectators remain in priority queue
+    //    • how many in overflow
+    //    • contents of priority queue and streaming slots
+    cout << "\n--- FINAL SPECTATOR MANAGER STATUS ---\n";
+    manager.displayStatus();
+
+    // (End of Task 3 demo)
+}
 
     void initializeTournament() {
         // Check if already initialized
@@ -471,24 +526,96 @@ public:
     
     // TASK 3: Live Stream & Spectator Queue Management (Placeholder)
     void executeTask3() {
-        cout << "\n========================================\n";
-        cout << "   TASK 3: LIVE STREAM & SPECTATOR QUEUE MANAGEMENT\n";
-        cout << "========================================\n";
-        
-        cout << "📝 NOTE: This is a placeholder for Task 3 functionality.\n";
-        cout << "\nThis task would typically include:\n";
-        cout << "  • VIP seating priority queue management\n";
-        cout << "  • Spectator overflow handling with circular queues\n";
-        cout << "  • Live streaming slot allocation system\n";
-        cout << "  • Queue management for different spectator categories\n";
-        cout << "\n🔧 Implementation Note:\n";
-        cout << "   Each team member should implement their assigned task.\n";
-        cout << "   This placeholder shows where Task 3 functionality would go.\n";
-        
-        cout << "\nPress Enter to return to main menu...";
-        cin.ignore();
-        cin.get();
+    cout << "\n========================================\n";
+    cout << "   TASK 3: LIVE STREAM & SPECTATOR QUEUE MANAGEMENT\n";
+    cout << "========================================\n";
+
+ 
+    SpectatorManager manager(500);  // set Capacity 
+
+    int choice = 0;
+    bool continueMenu = true;
+
+    while (continueMenu) {
+        cout << "\n--- TASK 3 MENU ---\n";
+        cout << "1. Register New Spectator\n";
+        cout << "2. Process All Check-Ins (Seat Spectators)\n";
+        cout << "3. Rotate One Streaming Slot\n";
+        cout << "4. Process Overflowed Spectators\n";
+        cout << "5. Display Spectator Management Status\n";
+        cout << "6. Back to Main Menu\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                // Register a new spectator by gathering their details
+                string id, name, email, type;
+                cout << "\n=== REGISTER NEW SPECTATOR ===\n";
+                cout << "Enter Spectator ID: ";
+                cin >> id;
+                cout << "Enter Spectator Name: ";
+                cin.ignore();            // clear leftover newline
+                getline(cin, name);
+                cout << "Enter Email: ";
+                getline(cin, email);
+                cout << "Enter Spectator Type (VIP/Influencer/General): ";
+                getline(cin, type);
+
+                // Construct and register
+                Spectator newSpec(id, name, email, type);
+                manager.registerSpectator(newSpec);
+
+                cout << "Spectator registered successfully!\n";
+                break;
+            }
+            case 2: {
+                // Process all check‐ins until no more spectators can be seated
+                cout << "\n=== PROCESSING CHECK-INS ===\n";
+                while (manager.checkInSpectator()) {
+                    // each call dequeues next‐highest‐priority spectator
+                    // and seats them until either queue empty or venue full
+                }
+                cout << "Check‐ins complete.\n";
+                break;
+            }
+            case 3: {
+                // Rotate one streaming slot: activate the next one in circular queue
+                cout << "\n=== ROTATING ONE STREAMING SLOT ===\n";
+                manager.rotateStreamingSlot();
+                break;
+            }
+            case 4: {
+                // If any spectators overflowed (hit capacity), seat them now if seats freed
+                cout << "\n=== PROCESSING OVERFLOWED SPECTATORS ===\n";
+                manager.processOverflow();
+                break;
+            }
+            case 5: {
+                // Display current status (seatings, queues, streaming slots)
+                cout << "\n=== SPECTATOR MANAGEMENT STATUS ===\n";
+                manager.displayStatus();
+                break;
+            }
+            case 6: {
+                // Exit Task 3 menu
+                cout << "Returning to main menu...\n";
+                continueMenu = false;
+                break;
+            }
+            default: {
+                cout << "Invalid choice! Please enter a number between 1 and 6.\n";
+                break;
+            }
+        }
+
+        if (choice != 6) {
+            cout << "\nPress Enter to continue...";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.get();
+        }
     }
+}
     
     // TASK 4: Game Result Logging & Performance History
     void executeTask4() {
