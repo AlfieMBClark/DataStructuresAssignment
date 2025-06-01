@@ -524,15 +524,17 @@ public:
         }
     }
     
-    // TASK 3: Live Stream & Spectator Queue Management (Placeholder)
-    void executeTask3() {
+ // TASK 3: Live Stream & Spectator Queue Management (Enhanced)
+void executeTask3() {
     cout << "\n========================================\n";
     cout << "   TASK 3: LIVE STREAM & SPECTATOR QUEUE MANAGEMENT\n";
     cout << "========================================\n";
 
- 
-    SpectatorManager manager(500);  // set Capacity 
-
+    SpectatorManager manager(500);  // Set Capacity
+    
+    // Initialize with some sample data for better demo
+    loadSampleSpectators(manager);
+    
     int choice = 0;
     bool continueMenu = true;
 
@@ -543,7 +545,10 @@ public:
         cout << "3. Rotate One Streaming Slot\n";
         cout << "4. Process Overflowed Spectators\n";
         cout << "5. Display Spectator Management Status\n";
-        cout << "6. Back to Main Menu\n";
+        cout << "6. Simulate Viewer Activity (Demo)\n";           // NEW OPTION
+        cout << "7. Add Viewers to Specific Stream\n";           // NEW OPTION
+        cout << "8. Display Streaming Status Only\n";            // NEW OPTION
+        cout << "9. Back to Main Menu\n";                        // Updated number
         cout << "Enter choice: ";
         cin >> choice;
 
@@ -570,23 +575,25 @@ public:
                 break;
             }
             case 2: {
-                // Process all check‐ins until no more spectators can be seated
+                // Process all check-ins until no more spectators can be seated
                 cout << "\n=== PROCESSING CHECK-INS ===\n";
+                int processed = 0;
                 while (manager.checkInSpectator()) {
-                    // each call dequeues next‐highest‐priority spectator
-                    // and seats them until either queue empty or venue full
+                    processed++;
                 }
-                cout << "Check‐ins complete.\n";
+                cout << "Check-ins complete. Processed " << processed << " spectators.\n";
                 break;
             }
             case 3: {
-                // Rotate one streaming slot: activate the next one in circular queue
+                // Enhanced rotation with viewer updates
                 cout << "\n=== ROTATING ONE STREAMING SLOT ===\n";
                 manager.rotateStreamingSlot();
+                // Show streaming status after rotation
+                manager.displayStreamingStatus();
                 break;
             }
             case 4: {
-                // If any spectators overflowed (hit capacity), seat them now if seats freed
+                // If any spectators overflowed, seat them now if seats freed
                 cout << "\n=== PROCESSING OVERFLOWED SPECTATORS ===\n";
                 manager.processOverflow();
                 break;
@@ -598,25 +605,75 @@ public:
                 break;
             }
             case 6: {
+                // NEW: Simulate viewer activity for demo
+                cout << "\n=== SIMULATING VIEWER ACTIVITY ===\n";
+                manager.simulateViewerActivity();
+                cout << "Viewer activity simulation complete!\n";
+                break;
+            }
+            case 7: {
+                // NEW: Add viewers to specific platform
+                cout << "\n=== ADD VIEWERS TO STREAM ===\n";
+                string platform;
+                int viewers;
+                cout << "Enter platform (YouTube/Twitch/Facebook): ";
+                cin >> platform;
+                cout << "Enter number of viewers to add: ";
+                cin >> viewers;
+                
+                manager.addViewersToStream(platform, viewers);
+                break;
+            }
+            case 8: {
+                // NEW: Display only streaming information
+                cout << "\n=== STREAMING STATUS ===\n";
+                manager.displayStreamingStatus();
+                break;
+            }
+            case 9: {
                 // Exit Task 3 menu
                 cout << "Returning to main menu...\n";
                 continueMenu = false;
                 break;
             }
             default: {
-                cout << "Invalid choice! Please enter a number between 1 and 6.\n";
+                cout << "Invalid choice! Please enter a number between 1 and 9.\n";
                 break;
             }
         }
 
-        if (choice != 6) {
+        if (choice != 9) {
             cout << "\nPress Enter to continue...";
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cin.get();
         }
     }
 }
+
+// Helper function to load sample spectators for demo
+void loadSampleSpectators(SpectatorManager& manager) {
+    cout << "\n=== Loading Sample Spectators for Demo ===\n";
     
+    // Create sample spectators
+    Spectator vip1("VIP001", "Alice VIP", "alice@email.com", "VIP");
+    Spectator vip2("VIP002", "Eve VIP", "eve@email.com", "VIP");
+    Spectator inf1("INF001", "Cara Influencer", "cara@email.com", "Influencer");
+    Spectator inf2("INF002", "Frank Influencer", "frank@email.com", "Influencer");
+    Spectator gen1("GEN001", "Bob General", "bob@email.com", "General");
+    Spectator gen2("GEN002", "Dave Streamer", "dave@email.com", "General");
+    Spectator gen3("GEN003", "Grace General", "grace@email.com", "General");
+    
+    // Register them
+    manager.registerSpectator(vip1);
+    manager.registerSpectator(gen1);  // Mix order to show priority works
+    manager.registerSpectator(inf1);
+    manager.registerSpectator(vip2);
+    manager.registerSpectator(gen2);
+    manager.registerSpectator(inf2);
+    manager.registerSpectator(gen3);
+    
+    cout << "Sample spectators loaded successfully!\n";
+}
     // TASK 4: Game Result Logging & Performance History
     void executeTask4() {
         cout << "\n========================================\n";
