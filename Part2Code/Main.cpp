@@ -777,7 +777,7 @@ public:
         }
     }
     
-    // FIXED: Simulate matches with proper team lookup
+    //Simulate matches with proper team lookup
     Queue<Team>* simulateMatches(Queue<Team>* allTeams) {
         cout << "\n=== SIMULATING TEAM MATCHES ===\n";
         Queue<Team>* winners = new Queue<Team>();
@@ -787,7 +787,7 @@ public:
             return winners;
         }
 
-        // Create lookup map for teams
+        //lookup map for teams
         Queue<Team> lookup;
         DoublyNode<Team>* current = allTeams->getHead();
         while (current != nullptr) {
@@ -850,7 +850,7 @@ public:
         return winners;
     }
     
-    // FIXED: Generate knockout bracket
+  
     void generateKnockoutBracket(Queue<Team>* qualifiedTeams) {
         cout << "\n=== GENERATING TEAM KNOCKOUT BRACKET ===\n";
 
@@ -934,7 +934,7 @@ public:
         delete matchScheduler;
     }
     
-    // FIXED: Create teams from players grouped by teamID
+    // group by teamID
     Queue<Team>* createTeamsFromPlayers(Queue<Player>* players) {
         cout << "\n=== CREATING TEAMS FROM PLAYERS (GROUPED BY TEAM ID) ===\n";
         
@@ -983,7 +983,7 @@ public:
             current = current->next;
         }
         
-        // Create complete teams (only teams with exactly 5 players)
+        // Create complete teams
         for (int i = 0; i < 8; i++) {
             if (teamPlayerCounts[i] == MAX_TEAM_SIZE) {
                 Team team("T" + to_string(i + 1), teamNames[i]);
@@ -1011,56 +1011,56 @@ public:
     
         // Create players with pre-assigned team IDs
         Player players[] = {
-            // Team 1 - APU Dragons (T1)
+            // Team 1
             Player("P001", "Alice Wong", 5, "early-bird", "APU", "T1"),
             Player("P002", "Bob Chen", 4, "regular", "APU", "T1"),
             Player("P003", "Carol Tan", 3, "early-bird", "APU", "T1"),
             Player("P004", "David Lim", 2, "wildcard", "APU", "T1"),
             Player("P005", "Eva Kumar", 5, "regular", "APU", "T1"),
             
-            // Team 2 - UM Tigers (T2)
+            // Team 2 
             Player("P006", "Frank Lee", 3, "early-bird", "UM", "T2"),
             Player("P007", "Grace Ng", 2, "regular", "UM", "T2"),
             Player("P008", "Henry Goh", 1, "wildcard", "UM", "T2"),
             Player("P009", "Ivy Lau", 1, "early-bird", "UM", "T2"),
             Player("P010", "Jack Tan", 1, "regular", "UM", "T2"),
             
-            // Team 3 - USM Eagles (T3)
+            // Team 3 
             Player("P011", "Kelly Ong", 3, "early-bird", "USM", "T3"),
             Player("P012", "Liam Chow", 3, "regular", "USM", "T3"),
             Player("P013", "Maya Singh", 4, "wildcard", "USM", "T3"),
             Player("P014", "Noah Kim", 3, "early-bird", "USM", "T3"),
             Player("P015", "Olivia Chen", 1, "regular", "USM", "T3"),
             
-            // Team 4 - MMU Wolves (T4)
+            // Team 4 
             Player("P016", "Peter Yap", 5, "early-bird", "MMU", "T4"),
             Player("P017", "Quinn Lee", 5, "regular", "MMU", "T4"),
             Player("P018", "Rachel Teo", 5, "wildcard", "MMU", "T4"),
             Player("P019", "Sam Wong", 4, "early-bird", "MMU", "T4"),
             Player("P020", "Tina Lim", 5, "regular", "MMU", "T4"),
             
-            // Team 5 - UTAR Panthers (T5)
+            // Team 5
             Player("P021", "Uma Patel", 2, "early-bird", "UTAR", "T5"),
             Player("P022", "Victor Ng", 3, "regular", "UTAR", "T5"),
             Player("P023", "Wendy Koh", 4, "wildcard", "UTAR", "T5"),
             Player("P024", "Xavier Tan", 5, "early-bird", "UTAR", "T5"),
             Player("P025", "Yvonne Lee", 4, "regular", "UTAR", "T5"),
             
-            // Team 6 - INTI Sharks (T6)
+            // Team 6
             Player("P026", "Zara Ahmed", 2, "early-bird", "INTI", "T6"),
             Player("P027", "Adam Chong", 4, "regular", "INTI", "T6"),
             Player("P028", "Bella Tan", 2, "wildcard", "INTI", "T6"),
             Player("P029", "Chris Lim", 1, "early-bird", "INTI", "T6"),
             Player("P030", "Diana Wong", 5, "regular", "INTI", "T6"),
             
-            // Team 7 - HELP Hawks (T7)
+            // Team 7
             Player("P031", "Ethan Ong", 1, "early-bird", "HELP", "T7"),
             Player("P032", "Fiona Lau", 1, "regular", "HELP", "T7"),
             Player("P033", "George Kim", 1, "wildcard", "HELP", "T7"),
             Player("P034", "Hannah Chen", 1, "early-bird", "HELP", "T7"),
             Player("P035", "Ian Yap", 1, "regular", "HELP", "T7"),
             
-            // Team 8 - TAYLOR Titans (T8)
+            // Team 8 
             Player("P036", "Julia Teo", 3, "early-bird", "TAYLOR", "T8"),
             Player("P037", "Kevin Ng", 3, "regular", "TAYLOR", "T8"),
             Player("P038", "Luna Koh", 3, "wildcard", "TAYLOR", "T8"),
