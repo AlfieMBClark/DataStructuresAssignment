@@ -146,7 +146,7 @@ private:
     string spectatorID;
     string name;
     string email;
-    string spectatorType;  // "VIP", "Influencer", "General"
+    string spectatorType;  // vip,influencer,general
     int    priority;       // Higher number → higher priority
     string seatNumber;
     bool   checkedIn;
@@ -186,7 +186,7 @@ public:
         setPriorityByType();
     }
 
-    // ——— GETTERS ———
+    //getters
     int    getPriority()      const { return priority;       }
     string getName()          const { return name;           }
     string getEmail()         const { return email;          }
@@ -197,7 +197,7 @@ public:
     string getUniversity()    const { return university;     }
     string getTicketType()    const { return ticketType;     }
 
-    // ——— SETTERS ———
+    //setters
     void setSeatNumber(const string& seat) { seatNumber   = seat;      }
     void setCheckedIn(bool status)         { checkedIn    = status;    }
     void setTicketType(const string& t)    { ticketType   = t;         }
@@ -210,7 +210,7 @@ public:
         else                                    priority = 1; // General
     }
 
-    // Convert all fields into a CSV line (useful if you later write to a .csv file)
+    //for csv format, if used 
     string toString() const {
         return spectatorID    + "," +
                name           + "," +
@@ -248,7 +248,7 @@ class StreamingSlot {
 private:
     string slotID;
     string streamerName;
-    string platform;        // e.g. "Twitch", "YouTube", "Facebook"
+    string platform;        // Twitch,YouTube,Facebook
     int    viewerCapacity;
     int    currentViewers;
     bool   isActive;
@@ -257,7 +257,7 @@ private:
     string assignedMatch;
 
 public:
-    // Default constructor
+    //Default constructor
     StreamingSlot()
       : slotID(""),
         streamerName(""),
@@ -270,7 +270,7 @@ public:
         assignedMatch("")
     {}
 
-    // Parameterized constructor
+    //Parameterized constructor
     StreamingSlot(const string& id,
                   const string& streamer,
                   const string& plat,
@@ -286,7 +286,7 @@ public:
         assignedMatch("")
     {}
 
-    // ——— GETTERS ———
+    //getters
     string getSlotID()       const { return slotID; }
     string getStreamerName() const { return streamerName; }
     string getPlatform()     const { return platform; }
@@ -297,7 +297,7 @@ public:
     string getStatus()       const { return status; }
     string getAssignedMatch() const { return assignedMatch; }
 
-    // ——— SETTERS ———
+    //setters 
     void setActive(bool activeStatus) {
         isActive = activeStatus;
         status = activeStatus ? "active" : "inactive";
@@ -320,7 +320,7 @@ public:
         }
     }
 
-    // ——— BEHAVIORAL METHODS ———
+    
     bool canAcceptViewers() const {
         return isActive && (currentViewers < viewerCapacity);
     }
@@ -368,7 +368,7 @@ public:
     string streamingSlotID;
     string startTime;
     string endTime;
-    string sessionType;     // "live", "replay", "highlight"
+    string sessionType;     // "live,replay,highlight
     bool isActive;
     int duration;          // in minutes
     

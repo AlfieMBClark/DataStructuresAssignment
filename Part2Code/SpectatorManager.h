@@ -24,13 +24,10 @@ public:
         initializeSeats();
         initializeStreamingSlots();
     }
-    // Method 1: Simulate viewer activity for demo purposes
 void simulateViewerActivity() {
         cout << "\n=== Simulating Viewer Activity ===" << endl;
 
         // === 1) STREAMING ACTIVITY UPDATE ===
-        // We'll pull every slot out of the circular queue, update its viewer count if it's active,
-        // then push it back in the same order.
         vector<StreamingSlot> tempSlots;
         while (!streamingSlots.isEmpty()) {
             tempSlots.push_back(streamingSlots.dequeue());
@@ -68,13 +65,7 @@ void simulateViewerActivity() {
             if (departures > 0) {
                 currentOccupancy -= departures;
                 // Return those seat labels to availableSeats
-                for (int i = 0; i < departures; i++) {
-                    // (In a real system, you’d track exactly which seats freed;
-                    // here we’ll just push back “dummy” labels to keep size in sync.)
-                    // If you want to keep track of exact seat numbers, you'd need a map
-                    // from seatNumber->Spectator and pull from there. For this demo,
-                    // we assume availableSeats was a stack of unused seat IDs,
-                    // so “departures” new seats appear at the top.
+                for (int i = 0; i < departures; i++) 
                     availableSeats.push_back("FreedSeat"); 
                       // ← Replace "FreedSeat" logic with actual seat tracking if needed
                 }
@@ -164,13 +155,13 @@ void addViewersToStream(const string& platform, int numViewers) {
     }
 }
 
-// Method 3: Enhanced rotation that also updates viewers
+//Enhanced rotation that also updates viewers
 void rotateStreamingSlotWithViewers() {
     if (!streamingSlots.isEmpty()) {
         StreamingSlot slot = streamingSlots.dequeue();
         slot.setActive(true);
         
-        // Add realistic viewer count when activating
+    
         int baseViewers = 500 + (rand() % 1500); // 500-2000 base viewers
         slot.setCurrentViewers(baseViewers);
         
@@ -182,7 +173,7 @@ void rotateStreamingSlotWithViewers() {
     }
 }
 
-// Method 4: Initialize slots with some starting viewers
+//Initialize slots with some starting viewers
 void initializeStreamingSlotsWithViewers() {
     // Clear existing slots first if needed
     while (!streamingSlots.isEmpty()) {
@@ -208,7 +199,7 @@ void initializeStreamingSlotsWithViewers() {
     cout << "Initialized streaming slots with viewer counts" << endl;
 }
 
-// Method 5: Enhanced display with viewer information
+//Enhanced display with viewer information
 void displayStreamingStatus() {
     cout << "\n--- Streaming Slots Status ---" << endl;
     
