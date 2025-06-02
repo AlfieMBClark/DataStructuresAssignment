@@ -113,7 +113,7 @@ public:
     DoublyNode<T>* getHead() const { return queueFront; }
 };
 
-// ===== FIXED STACK WITH COPY SUPPORT =====
+
 template<typename T>
 class Stack {
 private:
@@ -123,7 +123,7 @@ private:
 public:
     Stack() : head(nullptr), count(0) {}
     
-    // Copy constructor (REQUIRED)
+    //constructor 
     Stack(const Stack& other) : head(nullptr), count(0) {
         Stack<T> temp;
         DoublyNode<T>* current = other.head;
@@ -137,7 +137,7 @@ public:
         }
     }
     
-    // Assignment operator (REQUIRED)
+    // Assignment operator
     Stack& operator=(const Stack& other) {
         if (this != &other) {
             while (!isEmpty()) {
@@ -199,7 +199,7 @@ public:
     int size() const { return count; }
 };
 
-// ===== PRIORITY QUEUE REMAINS THE SAME =====
+// ===== PRIORITY QUEUE  =====
 template<typename T>
 class PriorityQueue {
 private:
@@ -394,7 +394,7 @@ public:
         return size == capacity;
     }
 
-    // Add element to rear
+    // Add rear
     void enqueue(T item) {
         if (isFull()) {
             throw runtime_error("Circular Queue is full - cannot enqueue");
@@ -410,7 +410,7 @@ public:
         size++;
     }
 
-    // Remove and return element from front
+    // Remove and return  from front
     T dequeue() {
         if (isEmpty()) {
             throw runtime_error("Circular Queue is empty - cannot dequeue");
@@ -426,7 +426,7 @@ public:
         return item;
     }
 
-    // View front element without removing
+    // View front elemen
     T peek() const {
         if (isEmpty()) {
             throw runtime_error("Circular Queue is empty - cannot peek");
@@ -442,7 +442,7 @@ public:
         return capacity;
     }
 
-    // Display all elements in queue order
+    // Display elements in queue
     void display() const {
         if (isEmpty()) {
             cout << "Circular Queue is empty" << endl;
@@ -458,7 +458,7 @@ public:
         }
     }
 
-    // Get element at specific position (for rotation management)
+    // Get specific position 
     T getAt(int index) const {
         if (isEmpty() || index < 0 || index >= size) {
             throw runtime_error("Invalid index in circular queue");
@@ -468,7 +468,7 @@ public:
         return queue[position];
     }
 
-    // Rotate to next element (dequeue and enqueue)
+    // Rotate to next element
     void rotate() {
         if (!isEmpty()) {
             T item = dequeue();
@@ -476,7 +476,6 @@ public:
         }
     }
 
-    // Clear all elements
     void clear() {
         front = rear = -1;
         size = 0;
