@@ -111,6 +111,35 @@ public:
         return queueRear->data;
     }
     DoublyNode<T>* getHead() const { return queueFront; }
+
+    void removeNode(DoublyNode<T>* node) {
+        if (node == nullptr) return;
+
+        if (node == queueFront) {
+            queueFront = node->next;
+            if (queueFront != nullptr) {
+                queueFront->prev = nullptr;
+            } else {
+                // List became empty
+                queueRear = nullptr;
+            }
+        } else if (node == queueRear) {
+            queueRear = node->prev;
+            if (queueRear != nullptr) {
+                queueRear->next = nullptr;
+            } else {
+                // List became empty
+                queueFront = nullptr;
+            }
+        } else {
+            // Node is in the middle
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+        }
+
+        delete node;
+        count--;
+    }
 };
 
 
