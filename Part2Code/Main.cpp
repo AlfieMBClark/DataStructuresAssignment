@@ -33,7 +33,7 @@ private:
 
 public:
     TournamentSystem() {
-        regManager = new RegistrationManager(100);
+        regManager = new RegistrationManager(40);
         matchScheduler = new MatchScheduler();
         resultLogger = new GameResultLogger();
         checkedInPlayers = nullptr;
