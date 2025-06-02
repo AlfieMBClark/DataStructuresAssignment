@@ -8,9 +8,10 @@
 
 using namespace std;
 
-const int MAX_NODES = 100;
-const int MAX_PLAYERS = 64;
+const int MAX_NODES = 200;
+const int MAX_PLAYERS = 100;
 const int MAX_TEAM_SIZE = 5;
+const int MAX_TEAMS = 20;
 
 template<typename T>
 struct DoublyNode {

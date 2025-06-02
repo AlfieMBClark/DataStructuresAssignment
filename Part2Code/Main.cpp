@@ -33,7 +33,7 @@ private:
 
 public:
     TournamentSystem() {
-        regManager = new RegistrationManager(40);
+        regManager = new RegistrationManager(100);
         matchScheduler = new MatchScheduler();
         resultLogger = new GameResultLogger();
         checkedInPlayers = nullptr;
@@ -111,111 +111,191 @@ public:
     // (End of Task 3 demo)
 }
 
-    void initializeTournament() {
-        // Check if already initialized
-        if (tournamentInitialized == true) {
-            cout << "Tournament already initialized!\n";
-            return;
-        }
-        
-        cout << "\n=== INITIALIZING TOURNAMENT WITH SAMPLE DATA ===\n";
-        
-        Player players[40]; 
-        
-        // Team 1 - APU Dragons (T1) - Average ranking team
+    // ===== UPDATED FUNCTIONS FOR 20-TEAM SUPPORT =====
+
+// 1. Updated initializeTournament() function
+void initializeTournament() {
+    if (tournamentInitialized == true) {
+        cout << "Tournament already initialized!\n";
+        return;
+    }
+    
+    cout << "\n=== INITIALIZING TOURNAMENT WITH 20 TEAMS (100 PLAYERS) ===\n";
+    
+    Player players[100]; 
+        // TEAM 1 (T1) - APU Dragons
         players[0] = Player("P001", "Alice Wong", 3, "early-bird", "APU", "T1");
         players[1] = Player("P002", "Bob Chen", 4, "regular", "APU", "T1");
         players[2] = Player("P003", "Carol Tan", 2, "early-bird", "APU", "T1");
         players[3] = Player("P004", "David Lim", 5, "wildcard", "APU", "T1");
         players[4] = Player("P005", "Eva Kumar", 3, "regular", "APU", "T1");
         
-        // Team 2 - UM Tigers (T2) - Lower ranking team
+        // TEAM 2 (T2) - UM Tigers
         players[5] = Player("P006", "Frank Lee", 4, "early-bird", "UM", "T2");
         players[6] = Player("P007", "Grace Ng", 5, "regular", "UM", "T2");
         players[7] = Player("P008", "Henry Goh", 3, "wildcard", "UM", "T2");
         players[8] = Player("P009", "Ivy Lau", 5, "early-bird", "UM", "T2");
         players[9] = Player("P010", "Jack Tan", 4, "regular", "UM", "T2");
         
-        // Team 3 - USM Eagles (T3) - High ranking team
+        // TEAM 3 (T3) - USM Eagles
         players[10] = Player("P011", "Kelly Ong", 1, "early-bird", "USM", "T3");
         players[11] = Player("P012", "Liam Chow", 2, "regular", "USM", "T3");
         players[12] = Player("P013", "Maya Singh", 2, "wildcard", "USM", "T3");
         players[13] = Player("P014", "Noah Kim", 3, "early-bird", "USM", "T3");
         players[14] = Player("P015", "Olivia Chen", 1, "regular", "USM", "T3");
         
-        // Team 4 - MMU Wolves (T4) - Lowest ranking team
+        // TEAM 4 (T4) - MMU Wolves
         players[15] = Player("P016", "Peter Yap", 5, "early-bird", "MMU", "T4");
         players[16] = Player("P017", "Quinn Lee", 5, "regular", "MMU", "T4");
         players[17] = Player("P018", "Rachel Teo", 5, "wildcard", "MMU", "T4");
         players[18] = Player("P019", "Sam Wong", 5, "early-bird", "MMU", "T4");
         players[19] = Player("P020", "Tina Lim", 5, "regular", "MMU", "T4");
         
-        // Team 5 - UTAR Panthers (T5) - Average-low ranking team
+        // TEAM 5 (T5) - UTAR Panthers
         players[20] = Player("P021", "Uma Patel", 4, "early-bird", "UTAR", "T5");
         players[21] = Player("P022", "Victor Ng", 4, "regular", "UTAR", "T5");
         players[22] = Player("P023", "Wendy Koh", 3, "wildcard", "UTAR", "T5");
         players[23] = Player("P024", "Xavier Tan", 5, "early-bird", "UTAR", "T5");
         players[24] = Player("P025", "Yvonne Lee", 3, "regular", "UTAR", "T5");
         
-        // Team 6 - INTI Sharks (T6) - Highest ranking team (all rank 1!)
+        // TEAM 6 (T6) - INTI Sharks
         players[25] = Player("P026", "Zara Ahmed", 1, "early-bird", "INTI", "T6");
         players[26] = Player("P027", "Adam Chong", 1, "regular", "INTI", "T6");
         players[27] = Player("P028", "Bella Tan", 1, "wildcard", "INTI", "T6");
         players[28] = Player("P029", "Chris Lim", 1, "early-bird", "INTI", "T6");
         players[29] = Player("P030", "Diana Wong", 1, "regular", "INTI", "T6");
         
-        // Team 7 - HELP Hawks (T7) - Low ranking team
+        // TEAM 7 (T7) - HELP Hawks
         players[30] = Player("P031", "Ethan Ong", 5, "early-bird", "HELP", "T7");
         players[31] = Player("P032", "Fiona Lau", 5, "regular", "HELP", "T7");
         players[32] = Player("P033", "George Kim", 4, "wildcard", "HELP", "T7");
         players[33] = Player("P034", "Hannah Chen", 5, "early-bird", "HELP", "T7");
         players[34] = Player("P035", "Ian Yap", 4, "regular", "HELP", "T7");
         
-        // Team 8 - TAYLOR Titans (T8) - Average ranking team
+        // TEAM 8 (T8) - TAYLOR Titans
         players[35] = Player("P036", "Julia Teo", 3, "early-bird", "TAYLOR", "T8");
         players[36] = Player("P037", "Kevin Ng", 3, "regular", "TAYLOR", "T8");
         players[37] = Player("P038", "Luna Koh", 2, "wildcard", "TAYLOR", "T8");
         players[38] = Player("P039", "Mike Tan", 3, "early-bird", "TAYLOR", "T8");
         players[39] = Player("P040", "Nina Lee", 3, "regular", "TAYLOR", "T8");
         
-        // Register
-        cout << "Registering players...\n";
-        for (int i = 0; i < 40; i++) {
+        // TEAM 9 (T9) - UKM Warriors
+        players[40] = Player("P041", "Oscar Lim", 2, "early-bird", "UKM", "T9");
+        players[41] = Player("P042", "Penny Wong", 4, "regular", "UKM", "T9");
+        players[42] = Player("P043", "Quincy Tan", 3, "wildcard", "UKM", "T9");
+        players[43] = Player("P044", "Ruby Chen", 1, "early-bird", "UKM", "T9");
+        players[44] = Player("P045", "Steve Ng", 4, "regular", "UKM", "T9");
+        
+        // TEAM 10 (T10) - UPM Leopards
+        players[45] = Player("P046", "Tiffany Koh", 5, "early-bird", "UPM", "T10");
+        players[46] = Player("P047", "Ulrich Lee", 3, "regular", "UPM", "T10");
+        players[47] = Player("P048", "Vera Patel", 2, "wildcard", "UPM", "T10");
+        players[48] = Player("P049", "William Goh", 4, "early-bird", "UPM", "T10");
+        players[49] = Player("P050", "Xenia Lau", 5, "regular", "UPM", "T10");
+        
+        // TEAM 11 (T11) - UTM Stallions
+        players[50] = Player("P051", "Yusuf Kim", 3, "early-bird", "UTM", "T11");
+        players[51] = Player("P052", "Zoe Yap", 1, "regular", "UTM", "T11");
+        players[52] = Player("P053", "Aaron Teo", 4, "wildcard", "UTM", "T11");
+        players[53] = Player("P054", "Bianca Ong", 2, "early-bird", "UTM", "T11");
+        players[54] = Player("P055", "Carlos Singh", 5, "regular", "UTM", "T11");
+        
+        // TEAM 12 (T12) - UMS Phoenix
+        players[55] = Player("P056", "Daphne Chow", 4, "early-bird", "UMS", "T12");
+        players[56] = Player("P057", "Edward Tan", 3, "regular", "UMS", "T12");
+        players[57] = Player("P058", "Felicia Wong", 1, "wildcard", "UMS", "T12");
+        players[58] = Player("P059", "Gary Lim", 5, "early-bird", "UMS", "T12");
+        players[59] = Player("P060", "Hazel Chen", 2, "regular", "UMS", "T12");
+        
+        // TEAM 13 (T13) - UNIMAS Lions
+        players[60] = Player("P061", "Ivan Ng", 2, "early-bird", "UNIMAS", "T13");
+        players[61] = Player("P062", "Jessica Koh", 4, "regular", "UNIMAS", "T13");
+        players[62] = Player("P063", "Keith Lee", 3, "wildcard", "UNIMAS", "T13");
+        players[63] = Player("P064", "Linda Ahmed", 1, "early-bird", "UNIMAS", "T13");
+        players[64] = Player("P065", "Marcus Goh", 5, "regular", "UNIMAS", "T13");
+        
+        // TEAM 14 (T14) - UITM Cobras
+        players[65] = Player("P066", "Natasha Lau", 3, "early-bird", "UITM", "T14");
+        players[66] = Player("P067", "Oliver Kim", 4, "regular", "UITM", "T14");
+        players[67] = Player("P068", "Patricia Yap", 2, "wildcard", "UITM", "T14");
+        players[68] = Player("P069", "Quentin Teo", 5, "early-bird", "UITM", "T14");
+        players[69] = Player("P070", "Rebecca Ong", 1, "regular", "UITM", "T14");
+        
+        // TEAM 15 (T15) - UCSI Eagles
+        players[70] = Player("P071", "Sebastian Chow", 4, "early-bird", "UCSI", "T15");
+        players[71] = Player("P072", "Tanya Tan", 3, "regular", "UCSI", "T15");
+        players[72] = Player("P073", "Ursula Wong", 5, "wildcard", "UCSI", "T15");
+        players[73] = Player("P074", "Vincent Lim", 2, "early-bird", "UCSI", "T15");
+        players[74] = Player("P075", "Wendy Chen", 1, "regular", "UCSI", "T15");
+        
+        // TEAM 16 (T16) - SUNWAY Bears
+        players[75] = Player("P076", "Xavier Ng", 2, "early-bird", "SUNWAY", "T16");
+        players[76] = Player("P077", "Yasmin Koh", 4, "regular", "SUNWAY", "T16");
+        players[77] = Player("P078", "Zachary Lee", 3, "wildcard", "SUNWAY", "T16");
+        players[78] = Player("P079", "Amelia Ahmed", 5, "early-bird", "SUNWAY", "T16");
+        players[79] = Player("P080", "Brandon Goh", 1, "regular", "SUNWAY", "T16");
+        
+        // TEAM 17 (T17) - MONASH Wolves
+        players[80] = Player("P081", "Chloe Lau", 3, "early-bird", "MONASH", "T17");
+        players[81] = Player("P082", "Derek Kim", 4, "regular", "MONASH", "T17");
+        players[82] = Player("P083", "Emily Yap", 2, "wildcard", "MONASH", "T17");
+        players[83] = Player("P084", "Felix Teo", 5, "early-bird", "MONASH", "T17");
+        players[84] = Player("P085", "Grace Ong", 1, "regular", "MONASH", "T17");
+        
+        // TEAM 18 (T18) - CURTIN Sharks
+        players[85] = Player("P086", "Hugo Chow", 4, "early-bird", "CURTIN", "T18");
+        players[86] = Player("P087", "Iris Tan", 3, "regular", "CURTIN", "T18");
+        players[87] = Player("P088", "Jake Wong", 1, "wildcard", "CURTIN", "T18");
+        players[88] = Player("P089", "Kara Lim", 5, "early-bird", "CURTIN", "T18");
+        players[89] = Player("P090", "Leo Chen", 2, "regular", "CURTIN", "T18");
+        
+        // TEAM 19 (T19) - SEGI Panthers
+        players[90] = Player("P091", "Maya Ng", 2, "early-bird", "SEGI", "T19");
+        players[91] = Player("P092", "Nathan Koh", 3, "regular", "SEGI", "T19");
+        players[92] = Player("P093", "Ophelia Lee", 4, "wildcard", "SEGI", "T19");
+        players[93] = Player("P094", "Paul Ahmed", 1, "early-bird", "SEGI", "T19");
+        players[94] = Player("P095", "Quinn Goh", 5, "regular", "SEGI", "T19");
+        
+        // TEAM 20 (T20) - BINARY Hawks
+        players[95] = Player("P096", "Rachel Lau", 3, "early-bird", "BINARY", "T20");
+        players[96] = Player("P097", "Sam Kim", 4, "regular", "BINARY", "T20");
+        players[97] = Player("P098", "Tara Yap", 2, "wildcard", "BINARY", "T20");
+        players[98] = Player("P099", "Ulysses Teo", 5, "early-bird", "BINARY", "T20");
+        players[99] = Player("P100", "Violet Ong", 1, "regular", "BINARY", "T20");
+        
+        cout << "Registering all 100 players...\n";
+        for (int i = 0; i < 100; i++) {  // FIXED: Changed from 40 to 100
             regManager->registerPlayer(players[i]);
-            if (i % 10 == 9) {
+            if (i % 20 == 19) {  // Progress update every 20 players
                 cout << "Registered " << (i + 1) << " players so far...\n";
             }
         }
         
-        // Process check-ins
-        cout << "Processing check-ins...\n";
+        // Process check-ins and create teams
+        cout << "Processing check-ins for all 100 players...\n";
         regManager->processCheckIn();
         checkedInPlayers = regManager->getCheckedInPlayers();
-        
-        // teams
-        cout << "Creating teams...\n";
+        cout << "Creating teams from 100 players...\n";
         teamQueue = createTeamsFromPlayers(checkedInPlayers);
         
         tournamentInitialized = true;
-        cout << "Tournament initialized successfully!\n";
+        cout << "Tournament initialized successfully with 20 teams!\n";
         cout << "Total teams created: " << teamQueue->size() << "\n";
+        cout << "Total players registered: 100\n";
     }
     
     // TASK 1: Match Scheduling & Player Progression
-     // TASK 1: Match Scheduling & Player Progression
     void executeTask1() {
-        // Print header
         cout << "\n========================================\n";
         cout << "   TASK 1: MATCH SCHEDULING & PLAYER PROGRESSION\n";
         cout << "========================================\n";
-        
-        // Check if tournament is ready
+    
         if (tournamentInitialized != true) {
-            cout << "ERROR: Tournament not initialized! Please run initialization first.\n";
+            cout << "ERROR: Run initialization first.\n";
             return;
         }
         
-        // Check team count
+        //team count
         if (teamQueue->size() < 2) {
             cout << "ERROR: Not enough teams for matches!\n";
             cout << "Need at least 2 teams, but only have " << teamQueue->size() << " teams.\n";
@@ -237,8 +317,7 @@ public:
             cout << "7. Back to Main Menu\n";
             cout << "Enter choice: ";
             cin >> choice;
-            
-            // Process user choice
+          
             if (choice == 1) {
                 cout << "\n=== GENERATING QUALIFIER MATCHES ===\n";
                 matchScheduler->generateQualifierMatches(teamQueue);
@@ -250,18 +329,18 @@ public:
                 cout << "\nQualifier simulation complete!\n";
                 cout << "Number of teams advanced: " << winners->size() << "\n";
                 
-                // Clean up memory
+                // Clean
                 delete winners;
                 winners = nullptr;
             }
             else if (choice == 3) {
                 cout << "\n=== COMPLETE TOURNAMENT SIMULATION ===\n";
                 
-                // Reset first to ensure clean state
+                // Reset
                 cout << "Resetting tournament state...\n";
                 matchScheduler->resetTournament();
                 
-                // Generate and simulate qualifiers
+                // Gen + sim qualifiers
                 cout << "\n--- QUALIFIER ROUND ---\n";
                 matchScheduler->generateQualifierMatches(teamQueue);
                 Queue<Team>* qualifierWinners = matchScheduler->simulateMatches(teamQueue);
@@ -269,35 +348,34 @@ public:
                 cout << "\nQualifier Results:\n";
                 cout << "Teams advancing to knockout stage: " << qualifierWinners->size() << "\n";
                 
-                // Run knockout rounds until we have a champion
+                //Knockout
                 Queue<Team>* currentRound = qualifierWinners;
                 int roundNumber = 1;
-                int maxRounds = 10; // Safety limit to prevent infinite loops
+                int maxRounds = 10;
                 
                 while (currentRound->size() > 1 && roundNumber <= maxRounds) {
                     cout << "\n--- KNOCKOUT ROUND " << roundNumber << " ---\n";
                     cout << "Teams competing in this round: " << currentRound->size() << "\n";
                     
-                    // Create new queue for next round winners
+                    //queue for next round 
                     Queue<Team> roundTeams;
                     
-                    // Move all teams from current round to temporary queue
+                    // current round to tem
                     while (currentRound->isEmpty() == false) {
                         Team team = currentRound->dequeue();
                         roundTeams.enqueue(team);
                     }
                     
-                    // Generate matches for this specific round
+                    //round match
                     int matchCount = 0;
                     while (roundTeams.size() >= 2) {
                         Team team1 = roundTeams.dequeue();
                         Team team2 = roundTeams.dequeue();
                         
-                        // Simulate single match
-                        cout << "Match " << (matchCount + 1) << ": " 
-                             << team1.teamName << " vs " << team2.teamName << "\n";
+
+                        cout << "Match " << (matchCount + 1) << ": " << team1.teamName << " vs " << team2.teamName << "\n";
                         
-                        //Winner
+                        //Winn
                         Team winner;
                         Team loser;
                         int score1, score2;
@@ -351,7 +429,6 @@ public:
                          << " teams remaining.\n";
                 }
                 
-                // Memory cleanup
                 delete qualifierWinners;
                 qualifierWinners = nullptr;
             }
@@ -524,13 +601,13 @@ public:
         }
     }
     
- // TASK 3: Live Stream & Spectator Queue Management (Enhanced)
+ // TASK 3: Live Stream & Spectator Queue Management
 void executeTask3() {
     cout << "\n========================================\n";
     cout << "   TASK 3: LIVE STREAM & SPECTATOR QUEUE MANAGEMENT\n";
     cout << "========================================\n";
 
-    SpectatorManager manager(10);  // Set Capacity
+    SpectatorManager manager(10);  //Capacity
     
     // Initialize with some sample data for better demo
     loadSampleSpectators(manager);
@@ -545,22 +622,22 @@ void executeTask3() {
         cout << "3. Rotate One Streaming Slot\n";
         cout << "4. Process Overflowed Spectators\n";
         cout << "5. Display Spectator Management Status\n";
-        cout << "6. Simulate Viewer Activity (Demo)\n";           // NEW OPTION
-        cout << "7. Add Viewers to Specific Stream\n";           // NEW OPTION
-        cout << "8. Display Streaming Status Only\n";            // NEW OPTION
-        cout << "9. Back to Main Menu\n";                        // Updated number
+        cout << "6. Simulate Viewer Activity (Demo)\n";       
+        cout << "7. Add Viewers to Specific Stream\n";          
+        cout << "8. Display Streaming Status Only\n";            
+        cout << "9. Back to Main Menu\n";                       
         cout << "Enter choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1: {
-                // Register a new spectator by gathering their details
+                //new spectator by gathering their details
                 string id, name, email, type;
                 cout << "\n=== REGISTER NEW SPECTATOR ===\n";
                 cout << "Enter Spectator ID: ";
                 cin >> id;
                 cout << "Enter Spectator Name: ";
-                cin.ignore();            // clear leftover newline
+                cin.ignore();           
                 getline(cin, name);
                 cout << "Enter Email: ";
                 getline(cin, email);
@@ -575,7 +652,7 @@ void executeTask3() {
                 break;
             }
             case 2: {
-                // Process all check-ins until no more spectators can be seated
+                // Process
                 cout << "\n=== PROCESSING CHECK-INS ===\n";
                 int processed = 0;
                 while (manager.checkInSpectator()) {
@@ -585,15 +662,13 @@ void executeTask3() {
                 break;
             }
             case 3: {
-                // Enhanced rotation with viewer updates
                 cout << "\n=== ROTATING ONE STREAMING SLOT ===\n";
                 manager.rotateStreamingSlot();
-                // Show streaming status after rotation
                 manager.displayStreamingStatus();
                 break;
             }
             case 4: {
-                // If any spectators overflowed, seat them now if seats freed
+                //spectators overflow, seat them now if seats freed
                 cout << "\n=== PROCESSING OVERFLOWED SPECTATORS ===\n";
                 manager.processOverflow();
                 break;
@@ -654,7 +729,7 @@ void executeTask3() {
 void loadSampleSpectators(SpectatorManager& manager) {
     cout << "\n=== Loading Sample Spectators for Demo ===\n";
     
-    // Create sample spectators
+    //sample spectators
     Spectator vip1("VIP001", "Alice", "alice@email.com", "VIP");
     Spectator vip3("VIP003", "Leclerc", "alice@email.com", "VIP");
     Spectator vip2("VIP002", "Eve", "eve@email.com", "VIP");
@@ -668,7 +743,7 @@ void loadSampleSpectators(SpectatorManager& manager) {
     
     // Register them
     manager.registerSpectator(vip1);
-    manager.registerSpectator(gen1);  // Mix order to show priority works
+    manager.registerSpectator(gen1);
     manager.registerSpectator(inf1);
     manager.registerSpectator(vip2);
     manager.registerSpectator(vip3);
@@ -780,130 +855,93 @@ void loadSampleSpectators(SpectatorManager& manager) {
         }
     }
     
-    //export all tournament data
+    //tournament data
     void exportAllData() {
-        cout << "\n=== EXPORTING ALL TOURNAMENT DATA ===\n";
+        cout << "\n=== SAveing ALL TOURNAMENT DATA ===\n";
         
-        // Check if tournament is initialized
         if (tournamentInitialized == false) {
-            cout << "ERROR: Tournament not initialized!\n";
             cout << "Cannot export data without initialized tournament.\n";
             return;
         }
         
-        cout << "Starting data export process...\n";
-        
-        // Export all data using CSV handler
+  
         CSVHandler::exportAllData(checkedInPlayers, matchScheduler->getAllMatches(), teamQueue);
-        
-        // Export match summary
         CSVHandler::writeMatchSummaryCSV("match_summary.csv", matchScheduler->getAllMatches());
-        
-        // Export results from Task 4
         resultLogger->exportResultsToCSV();
         
-        cout << "\n All data exported successfully!\n";
-        cout << "Files created in current directory:\n";
-        cout << "  • players.csv - Player information\n";
-        cout << "  • matches.csv - Match results with scores\n";
-        cout << "  • teams.csv - Team information\n";
-        cout << "  • match_summary.csv - Formatted match summary\n";
-        cout << "  • match_results.csv - Detailed match results\n";
-        cout << "  • player_performance.csv - Player performance statistics\n";
-        
-        cout << "\nYou can open these files in Excel or any text editor.\n";
+        cout << "\n All data exported!\n";
     }
     
-    // create teams from players
     Queue<Team>* createTeamsFromPlayers(Queue<Player>* players) {
-        cout << "\n=== CREATING TEAMS FROM REGISTERED PLAYERS ===\n";
-        
+        cout << "\n=== CREATING TEAMS FROM REGISTERED PLAYERS (AUTOMATIC) ===\n";
         Queue<Team>* teamsQueue = new Queue<Team>();
+        Player teamPlayers[MAX_TEAMS][MAX_TEAM_SIZE];
+        int teamPlayerCounts[MAX_TEAMS];
+        string teamNames[MAX_TEAMS];
         
-        //organize players
-        Player teamPlayers[8][MAX_TEAM_SIZE]; // 8 teams, 5 players each
-        int teamPlayerCounts[8];
-        string teamNames[8];
-        
-        // Init arrays
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < MAX_TEAMS; i++) {
             teamPlayerCounts[i] = 0;
             teamNames[i] = "";
         }
         
-        // Group players by  ID
-        DoublyNode<Player>* currentPlayer = players->getHead();
+        cout << "Scanning players and organizing into teams...\n";
         
+        // Group by their team ID
+        DoublyNode<Player>* currentPlayer = players->getHead();
         while (currentPlayer != nullptr) {
             Player player = currentPlayer->data;
             
-            // Check player has team ID
+            // has a valid team ID
             if (player.teamID.empty() == false && player.teamID.length() >= 2) {
                 int teamIndex = -1;
                 
-                // Determine team index based on team ID
-                if (player.teamID == "T1") {
-                    teamIndex = 0;
-                } else if (player.teamID == "T2") {
-                    teamIndex = 1;
-                } else if (player.teamID == "T3") {
-                    teamIndex = 2;
-                } else if (player.teamID == "T4") {
-                    teamIndex = 3;
-                } else if (player.teamID == "T5") {
-                    teamIndex = 4;
-                } else if (player.teamID == "T6") {
-                    teamIndex = 5;
-                } else if (player.teamID == "T7") {
-                    teamIndex = 6;
-                } else if (player.teamID == "T8") {
-                    teamIndex = 7;
+                // team num from teamId
+                if (player.teamID[0] == 'T' && player.teamID.length() >= 2) {
+                    string numberPart = player.teamID.substr(1);
+                    
+                    try {
+                        int teamNumber = stoi(numberPart);
+                        if (teamNumber >= 1 && teamNumber <= MAX_TEAMS) {
+                            teamIndex = teamNumber - 1;
+                        }
+                    } catch (const exception& e) {
+                        cout << "Warning: Invalid team ID format: " << player.teamID << "\n";
+                    }
                 }
                 
-                // Add player to team if valid index and space available
-                if (teamIndex >= 0 && teamIndex < 8 && teamPlayerCounts[teamIndex] < MAX_TEAM_SIZE) {
+                // Add player to team
+                if (teamIndex >= 0 && teamIndex < MAX_TEAMS && teamPlayerCounts[teamIndex] < MAX_TEAM_SIZE) {
                     teamPlayers[teamIndex][teamPlayerCounts[teamIndex]] = player;
                     teamPlayerCounts[teamIndex] = teamPlayerCounts[teamIndex] + 1;
                     
-                    // Set team name if not already set
+                    cout << "  Assigned " << player.name << " to team " << player.teamID << "\n";
+                    
+                    // Auto team name gen
                     if (teamNames[teamIndex] == "") {
-                        if (player.university == "APU") {
-                            teamNames[teamIndex] = "APU Dragons";
-                        } else if (player.university == "UM") {
-                            teamNames[teamIndex] = "UM Tigers";
-                        } else if (player.university == "USM") {
-                            teamNames[teamIndex] = "USM Eagles";
-                        } else if (player.university == "MMU") {
-                            teamNames[teamIndex] = "MMU Wolves";
-                        } else if (player.university == "UTAR") {
-                            teamNames[teamIndex] = "UTAR Panthers";
-                        } else if (player.university == "INTI") {
-                            teamNames[teamIndex] = "INTI Sharks";
-                        } else if (player.university == "HELP") {
-                            teamNames[teamIndex] = "HELP Hawks";
-                        } else if (player.university == "TAYLOR") {
-                            teamNames[teamIndex] = "TAYLOR Titans";
-                        } else {
-                            teamNames[teamIndex] = player.university + " Team";
-                        }
+                        teamNames[teamIndex] = generateTeamName(player.university, teamIndex + 1);
                     }
+                } else {
+                    cout << "Warning: Could not assign " << player.name 
+                         << " to team " << player.teamID << " (invalid index or team full)\n";
                 }
+            } else {
+                cout << "Warning: Player " << player.name << " has no valid team ID\n";
             }
             
             currentPlayer = currentPlayer->next;
         }
         
-        // Create complete teams (only teams with exactly 5 players)
+        // Create complete teams
         int teamsCreated = 0;
-        for (int i = 0; i < 8; i++) {
+        cout << "\nCreating complete teams:\n";
+        
+        for (int i = 0; i < MAX_TEAMS; i++) {
             if (teamPlayerCounts[i] == MAX_TEAM_SIZE) {
-                // Create team object
                 Team newTeam("T" + to_string(i + 1), teamNames[i]);
-                
-                cout << "Creating team: " << newTeam.teamName << " (" << newTeam.teamID << ")\n";
+                cout << " Creating team: " << newTeam.teamName << " (" << newTeam.teamID << ")\n";
                 cout << "  Players: ";
                 
-                // Add all players to team
+                //players to team
                 for (int j = 0; j < MAX_TEAM_SIZE; j++) {
                     bool playerAdded = newTeam.addPlayer(teamPlayers[i][j]);
                     if (playerAdded) {
@@ -916,92 +954,106 @@ void loadSampleSpectators(SpectatorManager& manager) {
                 
                 cout << "\n  Average Ranking: " << newTeam.getAverageRanking() << "\n\n";
                 
-                // Add team to queue
+                // Add queue
                 teamsQueue->enqueue(newTeam);
                 teamsCreated++;
-            } else {
+            } else if (teamPlayerCounts[i] > 0) {
                 // Incomplete team
-                if (teamPlayerCounts[i] > 0) {
-                    cout << "Warning: Team " << teamNames[i] << " has only " 
-                         << teamPlayerCounts[i] << " players (need " << MAX_TEAM_SIZE << ")\n";
-                }
+                cout << "  Incomplete team T" << (i + 1) << " (" << teamNames[i] 
+                     << "): has " << teamPlayerCounts[i] << " players (needs " 
+                     << MAX_TEAM_SIZE << ")\n";
             }
         }
         
-        cout << "Team creation completed!\n";
+        cout << "\n=== TEAM CREATION SUMMARY ===\n";
         cout << "Total complete teams created: " << teamsCreated << "\n";
+        cout << "Teams ready for tournament: " << teamsQueue->size() << "\n";
+        
         return teamsQueue;
+    }
+    
+    string generateTeamName(const string& university, int teamNumber) {
+        // Predefined team names for known universities
+        if (university == "APU") {
+            return "APU Dragons";
+        } else if (university == "UM") {
+            return "UM Tigers";
+        } else if (university == "USM") {
+            return "USM Eagles";
+        } else if (university == "MMU") {
+            return "MMU Wolves";
+        } else if (university == "UTAR") {
+            return "UTAR Panthers";
+        } else if (university == "INTI") {
+            return "INTI Sharks";
+        } else if (university == "HELP") {
+            return "HELP Hawks";
+        } else if (university == "TAYLOR") {
+            return "TAYLOR Titans";
+        } else if (university == "UKM") {
+            return "UKM Warriors";
+        } else if (university == "UPM") {
+            return "UPM Leopards";
+        } else if (university == "UTM") {
+            return "UTM Stallions";
+        } else if (university == "UMS") {
+            return "UMS Phoenix";
+        } else if (university == "UNIMAS") {
+            return "UNIMAS Lions";
+        } else if (university == "UITM") {
+            return "UITM Cobras";
+        } else if (university == "UCSI") {
+            return "UCSI Eagles";
+        } else if (university == "SUNWAY") {
+            return "SUNWAY Bears";
+        } else if (university == "MONASH") {
+            return "MONASH Wolves";
+        } else if (university == "CURTIN") {
+            return "CURTIN Sharks";
+        } else if (university == "SEGI") {
+            return "SEGI Panthers";
+        } else if (university == "BINARY") {
+            return "BINARY Hawks";
+        } else {
+            // team name for unknown
+            return university + " Team " + to_string(teamNumber);
+        }
     }
     
 
     void simulateAndLogMatches(Queue<Team>* allTeams) {
         cout << "\n=== SIMULATING & LOGGING DETAILED MATCH RESULTS ===\n";
-        
-        //all matches
         Queue<Match>* allMatches = matchScheduler->getAllMatches();
         
-        // Check matches to simulate
+        // Check if matches to sim
         if (allMatches->isEmpty() == true) {
             cout << "ERROR: No matches to simulate!\n";
             cout << "Please generate matches first using Task 1.\n";
             return;
-        }
-        
-        // temp queue to preserve original matches
+        }    
+        //temp queue
         Queue<Match> tempMatches;
         int matchNumber = 1;
         int matchesLogged = 0;
         
         cout << "Processing matches for logging...\n";
-        
-        // Process
         while (allMatches->isEmpty() == false) {
             Match currentMatch = allMatches->dequeue();
             
-            //log completed matches
+            //log completed
             if (currentMatch.status == "completed") {
-                // Gen  details
+                // Gen match details
                 string matchDate = "2025-01-" + to_string(15 + matchNumber);
                 string matchDuration = to_string(25 + (matchNumber % 20)) + " minutes";
                 
-                // Select MVP player ID based on winning team
-                string mvpPlayerID = "P001"; // Default
-                
-                if (currentMatch.winnerID == "T1") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 1);
-                } else if (currentMatch.winnerID == "T2") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 6);
-                } else if (currentMatch.winnerID == "T3") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 11);
-                } else if (currentMatch.winnerID == "T4") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 16);
-                } else if (currentMatch.winnerID == "T5") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 21);
-                } else if (currentMatch.winnerID == "T6") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 26);
-                } else if (currentMatch.winnerID == "T7") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 31);
-                } else if (currentMatch.winnerID == "T8") {
-                    mvpPlayerID = "P" + to_string((matchNumber % 5) + 36);
-                }
-                
-                // Log
-                resultLogger->logMatchResult(currentMatch, 
-                                           currentMatch.team1Score, 
-                                           currentMatch.team2Score, 
-                                           matchDate, 
-                                           matchDuration, 
-                                           mvpPlayerID, 
-                                           checkedInPlayers, 
-                                           allTeams);
-                
+                //MVP player ID
+                string mvpPlayerID = selectMVPPlayer(currentMatch.winnerID, matchNumber, allTeams);
+                resultLogger->logMatchResult(currentMatch, currentMatch.team1Score, currentMatch.team2Score,  matchDate, matchDuration, mvpPlayerID, checkedInPlayers, allTeams);
                 matchesLogged++;
                 
                 cout << "Logged match " << matchNumber << ": " 
-                     << currentMatch.matchID << "\n";
+                     << currentMatch.matchID << " (MVP: " << mvpPlayerID << ")\n";
             }
-            
-            // Add match back to temporary queue
             tempMatches.enqueue(currentMatch);
             matchNumber++;
         }
@@ -1015,6 +1067,58 @@ void loadSampleSpectators(SpectatorManager& manager) {
         cout << "\nMatch logging completed!\n";
         cout << "Total matches logged: " << matchesLogged << "\n";
     }
+    
+
+    string selectMVPPlayer(const string& winnerTeamID, int matchNumber, Queue<Team>* allTeams) {
+        //get winner
+        DoublyNode<Team>* currentTeam = allTeams->getHead();
+        
+        while (currentTeam != nullptr) {
+            Team team = currentTeam->data;
+            
+            if (team.teamID == winnerTeamID) {
+                //select player
+                if (team.playerCount > 0) {
+                    int mvpIndex = matchNumber % team.playerCount;
+                    return team.players[mvpIndex].playerID;
+                }
+                break;
+            }
+            currentTeam = currentTeam->next;
+        }
+        
+        //Gen MVP ID randopm
+        return generateMVPPlayerID(winnerTeamID, matchNumber);
+    }
+    
+    //gen MVP rando
+    string generateMVPPlayerID(const string& teamID, int matchNumber) {
+        //team ID
+        int teamNumber = 1;
+        if (teamID.length() >= 2 && teamID[0] == 'T') {
+            try {
+                teamNumber = stoi(teamID.substr(1));
+            } catch (const exception& e) {
+                teamNumber = 1;
+            }
+        }
+        
+        //calc player IDs
+        int basePlayerID = ((teamNumber - 1) * MAX_TEAM_SIZE) + 1;
+        // Select one
+        int playerOffset = matchNumber % MAX_TEAM_SIZE; // 0-4
+        int mvpPlayerID = basePlayerID + playerOffset;
+        string mvpID = "P";
+        if (mvpPlayerID < 10) {
+            mvpID += "00" + to_string(mvpPlayerID);
+        } else if (mvpPlayerID < 100) {
+            mvpID += "0" + to_string(mvpPlayerID);
+        } else {
+            mvpID += to_string(mvpPlayerID);
+        } 
+        return mvpID;
+    }
+
     
    
     void showMainMenu() {
@@ -1101,14 +1205,10 @@ void loadSampleSpectators(SpectatorManager& manager) {
    
     void runCompleteTournament() {
         cout << "\n=== RUNNING COMPLETE TOURNAMENT AUTOMATICALLY ===\n";
-        
-        // Check and initialize if needed
         if (tournamentInitialized == false) {
             cout << "Tournament not initialized. Initializing now...\n";
             initializeTournament();
         }
-        
-        // Reset tournament
         cout << "Resetting tournament state...\n";
         matchScheduler->resetTournament();
         
@@ -1124,7 +1224,7 @@ void loadSampleSpectators(SpectatorManager& manager) {
         cout << "\n--- STEP 2: KNOCKOUT STAGE ---\n";
         Queue<Team>* currentRound = qualifierWinners;
         int roundNumber = 1;
-        int maxRounds = 10; // Safety limit
+        int maxRounds = 10;
         
         // Continue unt champion
         while (currentRound->size() > 1 && roundNumber <= maxRounds) {
@@ -1210,7 +1310,7 @@ void loadSampleSpectators(SpectatorManager& manager) {
         cout << "\n--- STEP 3: EXECUTING TASK 4 (LOGGING RESULTS) ---\n";
         simulateAndLogMatches(teamQueue);
         
-        // Display final tournament statistics
+ 
         cout << "\n--- STEP 4: TOURNAMENT SUMMARY ---\n";
         resultLogger->displayStatisticsSummary();
         resultLogger->displayTeamStats();
@@ -1236,10 +1336,6 @@ void loadSampleSpectators(SpectatorManager& manager) {
 
 int main() {
     try {
-        cout << "=== STARTING TOURNAMENT SYSTEM ===\n";
-        cout << "Asia Pacific University Esports Championship Management System\n";
-        cout << "Loading...\n\n";
-        
         TournamentSystem* tournament = new TournamentSystem();
         
         tournament->showMainMenu();

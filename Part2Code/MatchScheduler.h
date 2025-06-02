@@ -20,10 +20,10 @@ using namespace std;
 
 class MatchScheduler {
 private:
-    Queue<Match>* pendingMatches;        // Queue pending matches
-    Stack<Match>* knockoutBracket;       // Stack fknockout matches
-    TournamentGraph* bracketGraph;       // Graph tournament structure
-    TournamentTraversal* traversal;      // For DFS and BFS traversal
+    Queue<Match>* pendingMatches;        // Queue pending
+    Stack<Match>* knockoutBracket;       
+    TournamentGraph* bracketGraph;       //tournament structure
+    TournamentTraversal* traversal;      // For DFS and BFS 
     
     // Counter variables
     int matchCounter;                    //gen unique match ID
@@ -38,7 +38,7 @@ private:
 public:
     MatchScheduler() {
         matchCounter = 1;                //match numbering from 1
-        graphIndex = 0;                  //graph index from 0
+        graphIndex = 0;                 
         csvInitialized = false;          
         isSystemReady = true;            
         totalMatchesGenerated = 0;       
@@ -53,19 +53,6 @@ public:
         cout << "MatchScheduler initialized successfully.\n";
     }
     
-    // Destructor - clean up memory
-    ~MatchScheduler() {
-        delete pendingMatches;
-        delete knockoutBracket;
-        delete bracketGraph;
-        delete traversal;
-        
-        // Set pointers to null for safety
-        pendingMatches = nullptr;
-        knockoutBracket = nullptr;
-        bracketGraph = nullptr;
-        traversal = nullptr;
-    }
     
     //initialize CSV file
     void initializeMatchCSV() {
@@ -107,33 +94,29 @@ public:
             tempTeams.enqueue(team);
         }
         
-        // Generate matches
+        // Gen matches
         int matchesCreated = 0;
         while (tempTeams.size() >= 2) {
             Team team1 = tempTeams.dequeue();
             Team team2 = tempTeams.dequeue();
             
-            // Restore teams to original queue
             teams->enqueue(team1);
             teams->enqueue(team2);
-
             //unique match ID
             string matchID = "Q" + to_string(matchCounter);
             matchCounter = matchCounter + 1; 
             
             Match newMatch(matchID, team1.teamID, team2.teamID, "qualifier", "round-1");
             newMatch.graphIndex = graphIndex;
-
             // Add to graph
             bracketGraph->setMatchName(graphIndex, matchID);
             if (bracketGraph->numMatches < (graphIndex + 1)) {
                 bracketGraph->numMatches = graphIndex + 1;
             }
-
             // Add match
             pendingMatches->enqueue(newMatch);
 
-            cout << "✓ Created match " << matchID << " (Graph Index: " << graphIndex << "):\n";
+            cout << " Created match " << matchID << " (Graph Index: " << graphIndex << "):\n";
             cout << "  Team 1: " << team1.teamName << " (Avg Rank: " << team1.getAverageRanking() << ")\n";
             cout << "  Team 2: " << team2.teamName << " (Avg Rank: " << team2.getAverageRanking() << ")\n";
             cout << "\n";
@@ -160,19 +143,16 @@ public:
     void generateMatchScores(Match& match, int& score1, int& score2) {
         simulationCounter++;
         
-        int baseRandom = simulationCounter * 7919; // Large prime number
-        baseRandom += matchCounter * 4567;         // Another prime
-        baseRandom += graphIndex * 2347;           // Another prime
-        
-        // Add team ID variations
+        int baseRandom = simulationCounter * 7919; 
+        baseRandom += matchCounter * 4567;        
+        baseRandom += graphIndex * 2347;       
+        // ad Id
         for (int i = 0; i < match.team1ID.length(); i++) {
             baseRandom += match.team1ID[i] * (i + 17);
         }
         for (int i = 0; i < match.team2ID.length(); i++) {
             baseRandom += match.team2ID[i] * (i + 29);
         }
-        
-        // Create final random value
         int randomValue = baseRandom % 10000;
         
         //winner determ
@@ -204,7 +184,7 @@ public:
         //      << ", Scores: " << score1 << "-" << score2 << "\n";
     }
     
-    // find team by ID in queue
+    // find team by ID
     bool findTeam(Queue<Team>* allTeams, const string& teamID, Team& foundTeam) {
         // head 
         DoublyNode<Team>* currentNode = allTeams->getHead();
@@ -215,11 +195,11 @@ public:
             
             // Check if match
             if (currentTeam.teamID == teamID) {
-                foundTeam = currentTeam; // Copy team data
+                foundTeam = currentTeam;
                 return true; // Team found
             }
-            
-            currentNode = currentNode->next; // next node
+        
+            currentNode = currentNode->next; // next
         }
         
         return false;
@@ -234,7 +214,7 @@ public:
         bool team1Found = findTeam(allTeams, match.team1ID, team1);
         bool team2Found = findTeam(allTeams, match.team2ID, team2);
         
-        // Check both teams found
+        // Check both teams
         if (team1Found == false || team2Found == false) {
             cout << "WARNING: Could not find teams for match " << match.matchID << "\n";
             if (team1Found == false) {
@@ -293,14 +273,12 @@ public:
         return true; 
     }
     
-    // Main func to sim matches
+
     Queue<Team>* simulateMatches(Queue<Team>* allTeams) {
         cout << "\n=== SIMULATING TEAM MATCHES WITH SCORE SYSTEM ===\n";
-        
-        //queue to store winners
+        //queue store winners
         Queue<Team>* winners = new Queue<Team>();
 
-        // Check matches to simulate
         if (pendingMatches->isEmpty() == true) {
             cout << "No matches available to simulate!\n";
             return winners;
@@ -434,7 +412,7 @@ public:
         
         Queue<Team>* knockoutWinners = new Queue<Team>();
         
-        // Check knockout matches to sim
+
         if (knockoutBracket->isEmpty() == true) {
             cout << "No knockout matches available to simulate!\n";
             return knockoutWinners;
@@ -469,7 +447,7 @@ public:
             tempStack.push(knockoutMatch);
         }
         
-        // Restore knockout bracket
+        // Restore
         while (tempStack.isEmpty() == false) {
             Match match = tempStack.pop();
             knockoutBracket->push(match);
@@ -483,30 +461,25 @@ public:
         return knockoutWinners;
     }
     
-    // Main wrapper function to generate knockout bracket
+    //wrapper gene knockout bracket
     void generateKnockoutBracket(Queue<Team>* qualifiedTeams) {
-        // Call the detailed knockout generation function
         generateKnockoutMatches(qualifiedTeams, "knockout");
     }
     
-    // Function to display tournament bracket structure and traversal algorithms
+
     void displayBracketTraversal() {
         cout << "\n=== TOURNAMENT BRACKET TRAVERSAL ALGORITHMS ===\n";
         
-        // Check if there are matches in the bracket
+        // Check
         if (bracketGraph->numMatches > 0) {
             cout << "Tournament bracket contains " << bracketGraph->numMatches << " matches.\n";
-            
             //bracket structure
             bracketGraph->printTournamentBracket();
-            
             //DFS 
             cout << "\n--- GRAPH TRAVERSAL ALGORITHMS ---\n";
             traversal->DFS(0);
-            
             //BFS
             traversal->BFS(0);
-            
             cout << "\nBracket traversal completed.\n";
         } else {
             cout << "=== NO TOURNAMENT BRACKET TO TRAVERSE ===\n";
@@ -515,12 +488,11 @@ public:
         }
     }
     
-    // retrieve matches
+    // retr matches
     Queue<Match>* getAllMatches() {
         return pendingMatches;
     }
-    
-    //retrieve knockout bracket
+    // knockout bracket
     Stack<Match>* getKnockoutBracket() {
         return knockoutBracket;
     }
