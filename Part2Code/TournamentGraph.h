@@ -80,7 +80,7 @@ class TournamentTraversal {
 private:
     TournamentGraph* graph;
     
-    struct SimpleStack {
+    struct SimpStack {
         int data[MAX_NODES];
         int top = -1;
         
@@ -102,7 +102,7 @@ private:
         }
     };
     
-    struct SimpleQueue {
+    struct SimpQueue {
         int data[MAX_NODES];
         int front = 0;
         int rear = 0;
@@ -130,7 +130,7 @@ public:
     
     void DFS(int start) {
         bool visited[MAX_NODES] = {false};
-        SimpleStack stack;
+        SimpStack stack;
         stack.push(start);
         
         cout << "\nDFS Tournament Bracket Traversal starting from match " << start << ": ";
@@ -154,7 +154,7 @@ public:
     
     void BFS(int start) {
         bool visited[MAX_NODES] = {false};
-        SimpleQueue queue;
+        SimpQueue queue;
         queue.enqueue(start);
         visited[start] = true;
         
@@ -178,4 +178,4 @@ public:
     }
 };
 
-#endif // TOURNAMENT_GRAPH_H
+#endif
