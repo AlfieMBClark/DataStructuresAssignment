@@ -9,7 +9,6 @@
 
 using namespace std;
 
-// Forward declarations to avoid circular dependencies
 class Match;
 class Player;
 class Team;
@@ -30,14 +29,13 @@ public:
             return;
         }
         
-        // Write CSV header
         file << "PlayerID,Name,Ranking,RegistrationType,CheckedIn,University,TeamID,Status\n";
         
-        // Create temporary queue to preserve original queue
+        //temporary q
         Queue<Player> tempQueue;
         int playerCount = 0;
         
-        // Process all players
+        // Process
         while (!players->isEmpty()) {
             Player player = players->dequeue();
             file << player.toString() << "\n";
@@ -45,7 +43,7 @@ public:
             playerCount++;
         }
         
-        // Restore original queue
+        // Restore
         while (!tempQueue.isEmpty()) {
             players->enqueue(tempQueue.dequeue());
         }
@@ -54,7 +52,6 @@ public:
         cout << "Successfully exported " << playerCount << " players to " << filename << endl;
     }
     
-    // Initialize matches CSV file with header
     static void initializeMatchesCSV(const string& filename = "matches.csv") {
         ofstream file(filename);
         if (!file.is_open()) {
@@ -62,16 +59,15 @@ public:
             return;
         }
         
-        // Write header
+        // header
         file << "MatchID,Team1ID,Team2ID,Stage,Status,WinnerID,Round,Team1Score,Team2Score\n";
         file.close();
         matchesHeaderWritten = true;
         cout << "Initialized matches CSV file: " << filename << endl;
     }
     
-    // Save single match result immediately after completion
+    // Save result
     static void saveMatchResult(const Match& match, const string& filename = "matches.csv") {
-        // Initialize file if header hasn't been written
         if (!matchesHeaderWritten) {
             initializeMatchesCSV(filename);
         }
@@ -82,16 +78,8 @@ public:
             return;
         }
         
-        // Write match data manually to avoid toString() dependency issues
-        file << match.matchID << ","
-             << match.team1ID << ","
-             << match.team2ID << ","
-             << match.stage << ","
-             << match.status << ","
-             << match.winnerID << ","
-             << match.round << ","
-             << match.team1Score << ","
-             << match.team2Score << "\n";
+        // Write
+        file << match.matchID << ","<< match.team1ID << ","<< match.team2ID << ","<< match.stage << ","<< match.status << "," << match.winnerID << ","<< match.round << ","<< match.team1Score << ","<< match.team2Score << "\n";
         
         file.close();
         
@@ -105,7 +93,7 @@ public:
             return;
         }
         
-        // Updated header to include scores
+        //header
         file << "MatchID,Team1ID,Team2ID,Stage,Status,WinnerID,Round,Team1Score,Team2Score\n";
         
         Queue<Match> tempQueue;
@@ -114,16 +102,8 @@ public:
         while (!matches->isEmpty()) {
             Match match = matches->dequeue();
             
-            // Write match data manually instead of using toString()
-            file << match.matchID << ","
-                 << match.team1ID << ","
-                 << match.team2ID << ","
-                 << match.stage << ","
-                 << match.status << ","
-                 << match.winnerID << ","
-                 << match.round << ","
-                 << match.team1Score << ","
-                 << match.team2Score << "\n";
+            // Write 
+            file << match.matchID << ","<< match.team1ID << ","<< match.team2ID << ","<< match.stage << ","<< match.status << ","<< match.winnerID << ","<< match.round << ","<< match.team1Score << ","<< match.team2Score << "\n";
             
             tempQueue.enqueue(match);
             matchCount++;
@@ -166,7 +146,6 @@ public:
         cout << "Successfully exported " << teamCount << " teams to " << filename << endl;
     }
     
-    // Additional utility function to export all data at once
     static void exportAllData(Queue<Player>* players, Queue<Match>* matches, Queue<Team>* teams) {
         cout << "\n=== EXPORTING ALL TOURNAMENT DATA TO CSV ===\n";
         writePlayersToCSV("players.csv", players);
@@ -175,7 +154,6 @@ public:
         cout << "All tournament data exported successfully!\n";
     }
     
-    // Export match results summary with scores
     static void writeMatchSummaryCSV(const string& filename, Queue<Match>* matches) {
         ofstream file(filename);
         if (!file.is_open()) {
@@ -203,7 +181,7 @@ public:
             tempQueue.enqueue(match);
         }
         
-        // Restore queue
+        // Restore
         while (!tempQueue.isEmpty()) {
             matches->enqueue(tempQueue.dequeue());
         }
@@ -213,7 +191,7 @@ public:
     }
 };
 
-// Initialize static member
+
 bool CSVHandler::matchesHeaderWritten = false;
 
-#endif // CSV_HANDLER_H
+#endif

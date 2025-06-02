@@ -69,7 +69,6 @@ public:
         status = "active";
     }
 
-    // Add player to team
     bool addPlayer(const Player& player) {
         if (playerCount < MAX_TEAM_SIZE) {
             players[playerCount] = player;
@@ -79,7 +78,7 @@ public:
         return false;
     }
 
-    // Calculate average ranking
+    //average ranking
     double getAverageRanking() const {
         if (playerCount == 0) return 0.0;
         int total = 0;
@@ -115,8 +114,8 @@ public:
     string winnerID;
     string round;
     int graphIndex;
-    int team1Score;  // Added missing score fields
-    int team2Score;  // Added missing score fields
+    int team1Score; 
+    int team2Score;
 
     Match() : graphIndex(-1), team1Score(0), team2Score(0) {}
 
@@ -124,7 +123,6 @@ public:
         : matchID(id), team1ID(t1), team2ID(t2), stage(stg), status("pending"), 
           round(rnd), graphIndex(-1), team1Score(0), team2Score(0) {}
 
-    // Added missing setScores method
     void setScores(int score1, int score2) {
         team1Score = score1;
         team2Score = score2;
@@ -154,7 +152,6 @@ private:
     string ticketType;
 
 public:
-    // Default constructor
     Spectator()
       : spectatorID(""),
         name(""),
@@ -177,7 +174,7 @@ public:
         name(spectatorName),
         email(mail),
         spectatorType(type),
-        priority(1),          // will be overwritten by setPriorityByType()
+        priority(1),       
         seatNumber(""),
         checkedIn(false),
         university(uni),
@@ -400,5 +397,5 @@ public:
     }
 };
 
-#endif // ENTITIES_H
+#endif
 
