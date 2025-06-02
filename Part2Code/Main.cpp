@@ -113,7 +113,7 @@ public:
 
     // ===== UPDATED FUNCTIONS FOR 20-TEAM SUPPORT =====
 
-// 1. Updated initializeTournament() function
+
 void initializeTournament() {
     if (tournamentInitialized == true) {
         cout << "Tournament already initialized!\n";
