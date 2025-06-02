@@ -1032,7 +1032,7 @@ void loadSampleSpectators(SpectatorManager& manager) {
             return;
         }
         
-        // SAFETY: Get total match count first to prevent infinite loops
+        // total match count
         int totalMatches = allMatches->size();
         cout << "Processing " << totalMatches << " matches for logging...\n";
         
@@ -1041,11 +1041,10 @@ void loadSampleSpectators(SpectatorManager& manager) {
             return;
         }
         
-        // SAFETY: Use array instead of queue operations to avoid hanging
-        Match matchArray[50]; // Safe array size
+        Match matchArray[50]; 
         int matchCount = 0;
         
-        // Extract all matches to array first
+        // Extract
         while (!allMatches->isEmpty() && matchCount < 50) {
             matchArray[matchCount] = allMatches->dequeue();
             matchCount++;
@@ -1053,53 +1052,43 @@ void loadSampleSpectators(SpectatorManager& manager) {
         
         cout << "Extracted " << matchCount << " matches for processing.\n";
         
-        // Process each match safely
+        // Process
         int matchesLogged = 0;
         for (int i = 0; i < matchCount; i++) {
             Match currentMatch = matchArray[i];
             
             cout << "Processing match " << (i + 1) << ": " << currentMatch.matchID << "\n";
             
-            // Only log completed matches
+            //log completed
             if (currentMatch.status == "completed") {
                 try {
-                    // Generate match details
+                    // Gen match details
                     string matchDate = "2025-01-" + to_string(15 + (i + 1));
                     string matchDuration = to_string(25 + ((i + 1) % 20)) + " minutes";
                     
-                    // Select MVP player ID (SAFER VERSION)
+                    // Select MVP player ID
                     string mvpPlayerID = generateMVPPlayerID(currentMatch.winnerID, i + 1);
                     
-                    // Log the match result
-                    resultLogger->logMatchResult(
-                        currentMatch, 
-                        currentMatch.team1Score, 
-                        currentMatch.team2Score,  
-                        matchDate, 
-                        matchDuration, 
-                        mvpPlayerID, 
-                        checkedInPlayers, 
-                        allTeams
-                    );
+                    // Log 
+                    resultLogger->logMatchResult(currentMatch, currentMatch.team1Score, currentMatch.team2Score,  matchDate,  matchDuration, mvpPlayerID, checkedInPlayers, allTeams);
                     
                     matchesLogged++;
                     cout << "Logged match " << (i + 1) << ": " << currentMatch.matchID << " (MVP: " << mvpPlayerID << ")\n";
                     
                 } catch (const exception& e) {
                     cout << "Error logging match " << currentMatch.matchID << ": " << e.what() << "\n";
-                    continue; // Skip this match and continue
+                    continue; 
                 }
             } else {
                 cout << "Skipping match " << currentMatch.matchID << " (status: " << currentMatch.status << ")\n";
             }
             
-            // SAFETY: Add small delay to prevent overwhelming output
             if (i % 3 == 2) {
                 cout << "--- Processed " << (i + 1) << " matches so far ---\n";
             }
         }
         
-        // Restore matches to queue
+        // Restore matches
         for (int i = 0; i < matchCount; i++) {
             allMatches->enqueue(matchArray[i]);
         }
