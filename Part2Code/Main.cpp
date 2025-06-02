@@ -1120,9 +1120,8 @@ void loadSampleSpectators(SpectatorManager& manager) {
             
             cout << "================================================================\n";
             cout << "MENU OPTIONS:\n";
-            cout << "0. Initialize Tournament (Run this first!)\n";
             cout << "1. TASK 1: Match Scheduling & Player Progression\n";
-            cout << "2. TASK 2: Tournament Registration & Player Queueing\n";
+            cout << "2. TASK 2: Tournament Registration & Player Queueing [RUN FIRST]\n";
             cout << "3. TASK 3: Live Stream & Spectator Queue Management\n";
             cout << "4. TASK 4: Game Result Logging & Performance History\n";
             cout << "5. Export All Data to CSV Files\n";
